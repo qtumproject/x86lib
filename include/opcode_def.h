@@ -273,83 +273,83 @@ void op32_push_imm32();
 
 
 /**Group Include Functions(not direct opcodes)**/
-void op16_sub_rm8_imm8(ModRM16&); //group 0x80 /5
-void op16_sub_rm16_imm16(ModRM16&);
-void op16_add_rm8_imm8(ModRM16&);
-void op16_add_rm16_imm16(ModRM16&);
-void op16_cmp_rm8_imm8(ModRM16&); //Tested, pass #1
-void op16_cmp_rm16_imm16(ModRM16&);
-void op16_sub_rm16_imm8(ModRM16&);
-void op16_add_rm16_imm8(ModRM16&);
-void op16_cmp_rm16_imm8(ModRM16&); //Tested, pass #1
-void op16_jmp_rm16(ModRM16&); //Tested, pass #1
-void op16_jmp_m16_m16(ModRM16&); //Tested, pass #1
-void op16_push_m16(ModRM16&);
-void op16_pop_m16(ModRM16&);
-void op16_inc_rm8(ModRM16&);
-void op16_inc_rm16(ModRM16&);
-void op16_dec_rm8(ModRM16&);
-void op16_dec_rm16(ModRM16&);
-void op16_div_rm8(ModRM16 &rm);//Tested, pass #1
-void op16_div_rm16(ModRM16 &rm);//Tested, pass #1
-void op16_idiv_rm8(ModRM16 &rm);//Tested, pass #1
-void op16_idiv_rm16(ModRM16 &rm);//Tested, pass #1
-void op16_mul_rm8(ModRM16 &rm);//Tested, pass #1
-void op16_mul_rm16(ModRM16 &rm);//Tested, pass #1
-void op16_imul_rm8(ModRM16 &rm);
-void op16_imul_rm16(ModRM16 &rm);
-void op16_and_rm8_imm8(ModRM16 &rm);
-void op16_and_rm16_imm16(ModRM16 &rm);
-void op16_and_rm16_imm8(ModRM16 &rm);
-void op16_or_rm8_imm8(ModRM16& rm);
-void op16_or_rm16_imm16(ModRM16 &rm);
-void op16_or_rm16_imm8(ModRM16 &rm);
-void op16_adc_rm8_imm8(ModRM16&);
-void op16_adc_rm16_imm16(ModRM16&);
-void op16_adc_rm16_imm8(ModRM16&);
-void op16_neg_rm16(ModRM16&);
-void op16_neg_rm8(ModRM16&);
-void op16_xor_rm8_imm8(ModRM16& rm);
-void op16_xor_rm16_imm16(ModRM16 &rm);
-void op16_xor_rm16_imm8(ModRM16 &rm);
-void op16_sbb_rm8_imm8(ModRM16 &rm);
-void op16_sbb_rm16_imm16(ModRM16 &rm);
-void op16_sbb_rm16_imm8(ModRM16 &rm);
-void op16_test_rm8_imm8(ModRM16 &rm);
-void op16_test_rm16_imm16(ModRM16 &rm);
-void op16_test_rm16_imm8(ModRM16 &rm); /**This needs to be added**/
-void op16_shr_rm8_cl(ModRM16 &rm);
-void op16_shr_rm16_cl(ModRM16 &rm);
-void op16_sar_rm8_cl(ModRM16 &rm);
-void op16_sar_rm16_cl(ModRM16 &rm);
-void op16_shl_rm8_cl(ModRM16 &rm);
-void op16_shl_rm16_cl(ModRM16 &rm);
-void op16_rol_rm8_cl(ModRM16 &rm);
-void op16_rol_rm16_cl(ModRM16 &rm);
-void op16_ror_rm8_cl(ModRM16 &rm);
-void op16_ror_rm16_cl(ModRM16 &rm);
-void op16_rcl_rm8_cl(ModRM16 &rm);
-void op16_rcl_rm16_cl(ModRM16 &rm);
-void op16_rcr_rm8_cl(ModRM16 &rm);
-void op16_rcr_rm16_cl(ModRM16 &rm);
-void op16_shr_rm8_1(ModRM16 &rm);
-void op16_shr_rm16_1(ModRM16 &rm);
-void op16_sar_rm8_1(ModRM16 &rm);
-void op16_sar_rm16_1(ModRM16 &rm);
-void op16_shl_rm8_1(ModRM16 &rm);
-void op16_shl_rm16_1(ModRM16 &rm);
-void op16_rol_rm8_1(ModRM16 &rm);
-void op16_rol_rm16_1(ModRM16 &rm);
-void op16_ror_rm8_1(ModRM16 &rm);
-void op16_ror_rm16_1(ModRM16 &rm);
-void op16_rcl_rm8_1(ModRM16 &rm);
-void op16_rcl_rm16_1(ModRM16 &rm);
-void op16_rcr_rm8_1(ModRM16 &rm);
-void op16_rcr_rm16_1(ModRM16 &rm);
-void op16_not_rm8(ModRM16 &rm);
-void op16_not_rm16(ModRM16 &rm);
-void op16_call_rm16(ModRM16 &rm);
-void op16_call_rm16_rm16(ModRM16 &rm);
+void op16_sub_rm8_imm8(ModRM&); //group 0x80 /5
+void op16_sub_rm16_imm16(ModRM&);
+void op16_add_rm8_imm8(ModRM&);
+void op16_add_rm16_imm16(ModRM&);
+void op16_cmp_rm8_imm8(ModRM&); //Tested, pass #1
+void op16_cmp_rm16_imm16(ModRM&);
+void op16_sub_rm16_imm8(ModRM&);
+void op16_add_rm16_imm8(ModRM&);
+void op16_cmp_rm16_imm8(ModRM&); //Tested, pass #1
+void op16_jmp_rm16(ModRM&); //Tested, pass #1
+void op16_jmp_m16_m16(ModRM&); //Tested, pass #1
+void op16_push_m16(ModRM&);
+void op16_pop_m16(ModRM&);
+void op16_inc_rm8(ModRM&);
+void op16_inc_rm16(ModRM&);
+void op16_dec_rm8(ModRM&);
+void op16_dec_rm16(ModRM&);
+void op16_div_rm8(ModRM &rm);//Tested, pass #1
+void op16_div_rm16(ModRM &rm);//Tested, pass #1
+void op16_idiv_rm8(ModRM &rm);//Tested, pass #1
+void op16_idiv_rm16(ModRM &rm);//Tested, pass #1
+void op16_mul_rm8(ModRM &rm);//Tested, pass #1
+void op16_mul_rm16(ModRM &rm);//Tested, pass #1
+void op16_imul_rm8(ModRM &rm);
+void op16_imul_rm16(ModRM &rm);
+void op16_and_rm8_imm8(ModRM &rm);
+void op16_and_rm16_imm16(ModRM &rm);
+void op16_and_rm16_imm8(ModRM &rm);
+void op16_or_rm8_imm8(ModRM& rm);
+void op16_or_rm16_imm16(ModRM &rm);
+void op16_or_rm16_imm8(ModRM &rm);
+void op16_adc_rm8_imm8(ModRM&);
+void op16_adc_rm16_imm16(ModRM&);
+void op16_adc_rm16_imm8(ModRM&);
+void op16_neg_rm16(ModRM&);
+void op16_neg_rm8(ModRM&);
+void op16_xor_rm8_imm8(ModRM& rm);
+void op16_xor_rm16_imm16(ModRM &rm);
+void op16_xor_rm16_imm8(ModRM &rm);
+void op16_sbb_rm8_imm8(ModRM &rm);
+void op16_sbb_rm16_imm16(ModRM &rm);
+void op16_sbb_rm16_imm8(ModRM &rm);
+void op16_test_rm8_imm8(ModRM &rm);
+void op16_test_rm16_imm16(ModRM &rm);
+void op16_test_rm16_imm8(ModRM &rm); /**This needs to be added**/
+void op16_shr_rm8_cl(ModRM &rm);
+void op16_shr_rm16_cl(ModRM &rm);
+void op16_sar_rm8_cl(ModRM &rm);
+void op16_sar_rm16_cl(ModRM &rm);
+void op16_shl_rm8_cl(ModRM &rm);
+void op16_shl_rm16_cl(ModRM &rm);
+void op16_rol_rm8_cl(ModRM &rm);
+void op16_rol_rm16_cl(ModRM &rm);
+void op16_ror_rm8_cl(ModRM &rm);
+void op16_ror_rm16_cl(ModRM &rm);
+void op16_rcl_rm8_cl(ModRM &rm);
+void op16_rcl_rm16_cl(ModRM &rm);
+void op16_rcr_rm8_cl(ModRM &rm);
+void op16_rcr_rm16_cl(ModRM &rm);
+void op16_shr_rm8_1(ModRM &rm);
+void op16_shr_rm16_1(ModRM &rm);
+void op16_sar_rm8_1(ModRM &rm);
+void op16_sar_rm16_1(ModRM &rm);
+void op16_shl_rm8_1(ModRM &rm);
+void op16_shl_rm16_1(ModRM &rm);
+void op16_rol_rm8_1(ModRM &rm);
+void op16_rol_rm16_1(ModRM &rm);
+void op16_ror_rm8_1(ModRM &rm);
+void op16_ror_rm16_1(ModRM &rm);
+void op16_rcl_rm8_1(ModRM &rm);
+void op16_rcl_rm16_1(ModRM &rm);
+void op16_rcr_rm8_1(ModRM &rm);
+void op16_rcr_rm16_1(ModRM &rm);
+void op16_not_rm8(ModRM &rm);
+void op16_not_rm16(ModRM &rm);
+void op16_call_rm16(ModRM &rm);
+void op16_call_rm16_rm16(ModRM &rm);
 
 
 

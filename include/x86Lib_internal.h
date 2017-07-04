@@ -244,7 +244,7 @@ static inline uint8_t Resign8(uint8_t val,bool store1){
 
 
 	
-inline uint16_t ModRM16::GetRegD(){ //This returns the register displacement value
+inline uint16_t ModRM::GetRegD(){ //This returns the register displacement value
 	switch(modrm.rm){
 		case 0:
 		return *this_cpu->regs16[BX]+*this_cpu->regs16[SI];
@@ -275,7 +275,7 @@ inline uint16_t ModRM16::GetRegD(){ //This returns the register displacement val
 	return 0;
 }
 
-inline uint32_t ModRM16::GetRegD32(){ //This returns the register displacement value
+inline uint32_t ModRM::GetRegD32(){ //This returns the register displacement value
 	switch(modrm.rm){
 		case 0:
 		return this_cpu->regs32[EAX];
@@ -300,7 +300,7 @@ inline uint32_t ModRM16::GetRegD32(){ //This returns the register displacement v
 	return 0;
 }
 
-inline uint16_t ModRM16::GetDisp(){
+inline uint16_t ModRM::GetDisp(){
 	uint16_t reg;
 	reg=GetRegD();
 	if(modrm.rm==6){ //Don't worry, it's safe...
@@ -334,7 +334,7 @@ inline uint16_t ModRM16::GetDisp(){
 	return 0;
 }
 
-inline uint32_t ModRM16::GetDisp32(){
+inline uint32_t ModRM::GetDisp32(){
 	uint32_t reg;
 	reg=GetRegD32();
 	switch(modrm.mod){
@@ -369,7 +369,7 @@ inline uint32_t ModRM16::GetDisp32(){
 	return 0;
 }
 
-inline uint32_t ModRM16::GetSIBDisp(){
+inline uint32_t ModRM::GetSIBDisp(){
     int32_t regindex=0;
     int32_t regbase=0;
     if(sib.index == 4){
@@ -448,7 +448,7 @@ inline uint32_t ModRM16::GetSIBDisp(){
 }
 
 
-inline ModRM16::ModRM16(x86CPU *this_cpu_){
+inline ModRM::ModRM(x86CPU *this_cpu_){
 	use_ss=0;
 	op_specific=0;
 	this_cpu=this_cpu_;
@@ -457,12 +457,12 @@ inline ModRM16::ModRM16(x86CPU *this_cpu_){
 	*(uint8_t*)&sib=this_cpu->op_cache[1];
 }
 
-inline ModRM16::~ModRM16(){
+inline ModRM::~ModRM(){
 	this_cpu->eip+=GetLength()-1;
 }
 
 //The r suffix means /r, which means for op_specific=1, use general registers
-inline uint8_t ModRM16::ReadByter(){
+inline uint8_t ModRM::ReadByter(){
 	use_ss=0;
 	op_specific=0;
 	uint16_t disp=GetDisp();
@@ -477,7 +477,7 @@ inline uint8_t ModRM16::ReadByter(){
 	}
 }
 
-inline uint16_t ModRM16::ReadWordr(){
+inline uint16_t ModRM::ReadWordr(){
 	use_ss=0;
 	op_specific=0;
 	uint16_t disp=GetDisp();
@@ -493,7 +493,7 @@ inline uint16_t ModRM16::ReadWordr(){
 		}
 	}
 }
-inline uint32_t ModRM16::ReadDword(){
+inline uint32_t ModRM::ReadDword(){
 	use_ss=0;
 	op_specific=0;
 	uint16_t disp=GetDisp();
@@ -512,7 +512,7 @@ inline uint32_t ModRM16::ReadDword(){
 	}
 }
 
-inline void ModRM16::WriteByter(uint8_t byte){
+inline void ModRM::WriteByter(uint8_t byte){
 	use_ss=0;
 	op_specific=0;
 	uint16_t disp=GetDisp();
@@ -527,7 +527,7 @@ inline void ModRM16::WriteByter(uint8_t byte){
 		}
 	}
 }
-inline void ModRM16::WriteWordr(uint16_t word){
+inline void ModRM::WriteWordr(uint16_t word){
 	use_ss=0;
 	op_specific=0;
 	uint16_t disp=GetDisp();
@@ -542,7 +542,7 @@ inline void ModRM16::WriteWordr(uint16_t word){
 		}
 	}
 }
-inline void ModRM16::WriteDword(uint32_t dword){
+inline void ModRM::WriteDword(uint32_t dword){
 	use_ss=0;
 	op_specific=0;
 	uint16_t disp=GetDisp();
@@ -559,7 +559,7 @@ inline void ModRM16::WriteDword(uint32_t dword){
 	}
 }
 
-inline uint8_t ModRM16::GetLength(){ //This returns how many total bytes the modrm block consumes
+inline uint8_t ModRM::GetLength(){ //This returns how many total bytes the modrm block consumes
     if(this_cpu->In32BitMode()){
         if((modrm.mod==0) && (modrm.rm==5)){
             return 5;
@@ -605,11 +605,11 @@ inline uint8_t ModRM16::GetLength(){ //This returns how many total bytes the mod
 	return 1; //should never reach here, but to avoid warnings...
 
 } //that was easier than I first thought it would be...
-inline uint8_t ModRM16::GetExtra(){ //Get the extra fied from mod_rm
+inline uint8_t ModRM::GetExtra(){ //Get the extra fied from mod_rm
 	return modrm.extra;
 }
 
-inline uint16_t ModRM16::ReadOffset(){ //This is only used by LEA. It will obtain the offset and not dereference it...
+inline uint16_t ModRM::ReadOffset(){ //This is only used by LEA. It will obtain the offset and not dereference it...
 	use_ss=0;
 	op_specific=0;
 	uint16_t disp=GetDisp();

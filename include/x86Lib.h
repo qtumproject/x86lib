@@ -288,7 +288,7 @@ typedef struct{
 //Also, eip should be on the modrm byte!
 //On return, it is on the last byte of the modrm block, so no advancement needed unelss there is an immediate
 //Also, this will advance EIP upon exiting the opcode(deconstruction)
-class ModRM16{ //This is the best thing I have ever done...
+class ModRM{ //This is the best thing I have ever done...
 	//I love this class so much...am I cheating on her? lol
 	protected:
 	bool use_ss;
@@ -304,8 +304,8 @@ class ModRM16{ //This is the best thing I have ever done...
     inline uint32_t GetSIBDisp();
 	public:
 
-	inline ModRM16(x86CPU* this_cpu_);
-	inline ~ModRM16();
+	inline ModRM(x86CPU* this_cpu_);
+	inline ~ModRM();
 	//The r suffix means /r, which means for op_specific=1, use general registers
 	inline uint8_t ReadByter();
 	inline uint16_t ReadWordr();
@@ -324,7 +324,7 @@ class ModRM16{ //This is the best thing I have ever done...
 	and has many functions. It completely emulates the x86 line of CPUs
 */
 class x86CPU{
-	friend class ModRM16;
+	friend class ModRM;
 	volatile uint32_t regs32[8];
 	volatile uint16_t *regs16[8];
 	volatile uint8_t *regs8[8];

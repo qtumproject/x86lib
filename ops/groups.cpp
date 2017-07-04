@@ -34,7 +34,7 @@ using namespace std;
 
 void x86CPU::op16_group_80(){
 	eip++;
-	ModRM16 rm(this);
+	ModRM rm(this);
 	switch(rm.GetExtra()){
 		case 5:
 		op16_sub_rm8_imm8(rm);
@@ -72,7 +72,7 @@ void x86CPU::op16_group_80(){
 
 void x86CPU::op16_group_81(){
 	eip++;
-	ModRM16 rm(this);
+	ModRM rm(this);
 	switch(rm.GetExtra()){
 		case 5:
 		op16_sub_rm16_imm16(rm);
@@ -109,7 +109,7 @@ void x86CPU::op16_group_81(){
 
 void x86CPU::op16_group_83(){
 	eip++;
-	ModRM16 rm(this);
+	ModRM rm(this);
 	switch(rm.GetExtra()){
 		case 0:
 		op16_add_rm16_imm8(rm);
@@ -146,7 +146,7 @@ void x86CPU::op16_group_83(){
 
 void x86CPU::op16_group_8F(){
 	eip++;
-	ModRM16 rm(this);
+	ModRM rm(this);
 	switch(rm.GetExtra()){
 		case 0:
 		op16_pop_m16(rm);
@@ -161,7 +161,7 @@ void x86CPU::op16_group_8F(){
 
 void x86CPU::op16_group_F6(){
 	eip++;
-	ModRM16 rm(this);
+	ModRM rm(this);
 	switch(rm.GetExtra()){
 		case 6:
 		op16_div_rm8(rm);
@@ -195,7 +195,7 @@ void x86CPU::op16_group_F6(){
 
 void x86CPU::op16_group_F7(){
 	eip++;
-	ModRM16 rm(this);
+	ModRM rm(this);
 	switch(rm.GetExtra()){
 		case 6:
 		op16_div_rm16(rm);
@@ -230,7 +230,7 @@ void x86CPU::op16_group_F7(){
 
 void x86CPU::op16_group_FF(){
 	eip++;
-	ModRM16 rm(this);
+	ModRM rm(this);
 	switch(rm.GetExtra()){
 		case 4:
 		op16_jmp_rm16(rm);
@@ -263,7 +263,7 @@ void x86CPU::op16_group_FF(){
 
 void x86CPU::op16_group_FE(){
 	eip++;
-	ModRM16 rm(this);
+	ModRM rm(this);
 	switch(rm.GetExtra()){
 		case 0:
 		op16_inc_rm8(rm);
@@ -281,7 +281,7 @@ void x86CPU::op16_group_FE(){
 
 void x86CPU::op16_group_D0(){
 	eip++;
-	ModRM16 rm(this);
+	ModRM rm(this);
 	switch(rm.GetExtra()){
 		case 7:
 		op16_sar_rm8_1(rm);
@@ -313,7 +313,7 @@ void x86CPU::op16_group_D0(){
 
 void x86CPU::op16_group_D1(){
 	eip++;
-	ModRM16 rm(this);
+	ModRM rm(this);
 	switch(rm.GetExtra()){
 		case 7:
 		op16_sar_rm16_1(rm);
@@ -347,7 +347,7 @@ void x86CPU::op16_group_D1(){
 
 void x86CPU::op16_group_D2(){
 	eip++;
-	ModRM16 rm(this);
+	ModRM rm(this);
 	switch(rm.GetExtra()){
 		case 7:
 		op16_sar_rm8_cl(rm);
@@ -381,7 +381,7 @@ void x86CPU::op16_group_D2(){
 
 void x86CPU::op16_group_D3(){
 	eip++;
-	ModRM16 rm(this);
+	ModRM rm(this);
 	switch(rm.GetExtra()){
 		case 7:
 		op16_sar_rm16_cl(rm);

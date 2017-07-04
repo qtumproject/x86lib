@@ -64,13 +64,13 @@ void x86CPU::op16_mov_rm16_sr(){ //0x8C
 
 void x86CPU::op16_mov_r16_rm16(){
 	eip++;
-	ModRM16 rm16(this);
+	ModRM rm16(this);
 	*regs16[rm16.GetExtra()]=rm16.ReadWordr();
 }
 
 void x86CPU::op16_mov_rm16_r16(){
 	eip++;
-	ModRM16 rm16(this);
+	ModRM rm16(this);
 	rm16.WriteWordr(*regs16[rm16.GetExtra()]);
 }
 
@@ -87,13 +87,13 @@ void x86CPU::op16_mov_ax_off16(){
 
 void x86CPU::op16_mov_rm8_r8(){
 	eip++;
-	ModRM16 rm(this);
+	ModRM rm(this);
 	rm.WriteByter(*regs8[rm.GetExtra()]);
 }
 
 void x86CPU::op16_mov_r8_rm8(){
 	eip++;
-	ModRM16 rm(this);
+	ModRM rm(this);
 	*regs8[rm.GetExtra()]=rm.ReadByter();
 }
 void x86CPU::op16_mov_off8_al(){
@@ -109,7 +109,7 @@ void x86CPU::op16_mov_off16_ax(){
 
 void x86CPU::op16_mov_m8_imm8(){
 	eip++;
-	ModRM16 rm(this);
+	ModRM rm(this);
 	
 	//eventually fix this so that if r is used, then invalid opcode...
 	rm.WriteByter(ReadByte(cCS,eip+rm.GetLength()));
@@ -118,7 +118,7 @@ void x86CPU::op16_mov_m8_imm8(){
 
 void x86CPU::op16_mov_m16_imm16(){
 	eip++;
-	ModRM16 rm(this);
+	ModRM rm(this);
 	rm.WriteWordr(ReadWord(cCS,eip+rm.GetLength()));
 	eip++;
 	eip++;
@@ -126,7 +126,7 @@ void x86CPU::op16_mov_m16_imm16(){
 
 void x86CPU::op16_lds(){
 	eip++;
-	ModRM16 rm(this);
+	ModRM rm(this);
 	uint32_t tmp=rm.ReadDword();
 	seg[cDS]=(tmp&0xFFFF0000)>>16;
 	*regs16[rm.GetExtra()]=(tmp&0xFFFF);
@@ -134,7 +134,7 @@ void x86CPU::op16_lds(){
 
 void x86CPU::op16_les(){
 	eip++;
-	ModRM16 rm(this);
+	ModRM rm(this);
 	uint32_t tmp=rm.ReadDword();
 	seg[cES]=(tmp&0xFFFF0000)>>16;
 	*regs16[rm.GetExtra()]=(tmp&0xFFFF);
@@ -142,7 +142,7 @@ void x86CPU::op16_les(){
 
 void x86CPU::op16_lea(){ //wtf is the point of this instruction! why not just mov reg,immediate! seriously frikkin crazy designers of x86
 	eip++;
-	ModRM16 rm(this);
+	ModRM rm(this);
 	*regs16[rm.GetExtra()]=rm.ReadOffset();
 }
 
@@ -152,7 +152,7 @@ void x86CPU::op16_push_imm8(){
 	eip++;
 	Push16(op_cache[1]);
 }
-void x86CPU::op16_push_m16(ModRM16 &rm){
+void x86CPU::op16_push_m16(ModRM &rm){
 	Push16(rm.ReadWordr());
 }
 
@@ -194,7 +194,7 @@ void x86CPU::op16_push_ss(){
 
 
 
-void x86CPU::op16_pop_m16(ModRM16 &rm){
+void x86CPU::op16_pop_m16(ModRM &rm){
 	rm.WriteWordr(Pop16());
 }
 
@@ -268,7 +268,7 @@ void x86CPU::op16_xchg_rm8_r8(){
 	#endif
 	Lock();
 	eip++;
-	ModRM16 rm(this);
+	ModRM rm(this);
 	uint8_t tmp=*regs8[rm.GetExtra()];
 	*regs8[rm.GetExtra()]=rm.ReadByter();
 	rm.WriteByter(tmp);
@@ -283,7 +283,7 @@ void x86CPU::op16_xchg_rm16_r16(){
 	#endif
 	Lock();
 	eip++;
-	ModRM16 rm(this);
+	ModRM rm(this);
 	uint16_t tmp=*regs16[rm.GetExtra()];
 	*regs16[rm.GetExtra()]=rm.ReadWordr();
 	rm.WriteWordr(tmp);

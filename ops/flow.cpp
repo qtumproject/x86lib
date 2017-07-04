@@ -57,12 +57,12 @@ void x86CPU::op16_jmp_imm16_imm16(){ //far jmp
 	eip--; //eip will be incremented in Cycle
 }
 
-void x86CPU::op16_jmp_rm16(ModRM16 &rm){
+void x86CPU::op16_jmp_rm16(ModRM &rm){
 	eip=rm.ReadWordr(); //absolute address...
 	eip--;
 }
 
-void x86CPU::op16_jmp_m16_m16(ModRM16 &rm){
+void x86CPU::op16_jmp_m16_m16(ModRM &rm){
 	*(uint32_t*)&op_cache=rm.ReadDword(); //quicker to use op_cache, than dynamic variables...
 	seg[cCS]=*(uint16_t*)&op_cache[2];
 	eip=*(uint16_t*)&op_cache[0];
@@ -155,13 +155,13 @@ void x86CPU::op16_into(){
 		Int16(4);
 	}
 }
-void x86CPU::op16_call_rm16(ModRM16 &rm){ //far call
+void x86CPU::op16_call_rm16(ModRM &rm){ //far call
 	Push16(eip+rm.GetLength()+1);
 	eip=rm.ReadWordr();
 	eip--; //eip will be incremented in Cycle
 }
 
-void x86CPU::op16_call_rm16_rm16(ModRM16 &rm){ //far call
+void x86CPU::op16_call_rm16_rm16(ModRM &rm){ //far call
 	Push16(seg[cCS]);
 	Push16(eip+rm.GetLength()+1);
 	*(uint32_t*)&op_cache=ReadDword(DS,rm.ReadDword());
