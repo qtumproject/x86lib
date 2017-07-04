@@ -60,28 +60,28 @@ void x86CPU::Init(){
 
 void x86CPU::Reset(){
 	/**Initialize register pointers**/
-	regs16[0]=&((volatile uint16_t*)reg32)[0];
-	regs16[1]=&((volatile uint16_t*)reg32)[2];
-	regs16[2]=&((volatile uint16_t*)reg32)[4];
-	regs16[3]=&((volatile uint16_t*)reg32)[6];
-	regs16[4]=&((volatile uint16_t*)reg32)[8];
-	regs16[5]=&((volatile uint16_t*)reg32)[10];
-	regs16[6]=&((volatile uint16_t*)reg32)[12];
-	regs16[7]=&((volatile uint16_t*)reg32)[14];
-	regs8[0]=&((volatile uint8_t*)reg32)[0];
-	regs8[1]=&((volatile uint8_t*)reg32)[4];
-	regs8[2]=&((volatile uint8_t*)reg32)[8];
-	regs8[3]=&((volatile uint8_t*)reg32)[12], //now do all the highs
-	regs8[4]=&((volatile uint8_t*)reg32)[1];
-	regs8[5]=&((volatile uint8_t*)reg32)[5];
-	regs8[6]=&((volatile uint8_t*)reg32)[9];
-	regs8[7]=&((volatile uint8_t*)reg32)[13];
+	regs16[0]=&((volatile uint16_t*)regs32)[0];
+	regs16[1]=&((volatile uint16_t*)regs32)[2];
+	regs16[2]=&((volatile uint16_t*)regs32)[4];
+	regs16[3]=&((volatile uint16_t*)regs32)[6];
+	regs16[4]=&((volatile uint16_t*)regs32)[8];
+	regs16[5]=&((volatile uint16_t*)regs32)[10];
+	regs16[6]=&((volatile uint16_t*)regs32)[12];
+	regs16[7]=&((volatile uint16_t*)regs32)[14];
+	regs8[0]=&((volatile uint8_t*)regs32)[0];
+	regs8[1]=&((volatile uint8_t*)regs32)[4];
+	regs8[2]=&((volatile uint8_t*)regs32)[8];
+	regs8[3]=&((volatile uint8_t*)regs32)[12], //now do all the highs
+	regs8[4]=&((volatile uint8_t*)regs32)[1];
+	regs8[5]=&((volatile uint8_t*)regs32)[5];
+	regs8[6]=&((volatile uint8_t*)regs32)[9];
+	regs8[7]=&((volatile uint8_t*)regs32)[13];
 	busmaster=0;
 	//assumes pmem and ports are still the same...
 	InitOpcodes();
 	uint32_t i;
 	for(i=0;i<8;i++){
-		reg32[i]=0;
+		regs32[i]=0;
 	}
 	for(i=0;i<7;i++){
 		seg[i]=0;
@@ -100,7 +100,7 @@ void x86CPU::Reset(){
 void x86CPU::SaveState(x86SaveData *save){
 	uint32_t i;
 	for(i=0;i<8;i++){
-		save->reg32[i]=reg32[i];
+		save->reg32[i]=regs32[i];
 	}
 	for(i=0;i<7;i++){
 		save->seg[i]=seg[i];
@@ -126,7 +126,7 @@ void x86CPU::LoadState(x86SaveData &load){
 	cpu_level=load.cpu_level;
 	Reset();
 	for(i=0;i<8;i++){
-		reg32[i]=load.reg32[i];
+		regs32[i]=load.reg32[i];
 	}
 	for(i=0;i<7;i++){
 		seg[i]=load.seg[i];
@@ -150,14 +150,14 @@ void x86CPU::LoadState(x86SaveData &load){
 
 
 void x86CPU::DumpState(ostream &output){
-	output << "EAX: "<< hex << reg32[EAX] <<endl;
-	output << "ECX: "<< hex << reg32[ECX] <<endl;
-	output << "EDX: "<< hex << reg32[EDX] <<endl;
-	output << "EBX: "<< hex << reg32[EBX] <<endl;
-	output << "ESP: "<< hex << reg32[ESP] <<endl;
-	output << "EBP: "<< hex << reg32[EBP] <<endl;
-	output << "ESI: "<< hex << reg32[ESI] <<endl;
-	output << "EDI: "<< hex << reg32[EDI] <<endl;
+	output << "EAX: "<< hex << regs32[EAX] <<endl;
+	output << "ECX: "<< hex << regs32[ECX] <<endl;
+	output << "EDX: "<< hex << regs32[EDX] <<endl;
+	output << "EBX: "<< hex << regs32[EBX] <<endl;
+	output << "ESP: "<< hex << regs32[ESP] <<endl;
+	output << "EBP: "<< hex << regs32[EBP] <<endl;
+	output << "ESI: "<< hex << regs32[ESI] <<endl;
+	output << "EDI: "<< hex << regs32[EDI] <<endl;
 
 	output << "CS: " << hex << seg[cCS] << endl;
 	output << "SS: " << hex << seg[cSS] << endl;
@@ -474,7 +474,20 @@ void x86CPU::InitOpcodes(){
 	InstallOp(0xAA,&x86CPU::op16_stosb);
 	InstallOp(0xAB,&x86CPU::op16_stosw);
 
-
+    Opcodes=opcodes_32bit;
+    for(i=0;i<256;i++){
+        InstallOp(i,&x86CPU::op16_unknown);
+    }
+    for(i=0;i<=7;i++){
+        InstallOp(0xB0+i,&x86CPU::op16_mov_r8_imm8);
+        InstallOp(0x58+i,&x86CPU::op32_pop_r32);
+        InstallOp(0x50+i,&x86CPU::op32_push_r32);
+        InstallOp(0x40+i,&x86CPU::op16_inc_r16);
+        InstallOp(0x48+i,&x86CPU::op16_dec_r16);
+        InstallOp(0xD8+i,&x86CPU::op16_escape);
+        InstallOp(0x90+i,&x86CPU::op16_xchg_ax_r16);
+        InstallOp(0xB8+i,&x86CPU::op16_mov_r16_imm16);
+    }
 
 }
 

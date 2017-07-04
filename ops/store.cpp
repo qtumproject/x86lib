@@ -170,6 +170,10 @@ void x86CPU::op16_push_r16(){ //0x50+reg
 	Push16(*regs16[op_cache[0]-0x50]);
 }
 
+void x86CPU::op32_push_r32(){ //0x50+reg
+    Push32(regs32[op_cache[0]-0x50]);
+}
+
 void x86CPU::op16_push_es(){
 	Push16(seg[ES]);
 }
@@ -197,6 +201,9 @@ void x86CPU::op16_pop_r16(){ //0x58+reg
 	*regs16[op_cache[0]-0x58]=Pop16();
 }
 
+void x86CPU::op32_pop_r32(){ //0x58+reg
+    regs32[op_cache[0]-0x58]=Pop32();
+}
 
 void x86CPU::op16_pop_es(){
 	seg[ES]=Pop16();

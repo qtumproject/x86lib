@@ -314,7 +314,7 @@ class ModRM16{ //This is the best thing I have ever done...
 */
 class x86CPU{
 	friend class ModRM16;
-	volatile uint32_t reg32[8];
+	volatile uint32_t regs32[8];
 	volatile uint16_t *regs16[8];
 	volatile uint8_t *regs8[8];
 	volatile uint16_t seg[7];
@@ -344,6 +344,7 @@ class x86CPU{
 	*/
 	void Cycle();
 	opcode opcodes_16bit[256];
+    opcode opcodes_32bit[256];
 	opcode *Opcodes;
 	
 	/*!

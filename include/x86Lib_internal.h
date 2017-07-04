@@ -28,6 +28,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 This file is part of the x86Lib project.
 **/
 
+#include <stdint.h>
 
 #ifndef X86LIB_INTERNAL_H
 #define X86LIB_INTERNAL_H

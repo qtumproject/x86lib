@@ -33,6 +33,7 @@ This file is part of the x86Lib project.
 /**NOTE! this is included INSIDE of a class, so this file is somewhat limited...**/
 uint8_t Add8(uint8_t,uint8_t);
 uint16_t Add16(uint16_t,uint16_t);
+uint32_t Add32(uint32_t,uint32_t);
 uint8_t Sub8(uint8_t,uint8_t);
 uint16_t Sub16(uint16_t,uint16_t);
 uint8_t And8(uint8_t,uint8_t);
@@ -252,6 +253,12 @@ void op16_out_dx_al();
 void op16_out_dx_ax();
 
 
+//32bit
+
+
+void op32_pop_r32();
+void op32_push_r32();
+void op32_inc_r32();
 
 
 //Oh God how I hate prototyping and adding the opcodes to the master InstallOp list...
@@ -351,6 +358,16 @@ uint16_t Pop16(){
 	return tmp;
 }
 
+void Push32(uint32_t val){
+    regs32[ESP]-=2;
+    WriteDword(cSS,regs32[ESP],val);
+}
+uint32_t Pop32(){
+    uint32_t register tmp;
+    tmp=ReadWord(cSS,regs32[ESP]);
+    regs32[ESP]+=2;
+    return tmp;
+}
 
 inline void SetIndex8(){ //this just makes my code look better...
 	if(freg.df==0){
@@ -372,6 +389,15 @@ inline void SetIndex16(){
 	}
 }
 
+inline void SetIndex32(){
+    if(freg.df==0){
+        (regs32[ESI])+=4;
+        (regs32[EDI])+=4;
+    }else{
+        (regs32[ESI])-=4;
+        (regs32[EDI])-=4;
+    }
+}
 inline void CalculatePF8(uint8_t val){
     unsigned int i;
     unsigned int count=0;
@@ -414,6 +440,36 @@ inline void CalculatePF16(uint16_t val){
     #endif
 }
 
+inline void CalculatePF32(uint32_t val){
+#ifndef USE_NATIVE
+    unsigned int i;
+    unsigned int count=0;
+    for(i=0;i<=31;i++){
+        /* TODO (Jordan#4#): speed this up! */
+        if((val&((1<<i)))!=0){count++;}
+    }
+    if((count%2)==0){freg.pf=1;}else{freg.pf=0;}
+#else
+#error "not yet supported"
+    //x86 ASM optimization..
+    __asm(".intel_syntax noprefix\n"
+    "cmp WORD PTR [ebp-10],0\n"
+    "jp .yes__\n"
+    ".att_syntax\n");
+    val=0;
+	__asm(".intel_syntax noprefix\n"
+	"jmp .end__\n"
+    ".local .yes__:\n"
+    ".att_syntax\n");
+    val=1;
+    __asm(".intel_syntax noprefix\n"
+    ".local .end__:\n"
+    ".att_syntax\n");
+    freg.pf=val;
+    return;
+#endif
+}
+
 //these calculate SF for the given operand size
 inline void CalculateSF8(uint8_t val){
     if((val&0x80)==0){freg.sf=0;}else{freg.sf=1;}
@@ -423,18 +479,27 @@ inline void CalculateSF16(uint16_t val){
     if((val&0x8000)==0){freg.sf=0;}else{freg.sf=1;}
 }
 
+inline void CalculateSF32(uint32_t val){
+    if((val&0x80000000)==0){freg.sf=0;}else{freg.sf=1;}
+}
 
 
+void Jmp32_near32(uint32_t off){
+    //I thought there would be a good way to do this, but I suppose this works..
+    if((off&0x80000000)==0){ //if unsigned
+        eip=eip+off;
+    }else{
+        eip=eip-((uint16_t)-off);
+    }
+}
 
 void Jmp16_near16(uint16_t off){
-
 	//I thought there would be a good way to do this, but I suppose this works..
 	if((off&0x8000)==0){ //if unsigned
 		eip=eip+off;
 	}else{
 		eip=eip-((uint16_t)-off);
 	}
-
 }
 
 void Jmp16_near8(uint8_t off){
@@ -445,7 +510,6 @@ void Jmp16_near8(uint8_t off){
 		eip=eip-((uint8_t)-off);
 	}
 	//eip++;
-
 }
 
 void Int16(uint8_t num){

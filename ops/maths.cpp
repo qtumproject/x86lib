@@ -109,6 +109,23 @@ uint16_t x86CPU::Add16(uint16_t base,uint16_t adder){
     return result;
 }
 
+uint32_t x86CPU::Add32(uint32_t base,uint32_t adder){
+    int32_t result;
+    result=(int32_t)(base+adder);
+    if(result < (int32_t)(adder+base)){freg.cf=1;}else{freg.cf=0;}
+    if(result >INT32_MAX || result < INT32_MIN){
+        freg.of=1;
+    }else{
+        freg.of=0;
+    }
+    if(result==0){freg.zf=1;}else{freg.zf=0;}
+    CalculatePF32(result); //do pf
+    CalculateSF32(result); //do sf
+    base&=0x0F;
+    adder&=0x0F;
+    freg.af = result > 15;
+    return result;
+}
 
 
 
@@ -714,6 +731,12 @@ void x86CPU::op16_inc_r16(){ //0x40+r
 	freg.r0=freg.cf;
 	*regs16[(op_cache[0]-0x40)]=Add16(*regs16[(op_cache[0]-0x40)],1);
 	freg.cf=freg.r0;
+}
+
+void x86CPU::op32_inc_r32(){ //0x40+r
+    freg.r0=freg.cf;
+    regs32[(op_cache[0]-0x40)]=Add32(regs32[(op_cache[0]-0x40)],1);
+    freg.cf=freg.r0;
 }
 
 void x86CPU::op16_inc_rm8(ModRM16 &rm){
