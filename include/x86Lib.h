@@ -276,7 +276,7 @@ typedef struct{
      unsigned char extra:3;
      unsigned char mod:2;
 }
-__attribute__((packed))mod_rm16; //this struct is a described mod r/m byte..
+__attribute__((packed))mod_rm; //this struct is a described mod r/m byte..
 
 typedef struct{
     unsigned char ss:2;
@@ -295,7 +295,7 @@ class ModRM{ //This is the best thing I have ever done...
 	bool op_specific;
 	x86CPU *this_cpu;
 	private:
-	mod_rm16 modrm;
+	mod_rm modrm;
     scaleindex sib;
 	inline uint16_t GetRegD(); //This returns the register displacement value
     inline uint32_t GetRegD32(); //This returns the register displacement value
