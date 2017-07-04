@@ -356,9 +356,9 @@ inline uint32_t ModRM16::GetDisp32(){
 		case 2: //dword displacement(signed)
 		if(modrm.rm == 4){
 		    //make sure to use eip+2 here to account for SIB
-            return (int32_t)GetSIBDisp() + this_cpu->ReadDword(this_cpu->CS, this_cpu->eip + 2);
+            return (int32_t)GetSIBDisp() + (int32_t)this_cpu->ReadDword(this_cpu->CS, this_cpu->eip + 2);
 		}else{
-            return (int32_t)reg + this_cpu->ReadDword(this_cpu->CS, this_cpu->eip + 1);
+            return (int32_t)reg + (int32_t)this_cpu->ReadDword(this_cpu->CS, this_cpu->eip + 1);
 		}
 		break;
 		case 3: //opcode specific...
@@ -370,8 +370,8 @@ inline uint32_t ModRM16::GetDisp32(){
 }
 
 inline uint32_t ModRM16::GetSIBDisp(){
-    uint32_t regindex=0;
-    uint32_t regbase=0;
+    int32_t regindex=0;
+    int32_t regbase=0;
     if(sib.index == 4){
         regindex=0;
     }
