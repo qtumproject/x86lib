@@ -313,9 +313,16 @@ class ModRM{ //This is the best thing I have ever done...
 	inline void WriteByter(uint8_t byte);
 	inline void WriteWordr(uint16_t word);
 	inline void WriteDword(uint32_t dword);
+    inline uint8_t ReadByter32();
+    inline uint16_t ReadWordr32();
+    inline uint32_t ReadDword32();
+    inline void WriteByter32(uint8_t byte);
+    inline void WriteWordr32(uint16_t word);
+    inline void WriteDword32(uint32_t dword);
 	inline uint8_t GetLength(); //This returns how many total bytes the modrm block consumes
 	inline uint8_t GetExtra(); //Get the extra fied from mod_rm
 	inline uint16_t ReadOffset(); //This is only used by LEA. It will obtain the offset and not dereference it...
+    inline uint32_t ReadOffset32(); //This is only used by LEA. It will obtain the offset and not dereference it...
 
 }; //I hope that SIB and ModR/M32 will be this good!
 

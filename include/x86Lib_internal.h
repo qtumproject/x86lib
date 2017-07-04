@@ -463,6 +463,9 @@ inline ModRM::~ModRM(){
 
 //The r suffix means /r, which means for op_specific=1, use general registers
 inline uint8_t ModRM::ReadByter(){
+    if(this_cpu->In32BitMode()){
+        return ReadByter32();
+    }
 	use_ss=0;
 	op_specific=0;
 	uint16_t disp=GetDisp();
@@ -478,6 +481,9 @@ inline uint8_t ModRM::ReadByter(){
 }
 
 inline uint16_t ModRM::ReadWordr(){
+    if(this_cpu->In32BitMode()){
+        return ReadWordr32();
+    }
 	use_ss=0;
 	op_specific=0;
 	uint16_t disp=GetDisp();
@@ -494,6 +500,9 @@ inline uint16_t ModRM::ReadWordr(){
 	}
 }
 inline uint32_t ModRM::ReadDword(){
+    if(this_cpu->In32BitMode()){
+        return ReadDword32();
+    }
 	use_ss=0;
 	op_specific=0;
 	uint16_t disp=GetDisp();
@@ -513,6 +522,9 @@ inline uint32_t ModRM::ReadDword(){
 }
 
 inline void ModRM::WriteByter(uint8_t byte){
+    if(this_cpu->In32BitMode()){
+        return WriteByter32(byte);
+    }
 	use_ss=0;
 	op_specific=0;
 	uint16_t disp=GetDisp();
@@ -528,6 +540,9 @@ inline void ModRM::WriteByter(uint8_t byte){
 	}
 }
 inline void ModRM::WriteWordr(uint16_t word){
+    if(this_cpu->In32BitMode()){
+        return WriteWordr32(word);
+    }
 	use_ss=0;
 	op_specific=0;
 	uint16_t disp=GetDisp();
@@ -543,6 +558,9 @@ inline void ModRM::WriteWordr(uint16_t word){
 	}
 }
 inline void ModRM::WriteDword(uint32_t dword){
+    if(this_cpu->In32BitMode()){
+        return WriteDword(dword);
+    }
 	use_ss=0;
 	op_specific=0;
 	uint16_t disp=GetDisp();
@@ -556,6 +574,73 @@ inline void ModRM::WriteDword(uint32_t dword){
 		}else{
 			this_cpu->WriteDword(this_cpu->DS,disp,dword);
 		}
+	}
+}
+
+
+
+//The r suffix means /r, which means for op_specific=1, use general registers
+inline uint8_t ModRM::ReadByter32(){
+	use_ss=0;
+	op_specific=0;
+	uint32_t disp=GetDisp32();
+	if(op_specific==1){
+		return *this_cpu->regs8[modrm.rm];
+	}else{
+        return this_cpu->ReadByte(this_cpu->DS,disp);
+	}
+}
+
+inline uint16_t ModRM::ReadWordr32(){
+	use_ss=0;
+	op_specific=0;
+	uint32_t disp=GetDisp32();
+	if(op_specific==1){
+	    //don't think this is actually possible in 32bit mode, but ok
+		return *this_cpu->regs16[modrm.rm];
+	}else{
+        return this_cpu->ReadWord(this_cpu->DS,disp);
+	}
+}
+inline uint32_t ModRM::ReadDword32(){
+	use_ss=0;
+	op_specific=0;
+	uint32_t disp=GetDisp32();
+	if(op_specific==1){
+		return this_cpu->regs32[modrm.rm];
+	}else{
+        return this_cpu->ReadDword(this_cpu->DS,disp);
+	}
+}
+
+inline void ModRM::WriteByter32(uint8_t byte){
+	use_ss=0;
+	op_specific=0;
+	uint32_t disp=GetDisp32();
+	if(op_specific==1){
+		*this_cpu->regs8[modrm.rm]=byte;
+	}else{
+        this_cpu->WriteByte(this_cpu->DS,disp,byte);
+	}
+}
+inline void ModRM::WriteWordr32(uint16_t word){
+	use_ss=0;
+	op_specific=0;
+	uint32_t disp=GetDisp32();
+	if(op_specific==1){
+		*this_cpu->regs16[modrm.rm]=word;
+	}else{
+        this_cpu->WriteWord(this_cpu->DS,disp,word);
+	}
+}
+inline void ModRM::WriteDword32(uint32_t dword){
+	use_ss=0;
+	op_specific=0;
+	uint32_t disp=GetDisp32();
+	if(op_specific==1){
+		this_cpu->regs32[modrm.rm]=dword;
+	}else{
+        this_cpu->WriteDword(this_cpu->DS,disp,dword);
 	}
 }
 
@@ -621,7 +706,19 @@ inline uint16_t ModRM::ReadOffset(){ //This is only used by LEA. It will obtain 
 		return disp;
 	}
 }
-//}
+
+inline uint32_t ModRM::ReadOffset32(){ //This is only used by LEA. It will obtain the offset and not dereference it...
+	use_ss=0;
+	op_specific=0;
+	uint32_t disp=GetDisp32();
+	if(op_specific==1){
+		throw CpuInt_excp(UNK_IEXCP);
+		//We can't return regs16 because it can't get address of a register!
+		//return *regs16[modrm.rm];
+	}else{
+		return disp;
+	}
+}
 
 
 #endif
