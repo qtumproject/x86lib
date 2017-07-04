@@ -1,0 +1,133 @@
+<html>
+<head><title>x86Lib API Version 1.1</title></head>
+<body>
+
+<p>
+Hello. I know this is ugly, but it works I suppose..
+</p>
+<p>
+The new version of the API for x86Lib was brought about due to the realized difficulty in creating memory mapped devices in an easy Object Oriented way. Because of these seen problems, and lower need for emphasis on speed, I have created this new version, 1.1 of the API. Converting code over to the new system is extremely quick to get going, if not trivial. 
+</p>
+<br>
+<h1>Overview</h1>
+<p>
+There are a few new classes added in the new API. There are two virtual classes which is what your port and memory mapped devices will derive from, and there is the two new management classes which manage said devices.
+</p>
+<p>
+To make a new memory mapped device is very simple. Just do something like this:
+<pre>
+<code>
+class MyMemory : MemoryDevice{
+	uint8_t memory[256];
+	public:
+	virtual void Read(uint32_t address,int count,void *buffer){
+		if((address+count)>=256){
+			throw Mem_excp(address);
+		}
+		memcpy(buffer,&memory[address],count);
+	}
+	virtual void Write(uint32_t address,int count,void *buffer){
+		if((address+count)>=256){
+			throw Mem_excp(address);
+		}
+		memcpy(&memory[address],buffer,count);
+	}
+	virtual inline ~MyMemory(){}
+};
+</code>
+</pre>
+<p>
+Much much simpler compared to my old way of doing it. I won't make a PortDevice as it is almost the exact same a MemoryDevice except for it's actual behavior.
+</p>
+<p>
+Now. There are some additional things you must do in order to create a CPU also. Here is a small example snipplet.
+</p>
+<pre>
+<code>
+x86CPU cpu;
+MemorySystem mem;
+PortSystem ports;
+MyMemory memdevice;
+MyPorts portdevice;
+cpu.Memory=&mem;
+cpu.Ports=&ports;
+//This says memdevice will handle memory from address 0 to address 255.(including 255)
+mem.Add(0,255,(MemoryDevice*)&memdevice);
+//This says portdevice will handle ports 0 through 10(including 10).
+ports.a=/add(0,10,(PortDevice*)&portdevice);
+//...
+for(;;){cpu.Cycle();}
+
+</code>
+</pre>
+<p>
+As you can see it's very powerful, yet very simple.
+</p>
+<p>
+Also, when dealing with multiple CPUs, they can(and are intended) to all share the same MemorySystem instance. The MemorySystem class implements such things as locking which is needed when multiple processors are in use.
+</p>
+<p>
+For reference, here is a copy of the class definition of all the new classes.
+</p>
+<pre>
+<code>
+class MemoryDevice{
+	public:
+	virtual void Read(uint32_t address,int count,void *buffer)=0;
+	virtual void Write(uint32_t address,int count,void *data)=0;
+	virtual int Readable(uint32_t address,int count){
+		return 1;
+		//This is optional. It is currently not used in the CPU code
+	}
+	virtual int Writeable(uint32_t address,int count){
+		return 1;
+		//This is optional. It is currently not used in the CPU code
+	}
+	virtual inline ~MemoryDevice()=0;
+};
+
+inline MemoryDevice::~MemoryDevice(){}
+
+
+class PortDevice{
+	public:
+	virtual void Read(uint16_t address,int count,void *buffer)=0;
+	virtual void Write(uint16_t address,int count,void *data)=0;
+	virtual inline ~PortDevice()=0;
+};
+
+inline PortDevice::~PortDevice(){}
+
+class MemorySystem{
+	//MemoryRange *list;
+	DeviceRange_t *list;
+	int count;
+	public:
+	MemorySystem();
+	void Add(uint32_t low,uint32_t high,MemoryDevice *memdev);
+	void Remove(uint32_t low,uint32_t high);
+	void Remove(MemoryDevice *memdev);
+	void Read(uint32_t address,int count,void *buffer);
+	void Write(uint32_t address,int count,void *data);
+	int RangeFree(uint32_t low,uint32_t high);
+};
+
+class PortSystem{
+	DeviceRange_t *list;
+	int count;
+	public:
+	PortSystem();
+	void Add(uint16_t low,uint16_t high,PortDevice *portdev);
+	void Remove(uint16_t low,uint16_t high);
+	void Remove(PortDevice *portdev);
+	void Read(uint16_t address,int count,void *buffer);
+	void Write(uint16_t address,int count,void *data);
+	int RangeFree(uint32_t low,uint32_t high);
+};
+</code>
+</pre>
+<p>
+Thank you for reading over this document and looking at the new API!
+</p>
+</body>
+</html>
