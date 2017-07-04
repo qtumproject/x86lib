@@ -73,6 +73,27 @@ uint16_t x86CPU::Sub16(uint16_t base,uint16_t subt){
     return mirror;
 }
 
+uint32_t x86CPU::Sub32(uint32_t base,uint32_t subt){
+    int32_t result;
+    uint32_t mirror;
+    int64_t result64 = (int64_t) base - (int64_t) subt;
+    mirror=base-subt;
+    result=mirror;
+    if(subt>base){freg.cf=1;}else{freg.cf=0;}
+    if(result64 > INT32_MAX || result64 < INT32_MIN){
+        freg.of=1;
+    }else{
+        freg.of=0;
+    }
+    if(result==0){freg.zf=1;}else{freg.zf=0;}
+    CalculatePF32(result); //do pf
+    CalculateSF32(result); //do sf
+    base&=0xF;
+    subt&=0xF;
+    freg.af = (((base-subt) & ~0xf) != 0);
+    return mirror;
+}
+
 uint8_t x86CPU::Add8(uint8_t base,uint8_t adder){
     int8_t result;
     if(adder+base>255){freg.cf=1;}else{freg.cf=0;}
@@ -112,8 +133,9 @@ uint16_t x86CPU::Add16(uint16_t base,uint16_t adder){
 uint32_t x86CPU::Add32(uint32_t base,uint32_t adder){
     int32_t result;
     result=(int32_t)(base+adder);
+    int64_t result64 = (int64_t) base + (int64_t) adder;
     if(result < (int32_t)(adder+base)){freg.cf=1;}else{freg.cf=0;}
-    if(result >INT32_MAX || result < INT32_MIN){
+    if(result64 > INT32_MAX || result64 < INT32_MIN){
         freg.of=1;
     }else{
         freg.of=0;
@@ -558,6 +580,12 @@ void x86CPU::op16_dec_r16(){ //0x48+r
 	freg.r0=freg.cf;
 	*regs16[(op_cache[0]-0x48)]=Sub16(*regs16[(op_cache[0]-0x48)],1);
 	freg.cf=freg.r0;
+}
+
+void x86CPU::op32_dec_r32(){ //0x48+r
+    freg.r0=freg.cf;
+    regs32[(op_cache[0]-0x48)]=Sub32(regs32[(op_cache[0]-0x48)],1);
+    freg.cf=freg.r0;
 }
 
 void x86CPU::op16_dec_rm8(ModRM16& rm){

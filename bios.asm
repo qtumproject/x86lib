@@ -26,8 +26,11 @@
 
 ;This file is part of the x86Lib project.
 
-org 0
+BITS 32
 
+org 0
+mov al, 'x'
+out 0, al
 
 CLD							;Clears direction flag, causes STOSW to increment
 		CLI							;Disable interupts		

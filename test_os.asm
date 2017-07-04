@@ -26,6 +26,7 @@
 
 ;This file is part of the x86Lib project.
 
+BITS 32
 
 start:
 org 0x7c00

@@ -36,6 +36,7 @@ uint16_t Add16(uint16_t,uint16_t);
 uint32_t Add32(uint32_t,uint32_t);
 uint8_t Sub8(uint8_t,uint8_t);
 uint16_t Sub16(uint16_t,uint16_t);
+uint32_t Sub32(uint32_t,uint32_t);
 uint8_t And8(uint8_t,uint8_t);
 uint16_t And16(uint16_t,uint16_t);
 uint8_t Or8(uint8_t,uint8_t);
@@ -255,10 +256,15 @@ void op16_out_dx_ax();
 
 //32bit
 
+void op32_size16();
 
 void op32_pop_r32();
 void op32_push_r32();
 void op32_inc_r32();
+void op32_xchg_eax_r32();
+void op32_dec_r32();
+void op32_mov_r32_imm32();
+void op32_push_imm32();
 
 
 //Oh God how I hate prototyping and adding the opcodes to the master InstallOp list...
@@ -359,13 +365,13 @@ uint16_t Pop16(){
 }
 
 void Push32(uint32_t val){
-    regs32[ESP]-=2;
+    regs32[ESP]-=4;
     WriteDword(cSS,regs32[ESP],val);
 }
 uint32_t Pop32(){
     uint32_t register tmp;
-    tmp=ReadWord(cSS,regs32[ESP]);
-    regs32[ESP]+=2;
+    tmp=ReadDword(cSS,regs32[ESP]);
+    regs32[ESP]+=4;
     return tmp;
 }
 

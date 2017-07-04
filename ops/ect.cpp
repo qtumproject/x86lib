@@ -196,6 +196,18 @@ void x86CPU::op16_salc(){ //set al on carry
 
 }
 
+//operand size override to 16bit
+void x86CPU::op32_size16(){
+    eip++; //increment past override byte
+    opcode *ops;
+    ops = Opcodes;
+    Opcodes = opcodes_16bit; //must do this so things like ModRM recognizes we are in 16bit mode
+    *(uint32_t*)&op_cache=ReadDword(cCS,eip);
+    (this->*opcodes_16bit[op_cache[0]])();
+    //operate on the this class with the opcode functions in this class
+    eip=eip+1;
+    Opcodes = ops;
+}
 
 
 

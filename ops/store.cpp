@@ -47,20 +47,17 @@ void x86CPU::op16_mov_r16_imm16(){ //0xB8+r
 	eip+=2;
 }
 
+void x86CPU::op32_mov_r32_imm32(){ //0xB8+r
+    regs32[op_cache[0]-0xB8]=ReadDword(cCS, eip + 1);
+    eip+=4;
+}
+
 void x86CPU::op16_mov_sr_rm16(){ //0x8E
-	eip++;
-	ModRM16 rm16(this);
-	if(rm16.GetExtra()==cSS){ //if a mov into SS, then disable interrupts for 1 instruction.
-		cli_count=2;
-		freg._if=0;
-	}
-	seg[rm16.GetExtra()]=rm16.ReadWordr();
+    throw CpuPanic_excp("Unsupported operation (segment register modification)",UNSUPPORTED_EXCP);
 }
 
 void x86CPU::op16_mov_rm16_sr(){ //0x8C
-	eip++;
-	ModRM16 rm16(this);
-	rm16.WriteWordr(seg[rm16.GetExtra()]);
+    throw CpuPanic_excp("Unsupported operation (segment register modification)",UNSUPPORTED_EXCP);
 }
 
 
@@ -164,6 +161,10 @@ void x86CPU::op16_push_imm16(){ //0x68
 	Push16(*(uint16_t*)&op_cache[1]);
 	eip++;
 }
+void x86CPU::op32_push_imm32(){ //0x68
+   Push32(ReadDword(cCS, eip + 1));
+    eip+=4;
+}
 
 
 void x86CPU::op16_push_r16(){ //0x50+reg
@@ -175,20 +176,20 @@ void x86CPU::op32_push_r32(){ //0x50+reg
 }
 
 void x86CPU::op16_push_es(){
-	Push16(seg[ES]);
+    throw CpuPanic_excp("Unsupported operation (segment register modification)",UNSUPPORTED_EXCP);
 }
 
 void x86CPU::op16_push_cs(){
-	Push16(seg[CS]);
+    throw CpuPanic_excp("Unsupported operation (segment register modification)",UNSUPPORTED_EXCP);
 }
 
 void x86CPU::op16_push_ds(){
-	Push16(seg[DS]);
+    throw CpuPanic_excp("Unsupported operation (segment register modification)",UNSUPPORTED_EXCP);
 }
 
 
 void x86CPU::op16_push_ss(){
-	Push16(seg[SS]);
+    throw CpuPanic_excp("Unsupported operation (segment register modification)",UNSUPPORTED_EXCP);
 }
 
 
@@ -206,17 +207,15 @@ void x86CPU::op32_pop_r32(){ //0x58+reg
 }
 
 void x86CPU::op16_pop_es(){
-	seg[ES]=Pop16();
+    throw CpuPanic_excp("Unsupported operation (segment register modification)",UNSUPPORTED_EXCP);
 }
 
 void x86CPU::op16_pop_ss(){
-	cli_count=2;
-	freg._if=0;
-	seg[SS]=Pop16();
+    throw CpuPanic_excp("Unsupported operation (segment register modification)",UNSUPPORTED_EXCP);
 }
 
 void x86CPU::op16_pop_ds(){
-	seg[DS]=Pop16();
+    throw CpuPanic_excp("Unsupported operation (segment register modification)",UNSUPPORTED_EXCP);
 }
 
 
@@ -297,6 +296,11 @@ void x86CPU::op16_xchg_ax_r16(){ //0x90+r
 	*regs16[op_cache[0]-0x90]=tmp;
 }
 
+void x86CPU::op32_xchg_eax_r32(){ //0x90+r
+    uint32_t tmp=regs32[EAX];
+    regs32[EAX]=regs32[op_cache[0]-0x90];
+    regs32[op_cache[0]-0x90]=tmp;
+}
 
 void x86CPU::op16_xlatb(){
 	*regs8[AL]=ReadByte(DS,(*regs16[BX])+(*regs8[AL]));

@@ -105,6 +105,7 @@ typedef void (x86Lib::x86CPU::*opcode)(); /**You have no idea how hard it was to
 
 
 static const uint32_t OPCODE_REAL_16=1;
+static const uint32_t OPCODE_HOSTED_32=2;
 
 
 //CPU Exceptions(interrupt handled)
@@ -126,6 +127,8 @@ static const uint32_t PAGE_FAULT_IEXCP=0xF00E;
 static const uint32_t RESERVED_IEXCP=0xF00F; //Reserved by intel, so internal use?
 static const uint32_t FLOAT_ERROR_IEXCP=0xF010; //Floating Point Error..
 static const uint32_t ALIGN_IEXCP=0xF011; //Alignment Check...
+
+static const uint32_t UNSUPPORTED_EXCP = 0xF0FF; //indicates something unsupported by the emulator
 
 class CpuInt_excp{ //Used internally for handling interrupt exceptions...
 	public:
@@ -272,6 +275,31 @@ inline uint16_t ModRM16::GetRegD(){ //This returns the register displacement val
 	return 0;
 }
 
+inline uint32_t ModRM16::GetRegD32(){ //This returns the register displacement value
+	switch(modrm.rm){
+		case 0:
+		return this_cpu->regs32[EAX];
+		case 1:
+		return this_cpu->regs32[ECX];
+		case 2:
+		return this_cpu->regs32[EDX];
+		case 3:
+		return this_cpu->regs32[EBX];
+		break;
+		case 4:
+		//TODO SIB
+		return 0;
+		break;
+		case 5: //immediate Displacement only, so no register displace..
+		return 0;
+		case 6:
+		return this_cpu->regs32[ESI];
+		case 7:
+		return this_cpu->regs32[EDI];
+	}
+	return 0;
+}
+
 inline uint16_t ModRM16::GetDisp(){
 	uint16_t reg;
 	reg=GetRegD();
@@ -306,6 +334,119 @@ inline uint16_t ModRM16::GetDisp(){
 	return 0;
 }
 
+inline uint32_t ModRM16::GetDisp32(){
+	uint32_t reg;
+	reg=GetRegD32();
+	switch(modrm.mod){
+		case 0: //no displacement
+		if(modrm.rm==5){ //only dword displacement...
+			return this_cpu->ReadDword(this_cpu->CS, this_cpu->eip+1);
+		}else if(modrm.rm == 4){ //if SIB
+            return GetSIBDisp();
+		}
+        return reg;
+		break;
+		case 1: //byte displacement(signed)
+		if(modrm.rm == 4){
+            return GetSIBDisp() + (int32_t)this_cpu->op_cache[2];
+		}else{
+            return (int32_t)reg+(int32_t)this_cpu->op_cache[1];
+		}
+		break;
+		case 2: //dword displacement(signed)
+		if(modrm.rm == 4){
+		    //make sure to use eip+2 here to account for SIB
+            return (int32_t)GetSIBDisp() + this_cpu->ReadDword(this_cpu->CS, this_cpu->eip + 2);
+		}else{
+            return (int32_t)reg + this_cpu->ReadDword(this_cpu->CS, this_cpu->eip + 1);
+		}
+		break;
+		case 3: //opcode specific...
+		op_specific=1;
+		return 0;
+		break;
+	}
+	return 0;
+}
+
+inline uint32_t ModRM16::GetSIBDisp(){
+    uint32_t regindex=0;
+    uint32_t regbase=0;
+    if(sib.index == 4){
+        regindex=0;
+    }
+    int32_t mul=1;
+    switch(sib.ss){
+        case 1: //skip 0
+        mul = 2;
+        break;
+        case 2:
+        mul = 4;
+        break;
+        case 3:
+        mul = 8;
+        break;
+    }
+    switch(sib.index){
+        case 0:
+            regindex = this_cpu->regs32[EAX];
+            break;
+        case 1:
+            regindex = this_cpu->regs32[ECX];
+            break;
+        case 2:
+            regindex = this_cpu->regs32[EDX];
+            break;
+        case 3:
+            regindex = this_cpu->regs32[EBX];
+            break;
+        case 4:
+            regindex = 0;
+            break;
+        case 5:
+            regindex = this_cpu->regs32[EBP];
+            break;
+        case 6:
+            regindex = this_cpu->regs32[ESI];
+            break;
+        case 7:
+            regindex = this_cpu->regs32[EDI];
+            break;
+    }
+
+    switch(sib.base){
+        case 0:
+            regbase = this_cpu->regs32[EAX];
+            break;
+        case 1:
+            regbase = this_cpu->regs32[ECX];
+            break;
+        case 2:
+            regbase = this_cpu->regs32[EDX];
+            break;
+        case 3:
+            regbase = this_cpu->regs32[EBX];
+            break;
+        case 4:
+            regbase = this_cpu->regs32[ESP];
+            break;
+        case 5:
+            if(modrm.mod == 0){
+                regbase = 0;
+            }else{
+                regbase = this_cpu->regs32[EBP];
+            }
+            break;
+        case 6:
+            regbase = this_cpu->regs32[ESI];
+            break;
+        case 7:
+            regbase = this_cpu->regs32[EDI];
+            break;
+    }
+    return regindex * mul + regbase;
+}
+
 
 inline ModRM16::ModRM16(x86CPU *this_cpu_){
 	use_ss=0;
@@ -313,13 +454,11 @@ inline ModRM16::ModRM16(x86CPU *this_cpu_){
 	this_cpu=this_cpu_;
 	*(uint32_t*)&this_cpu->op_cache=this_cpu->ReadDword(cCS,this_cpu->eip);
 	*(uint8_t*)&modrm=this_cpu->op_cache[0];
-	//cout << hex << (int)modrm.rm << endl;
-	//knowing how to do type casting owns!
+	*(uint8_t*)&sib=this_cpu->op_cache[1];
 }
 
 inline ModRM16::~ModRM16(){
 	this_cpu->eip+=GetLength()-1;
-	//eip--;
 }
 
 //The r suffix means /r, which means for op_specific=1, use general registers
@@ -421,24 +560,50 @@ inline void ModRM16::WriteDword(uint32_t dword){
 }
 
 inline uint8_t ModRM16::GetLength(){ //This returns how many total bytes the modrm block consumes
-	if((modrm.mod==0) && (modrm.rm==6)){
-		return 3;
-	}
-	switch(modrm.mod){
-		case 0:
-		return 1;
-		break;
-		case 1:
-		return 2;
-		break;
-		case 2:
-		return 3;
-		break;
-		case 3:
-		return 1;
-		break;
+    if(this_cpu->In32BitMode()){
+        if((modrm.mod==0) && (modrm.rm==5)){
+            return 5;
+        }
+        if(modrm.mod == 3){
+            return 1;
+        }
+        int count=1; //1 for modrm byte
+        if(modrm.rm == 4){
+            count++; //SIB byte
+        }
+        switch(modrm.mod){
+            case 0:
+            count += 0;
+            break;
+            case 1:
+            count += 1;
+            break;
+            case 2:
+            count += 4;
+            break;
+        }
+        return count;
+    }else{
+        if((modrm.mod==0) && (modrm.rm==6)){
+            return 3;
+        }
+        switch(modrm.mod){
+            case 0:
+            return 1;
+            break;
+            case 1:
+            return 2;
+            break;
+            case 2:
+            return 3;
+            break;
+            case 3:
+            return 1;
+            break;
+        }
 	}
 	return 1; //should never reach here, but to avoid warnings...
+
 } //that was easier than I first thought it would be...
 inline uint8_t ModRM16::GetExtra(){ //Get the extra fied from mod_rm
 	return modrm.extra;

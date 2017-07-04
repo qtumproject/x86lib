@@ -278,6 +278,12 @@ typedef struct{
 }
 __attribute__((packed))mod_rm16; //this struct is a described mod r/m byte..
 
+typedef struct{
+    unsigned char ss:2;
+    unsigned char index:3;
+    unsigned char base:3;
+}__attribute__((packed))scaleindex; //this struct is a described SIB scale index byte
+
 //Note, this will re-cache op_cache, so do not use op_cache afterward
 //Also, eip should be on the modrm byte!
 //On return, it is on the last byte of the modrm block, so no advancement needed unelss there is an immediate
@@ -290,8 +296,12 @@ class ModRM16{ //This is the best thing I have ever done...
 	x86CPU *this_cpu;
 	private:
 	mod_rm16 modrm;
+    scaleindex sib;
 	inline uint16_t GetRegD(); //This returns the register displacement value
+    inline uint32_t GetRegD32(); //This returns the register displacement value
 	inline uint16_t GetDisp();
+    inline uint32_t GetDisp32();
+    inline uint32_t GetSIBDisp();
 	public:
 
 	inline ModRM16(x86CPU* this_cpu_);
@@ -308,6 +318,7 @@ class ModRM16{ //This is the best thing I have ever done...
 	inline uint16_t ReadOffset(); //This is only used by LEA. It will obtain the offset and not dereference it...
 
 }; //I hope that SIB and ModR/M32 will be this good!
+
 //!	The main CPU control class
 /*!	This class is the complete CPU. That being said, it is quite big
 	and has many functions. It completely emulates the x86 line of CPUs
@@ -411,6 +422,10 @@ class x86CPU{
 	\return 1 if an interrupt is waiting to be answered by the CPU, else, 0.
 	*/
 	bool IntPending();
+
+    bool In32BitMode(){
+        return Opcodes == opcodes_32bit;
+    }
 	
 	/*End public interface*/
 	#ifdef X86LIB_BUILD
