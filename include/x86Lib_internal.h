@@ -501,7 +501,7 @@ inline uint16_t ModRM::ReadWordr(){
 }
 inline uint32_t ModRM::ReadDword(){
     if(this_cpu->In32BitMode()){
-        return ReadDword32();
+        return ReadDwordr32();
     }
 	use_ss=0;
 	op_specific=0;
@@ -602,7 +602,7 @@ inline uint16_t ModRM::ReadWordr32(){
         return this_cpu->ReadWord(this_cpu->DS,disp);
 	}
 }
-inline uint32_t ModRM::ReadDword32(){
+inline uint32_t ModRM::ReadDwordr32(){
 	use_ss=0;
 	op_specific=0;
 	uint32_t disp=GetDisp32();
@@ -633,7 +633,7 @@ inline void ModRM::WriteWordr32(uint16_t word){
         this_cpu->WriteWord(this_cpu->DS,disp,word);
 	}
 }
-inline void ModRM::WriteDword32(uint32_t dword){
+inline void ModRM::WriteDwordr32(uint32_t dword){
 	use_ss=0;
 	op_specific=0;
 	uint32_t disp=GetDisp32();

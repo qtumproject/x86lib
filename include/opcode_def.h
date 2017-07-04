@@ -265,6 +265,19 @@ void op32_xchg_eax_r32();
 void op32_dec_r32();
 void op32_mov_r32_imm32();
 void op32_push_imm32();
+void op32_mov_rm32_r32();
+void op32_mov_r32_rm32();
+void op32_call_rel32();
+void op32_retn();
+void op32_loop_rel8();
+void op32_sub_eax_imm32();
+void op32_out_imm8_eax();
+void op32_in_eax_imm8();
+void op32_in_eax_dx();
+void op32_out_dx_eax();
+void op32_movsd();
+void op32_movsb();
+void op32_rep();
 
 
 //Oh God how I hate prototyping and adding the opcodes to the master InstallOp list...
@@ -495,7 +508,7 @@ void Jmp32_near32(uint32_t off){
     if((off&0x80000000)==0){ //if unsigned
         eip=eip+off;
     }else{
-        eip=eip-((uint16_t)-off);
+        eip=eip-((uint32_t)-off);
     }
 }
 
@@ -519,16 +532,7 @@ void Jmp16_near8(uint8_t off){
 }
 
 void Int16(uint8_t num){
-	Push16(*(uint16_t*)&freg);
-	freg._if=0;
-	Push16(seg[cCS]);
-	Push16(eip);
-	seg[cIS]=0;
-	eip=ReadWord(cIS,num*4);
-	seg[cCS]=ReadWord(cIS,num*4+2);
-	
-//	cout << "0x" << hex << eip << "0x" << seg[cCS] << endl;
-	eip--;
+    throw CpuPanic_excp("Unsupported operation (segment register modification)", UNSUPPORTED_EXCP);
 }
 
 inline void ResetSegments(){

@@ -68,10 +68,22 @@ void x86CPU::op16_mov_r16_rm16(){
 	*regs16[rm16.GetExtra()]=rm16.ReadWordr();
 }
 
+void x86CPU::op32_mov_r32_rm32(){
+    eip++;
+    ModRM rm(this);
+    regs32[rm.GetExtra()]=rm.ReadDwordr32();
+}
+
 void x86CPU::op16_mov_rm16_r16(){
 	eip++;
 	ModRM rm16(this);
 	rm16.WriteWordr(*regs16[rm16.GetExtra()]);
+}
+
+void x86CPU::op32_mov_rm32_r32(){
+    eip++;
+    ModRM rm(this);
+    rm.WriteDwordr32(regs32[rm.GetExtra()]);
 }
 
 void x86CPU::op16_mov_al_off8(){
@@ -229,6 +241,10 @@ void x86CPU::op16_out_imm8_ax(){
 	Ports->Write(op_cache[1],2,(void*)regs16[AX]);
 	eip++;
 }
+void x86CPU::op32_out_imm8_eax(){
+    Ports->Write(op_cache[1],4,(void*)&regs32[EAX]);
+    eip++;
+}
 
 void x86CPU::op16_out_dx_al(){
 	Ports->Write(*regs16[DX],1,(void*)regs8[AL]);
@@ -236,6 +252,9 @@ void x86CPU::op16_out_dx_al(){
 
 void x86CPU::op16_out_dx_ax(){
 	Ports->Write(*regs16[DX],2,(void*)regs16[AX]);
+}
+void x86CPU::op32_out_dx_eax(){
+    Ports->Write(*regs16[DX],4,(void*)&regs32[EAX]);
 }
 
 
@@ -248,6 +267,10 @@ void x86CPU::op16_in_ax_imm8(){
 	Ports->Read(op_cache[1],2,(void*)regs16[AX]);
 	eip++;
 }
+void x86CPU::op32_in_eax_imm8(){
+    Ports->Read(op_cache[1],4,(void*)&regs32[EAX]);
+    eip++;
+}
 
 void x86CPU::op16_in_al_dx(){
 	Ports->Read(*regs16[DX],1,(void*)regs8[AL]);
@@ -257,6 +280,9 @@ void x86CPU::op16_in_ax_dx(){
 	Ports->Read(*regs16[DX],2,(void*)regs16[AX]);
 }
 
+void x86CPU::op32_in_eax_dx(){
+    Ports->Read(*regs16[DX],4,(void*)&regs32[EAX]);
+}
 
 
 void x86CPU::op16_xchg_rm8_r8(){

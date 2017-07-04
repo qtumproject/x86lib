@@ -37,10 +37,19 @@ void x86CPU::op16_movsb(){
 	WriteByte(cES,*regs16[DI],ReadByte(DS,*regs16[SI]));
 	SetIndex8();
 }
+void x86CPU::op32_movsb(){
+    WriteByte(cES,regs32[EDI],ReadByte(DS,regs32[ESI]));
+    SetIndex8();
+}
 
 void x86CPU::op16_movsw(){
 	WriteWord(cES,*regs16[DI],ReadWord(DS,*regs16[SI]));
 	SetIndex16();
+}
+
+void x86CPU::op32_movsd(){
+    WriteDword(cES,regs32[EDI],ReadDword(DS,regs32[ESI]));
+    SetIndex32();
 }
 
 void x86CPU::op16_cmpsb(){

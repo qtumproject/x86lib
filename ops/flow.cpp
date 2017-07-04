@@ -91,9 +91,22 @@ void x86CPU::op16_call_rel16(){
 	eip+=2;
 	Jmp16_near16(*(uint16_t*)&op_cache[1]);
 }
+
+void x86CPU::op32_call_rel32(){
+
+    Push32(eip+4);
+    uint32_t dest = ReadDword(cCS, eip+1);
+    eip+=4;
+    Jmp32_near32(dest);
+}
+
 void x86CPU::op16_retn(){
 	eip=Pop16();
 	//eip--; //because in Cycle, we increment..
+}
+void x86CPU::op32_retn(){
+    eip=Pop32();
+    //eip--; //because in Cycle, we increment..
 }
 
 void x86CPU::op16_loop_rel8(){
@@ -102,6 +115,14 @@ void x86CPU::op16_loop_rel8(){
 	if(*regs16[CX]!=0){
 		Jmp16_near8(op_cache[1]);
 	}
+}
+
+void x86CPU::op32_loop_rel8(){
+    regs32[ECX]--;
+    eip++;
+    if(regs32[ECX]!=0){
+        Jmp16_near8(op_cache[1]);
+    }
 }
 
 void x86CPU::op16_loope_rel8(){
@@ -121,18 +142,11 @@ void x86CPU::op16_loopne_rel8(){
 }
 
 
-void x86CPU::op16_call_imm16_imm16(){ //far call
-	Push16(seg[cCS]);
-	Push16(eip+4);
-	*(uint32_t*)&op_cache=ReadDword(cCS,eip+1);
-	seg[cCS]=*(uint16_t*)&op_cache[2]; //I always forget that they are reversed...
-	eip=*(uint16_t*)&op_cache[0];
-	eip--; //eip will be incremented in Cycle
+void x86CPU::op16_call_imm16_imm16() { //far call
+    throw CpuPanic_excp("Unsupported operation (segment register modification)", UNSUPPORTED_EXCP);
 }
-
 void x86CPU::op16_retf(){
-	eip=Pop16();
-	seg[cCS]=Pop16();
+    throw CpuPanic_excp("Unsupported operation (segment register modification)", UNSUPPORTED_EXCP);
 }
 
 void x86CPU::op16_int_imm8(){
@@ -141,9 +155,7 @@ void x86CPU::op16_int_imm8(){
 }
 
 void x86CPU::op16_iret(){
-	eip=Pop16();
-	seg[cCS]=Pop16();
-	*(uint16_t*)&freg=Pop16();
+    throw CpuPanic_excp("Unsupported operation (segment register modification)", UNSUPPORTED_EXCP);
 }
 
 void x86CPU::op16_int3(){
@@ -162,12 +174,7 @@ void x86CPU::op16_call_rm16(ModRM &rm){ //far call
 }
 
 void x86CPU::op16_call_rm16_rm16(ModRM &rm){ //far call
-	Push16(seg[cCS]);
-	Push16(eip+rm.GetLength()+1);
-	*(uint32_t*)&op_cache=ReadDword(DS,rm.ReadDword());
-	seg[cCS]=*(uint16_t*)&op_cache[2]; //I always forget that they are reversed...
-	eip=*(uint16_t*)&op_cache[0];
-	eip--; //eip will be incremented in Cycle
+    throw CpuPanic_excp("Unsupported operation (segment register modification)", UNSUPPORTED_EXCP);
 }
 
 

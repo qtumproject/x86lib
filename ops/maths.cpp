@@ -492,6 +492,11 @@ void x86CPU::op16_sub_ax_imm16(){ //0x2D..yay! 2D and not 3!
 	eip+=2;
 }
 
+void x86CPU::op32_sub_eax_imm32(){ //0x2D..yay! 2D and not 3!
+    regs32[EAX]=Sub32(regs32[EAX],ReadDword(cCS, eip+1));
+    eip+=4;
+}
+
 void x86CPU::op16_sub_rm8_r8(){
 	eip++;
 	ModRM rm8(this);

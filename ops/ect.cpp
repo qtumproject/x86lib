@@ -136,6 +136,56 @@ void x86CPU::op16_rep(){ //repe and repne..(different opcodes, but I make them p
 	}
 }
 
+void x86CPU::op32_rep(){ //repe and repne..(different opcodes, but I make them possible to use the same function)
+    //use a string_compares variable...
+    if(regs32[ECX]==0){ //for this, not executing the instruction is almost as expensive...
+        *(uint32_t*)&op_cache=ReadDword(cCS,eip+1);
+        int i=0;
+        //get size of opcode and prefixes....
+        for(i=0;i<4;i++){
+            switch(op_cache[i]){ //correct?
+                case 0x67:
+                case 0x66:
+                case 0x2E:
+                case 0x36:
+                case 0x3E:
+                case 0x26:
+                case 0x64:
+                case 0x65:
+                    eip++;
+                    break;
+                default:
+                    eip++;
+                    return;
+                    break;
+            }
+        }
+        return;
+    }else{
+        uint32_t tmp=eip;
+        uint8_t t2=op_cache[0];
+        eip++;
+        *(uint32_t*)&op_cache=ReadDword(cCS,eip);
+        (this->*Opcodes[op_cache[0]])();
+        regs32[ECX]--;
+        eip=tmp-1;
+        if(string_compares==1){
+            string_compares=0;
+            if(t2==0xF2){ //repNE
+                if(freg.zf==1){ //exit...
+                    eip+=4;
+                    return;
+                }
+            }else{
+                if((volatile uint8_t)freg.zf==0){ //exit...
+                    eip+=4;
+                    return;
+                }
+            }
+        }
+    }
+}
+
 void x86CPU::op16_lock(){ //0xF0 prefix
 	#ifndef X86_MULTITHREADING
 	if(IsLocked()==1){
