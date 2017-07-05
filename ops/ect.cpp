@@ -28,6 +28,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 This file is part of the x86Lib project.
 **/
 #include <x86Lib.h>
+#include <sstream>
 
 
 namespace x86Lib{
@@ -43,7 +44,9 @@ void x86CPU::op16_hlt(){ //0xF4
 }
 
 void x86CPU::op16_unknown(){
-	throw CpuInt_excp(UNK_IEXCP);
+    std::ostringstream oss;
+    oss << "Unknown opcode: 0x" << std::hex << op_cache[0];
+    throw CpuPanic_excp(oss.str(), UNK_IEXCP);
 }
 
 

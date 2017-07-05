@@ -618,6 +618,7 @@ void x86CPU::InitOpcodes(){
 
 
     //TODO opcodes:
+    /*
 	InstallOp(0x29,&x86CPU::op16_sub_rm16_r16);
 	InstallOp(0x2B,&x86CPU::op16_sub_r16_rm16);
 	InstallOp(0x81,&x86CPU::op16_group_81);
@@ -676,6 +677,7 @@ void x86CPU::InitOpcodes(){
 	InstallOp(0xD7,&x86CPU::op16_xlatb);
 	InstallOp(0xAA,&x86CPU::op16_stosb);
 	InstallOp(0xAB,&x86CPU::op16_stosw);
+     */
 }
 
 
