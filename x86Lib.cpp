@@ -91,11 +91,13 @@ void x86CPU::Reset(){
 	ResetSegments();
 	//eip=0xFFFE;
 	eip=0;
-	seg[cCS]=0xF000;
+	seg[cCS]=0x0000;
 	*(uint16_t*)&freg=0;
 	string_compares=0;
 	int_pending=0;
 	cli_count=0;
+    OperandSize16=false;
+    AddressSize16=false;
 }
 
 
@@ -615,6 +617,7 @@ void x86CPU::InitOpcodes(){
     InstallOp(0xF2,&x86CPU::op32_rep);
     InstallOp(0xF3,&x86CPU::op32_rep); //different, but handled by the same function...
     InstallOp(0x05,&x86CPU::op32_add_eax_imm32);
+    InstallOp(0xC7,&x86CPU::op32_mov_m32_imm32);
 
 
     //TODO opcodes:
@@ -629,7 +632,6 @@ void x86CPU::InitOpcodes(){
 	InstallOp(0xA2,&x86CPU::op16_mov_off8_al);
 	InstallOp(0xA3,&x86CPU::op16_mov_off16_ax);
 	InstallOp(0xC6,&x86CPU::op16_mov_m8_imm8);
-	InstallOp(0xC7,&x86CPU::op16_mov_m16_imm16);
 	InstallOp(0x39,&x86CPU::op16_cmp_rm16_r16);
 	InstallOp(0x3B,&x86CPU::op16_cmp_r16_rm16);
 	InstallOp(0x3C,&x86CPU::op16_cmp_al_imm8);

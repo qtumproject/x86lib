@@ -129,13 +129,19 @@ void x86CPU::op16_mov_m8_imm8(){
 }
 
 void x86CPU::op16_mov_m16_imm16(){
-	eip++;
-	ModRM rm(this);
-	rm.WriteWordr(ReadWord(cCS,eip+rm.GetLength()));
-	eip++;
-	eip++;
+    eip++;
+    ModRM rm(this);
+    rm.WriteWordr(ReadWord(cCS,eip+rm.GetLength()));
+    eip++;
+    eip++;
 }
 
+void x86CPU::op32_mov_m32_imm32(){
+    eip++;
+    ModRM rm(this);
+    rm.WriteDwordr32(ReadDword(cCS,eip+rm.GetLength()));
+    eip+=4;
+}
 void x86CPU::op16_lds(){
     throw CpuPanic_excp("Unsupported operation (segment register modification)", UNSUPPORTED_EXCP);
 }
@@ -321,7 +327,11 @@ void x86CPU::op32_xchg_eax_r32(){ //0x90+r
 }
 
 void x86CPU::op16_xlatb(){
-	*regs8[AL]=ReadByte(DS,(*regs16[BX])+(*regs8[AL]));
+    if(Use32BitAddress()) {
+        *regs8[AL] = ReadByte(DS, regs32[EBX] + *regs8[AL]);
+    }else{
+        *regs8[AL] = ReadByte(DS, (*regs16[BX]) + (*regs8[AL]));
+    }
 }
 
 

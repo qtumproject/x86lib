@@ -279,7 +279,7 @@ void op32_movsd();
 void op32_movsb();
 void op32_rep();
 void op32_add_eax_imm32();
-
+void op32_mov_m32_imm32();
 
 //Oh God how I hate prototyping and adding the opcodes to the master InstallOp list...
 
@@ -368,13 +368,23 @@ void op16_call_rm16_rm16(ModRM &rm);
 
 
 void Push16(uint16_t val){
-	*regs16[SP]-=2;
-	WriteWord(cSS,*regs16[SP],val);
+    if(Use32BitAddress()) {
+        regs16[ESP] -= 4;
+        WriteWord(cSS, regs32[ESP], val);
+    }else{
+        *regs16[SP] -= 2;
+        WriteWord(cSS, *regs16[SP], val);
+    }
 }
 uint16_t Pop16(){
 	uint16_t register tmp;
-	tmp=ReadWord(cSS,*regs16[SP]);
-	*regs16[SP]+=2;
+    if(Use32BitAddress()) {
+        tmp = ReadWord(cSS, regs32[ESP]);
+        regs32[ESP] += 4;
+    }else{
+        tmp = ReadWord(cSS, *regs16[SP]);
+        *regs16[SP] += 2;
+    }
 	return tmp;
 }
 

@@ -463,7 +463,7 @@ inline ModRM::~ModRM(){
 
 //The r suffix means /r, which means for op_specific=1, use general registers
 inline uint8_t ModRM::ReadByter(){
-    if(this_cpu->In32BitMode()){
+    if(this_cpu->Use32BitAddress()){
         return ReadByter32();
     }
 	use_ss=0;
@@ -481,7 +481,7 @@ inline uint8_t ModRM::ReadByter(){
 }
 
 inline uint16_t ModRM::ReadWordr(){
-    if(this_cpu->In32BitMode()){
+    if(this_cpu->Use32BitAddress()){
         return ReadWordr32();
     }
 	use_ss=0;
@@ -500,7 +500,7 @@ inline uint16_t ModRM::ReadWordr(){
 	}
 }
 inline uint32_t ModRM::ReadDword(){
-    if(this_cpu->In32BitMode()){
+    if(this_cpu->Use32BitAddress()){
         return ReadDwordr32();
     }
 	use_ss=0;
@@ -522,7 +522,7 @@ inline uint32_t ModRM::ReadDword(){
 }
 
 inline void ModRM::WriteByter(uint8_t byte){
-    if(this_cpu->In32BitMode()){
+    if(this_cpu->Use32BitAddress()){
         return WriteByter32(byte);
     }
 	use_ss=0;
@@ -540,7 +540,7 @@ inline void ModRM::WriteByter(uint8_t byte){
 	}
 }
 inline void ModRM::WriteWordr(uint16_t word){
-    if(this_cpu->In32BitMode()){
+    if(this_cpu->Use32BitAddress()){
         return WriteWordr32(word);
     }
 	use_ss=0;
@@ -558,7 +558,7 @@ inline void ModRM::WriteWordr(uint16_t word){
 	}
 }
 inline void ModRM::WriteDword(uint32_t dword){
-    if(this_cpu->In32BitMode()){
+    if(this_cpu->Use32BitAddress()){
         return WriteDword(dword);
     }
 	use_ss=0;
@@ -645,7 +645,7 @@ inline void ModRM::WriteDwordr32(uint32_t dword){
 }
 
 inline uint8_t ModRM::GetLength(){ //This returns how many total bytes the modrm block consumes
-    if(this_cpu->In32BitMode()){
+    if(this_cpu->Use32BitAddress()){
         if((modrm.mod==0) && (modrm.rm==5)){
             return 5;
         }

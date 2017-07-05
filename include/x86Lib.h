@@ -357,6 +357,8 @@ class x86CPU{
 	uint32_t cpu_level;
 	volatile bool busmaster;
 	void Init();
+    bool OperandSize16;
+    bool AddressSize16;
 	protected:
 	//! Do one CPU opcode
 	/*! This should be put in the main loop, as this is what makes the CPU work.
@@ -431,10 +433,21 @@ class x86CPU{
 	*/
 	bool IntPending();
 
-    bool In32BitMode(){
-        return Opcodes == opcodes_32bit;
+    bool Use32BitOperand(){
+        return !OperandSize16;
     }
-	
+    bool Use32BitAddress(){
+        return !AddressSize16;
+    }
+
+    uint32_t GetAddressReg(int reg){ //EDX and DX has the same value, so doesn't actually matter
+        if(Use32BitAddress()){
+            return regs32[reg];
+        }else{
+            return (uint32_t)*regs16[reg];
+        }
+    }
+
 	/*End public interface*/
 	#ifdef X86LIB_BUILD
 	private:

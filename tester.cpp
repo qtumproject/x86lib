@@ -39,7 +39,6 @@ This file is part of the x86Lib project.
 using namespace std;
 using namespace x86Lib;
 
-static const uint32_t ROM_START=0xC0000;
 uint8_t *ptr_memory;
 size_t size_memory;
 void init_memory(){
@@ -47,8 +46,8 @@ void init_memory(){
 	ptr_memory=new uint8_t[size_memory];
 	memset(ptr_memory,0x66,size_memory); //initialize it all to 0x66, an invalid opcode
 	//Load bios...
-	ifstream bios("bios.bin",ios::binary); //open it readonly binary
-	bios.read((char*)&ptr_memory[0xF0000],0xFFFF);
+	ifstream bios("testos.bin",ios::binary); //open it readonly binary
+	bios.read((char*)&ptr_memory[0x0000],0xFFFF);
 	int i;
 	for(i=0;i<=0xF;i++){
 		ptr_memory[0xFFFF0+i]=0x90;

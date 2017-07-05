@@ -35,6 +35,9 @@ mov eax, 0xFFFF0004
 mov ecx, 'foob'
 mov [eax], ecx
 
+mov ax, [ebx * 2 + ecx]
+
+
 CLD							;Clears direction flag, causes STOSW to increment
 		CLI							;Disable interupts		
 ;jmp _test2

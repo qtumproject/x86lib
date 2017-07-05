@@ -34,61 +34,61 @@ using namespace std;
 
 
 void x86CPU::op16_movsb(){
-	WriteByte(cES,*regs16[DI],ReadByte(DS,*regs16[SI]));
+	WriteByte(cES,GetAddressReg(DI),ReadByte(DS,GetAddressReg(SI)));
 	SetIndex8();
 }
 void x86CPU::op32_movsb(){
-    WriteByte(cES,regs32[EDI],ReadByte(DS,regs32[ESI]));
+    WriteByte(cES,GetAddressReg(DI),ReadByte(DS,GetAddressReg(SI)));
     SetIndex8();
 }
 
 void x86CPU::op16_movsw(){
-	WriteWord(cES,*regs16[DI],ReadWord(DS,*regs16[SI]));
+	WriteWord(cES,GetAddressReg(DI),ReadWord(DS,GetAddressReg(SI)));
 	SetIndex16();
 }
 
 void x86CPU::op32_movsd(){
-    WriteDword(cES,regs32[EDI],ReadDword(DS,regs32[ESI]));
+    WriteDword(cES,GetAddressReg(EDI),ReadDword(DS,GetAddressReg(EDI)));
     SetIndex32();
 }
 
 void x86CPU::op16_cmpsb(){
 	string_compares=1;
-	Sub8(ReadByte(DS,*regs16[SI]),ReadByte(cES,*regs16[DI]));
+	Sub8(ReadByte(DS,GetAddressReg(SI)),ReadByte(cES,GetAddressReg(DI)));
 	SetIndex8();
 }
 
 void x86CPU::op16_cmpsw(){
 	string_compares=1;
-	Sub16(ReadWord(DS,*regs16[SI]),ReadWord(cES,*regs16[DI]));
+	Sub16(ReadWord(DS,GetAddressReg(SI)),ReadWord(cES,GetAddressReg(DI)));
 	SetIndex16();
 }
 
 void x86CPU::op16_lodsb(){
-	*regs8[AL]=ReadByte(DS,*regs16[SI]);
+	*regs8[AL]=ReadByte(DS,GetAddressReg(SI));
 	SetIndex8();
 }
 void x86CPU::op16_lodsw(){
-	*regs16[AX]=ReadWord(DS,*regs16[SI]);
+	*regs16[AX]=ReadWord(DS,GetAddressReg(SI));
 	SetIndex16();
 }
 
 void x86CPU::op16_scasb(){
 	string_compares=1;
-	Sub8(*regs8[AL],ReadByte(cES,*regs16[DI]));
+	Sub8(*regs8[AL],ReadByte(cES,GetAddressReg(DI)));
 	SetIndex8();
 }
 void x86CPU::op16_scasw(){
 	string_compares=1;
-	Sub16(*regs16[AX],ReadWord(cES,*regs16[DI]));
+	Sub16(*regs16[AX],ReadWord(cES,GetAddressReg(DI)));
 	SetIndex16();
 }
 void x86CPU::op16_stosb(){
-	WriteByte(ES,*regs16[DI],*regs8[AL]);
+	WriteByte(ES,GetAddressReg(DI),*regs8[AL]);
 	SetIndex8();
 }
 void x86CPU::op16_stosw(){
-	WriteWord(ES,*regs16[DI],*regs16[AX]);
+	WriteWord(ES,GetAddressReg(DI),*regs16[AX]);
 	SetIndex16();
 }
 
