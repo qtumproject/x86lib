@@ -31,6 +31,9 @@ BITS 32
 org 0
 mov al, 'x'
 out 0, al
+mov eax, 0xFFFF0004
+mov ecx, 'foob'
+mov [eax], ecx
 
 CLD							;Clears direction flag, causes STOSW to increment
 		CLI							;Disable interupts		

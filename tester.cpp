@@ -70,6 +70,29 @@ class PCMemory : MemoryDevice{
 		memcpy(&ptr_memory[address],buffer,count);
 	}
 };
+class MapMemory : MemoryDevice{
+    bool range(uint32_t val, uint32_t min, uint32_t len){
+        return val >= min && val < min+len;
+    }
+public:
+    virtual void Read(uint32_t address,int count,void *buffer){
+        //nothing yet
+        memset(buffer, 0, count);
+    }
+    virtual void Write(uint32_t address,int count,void *buffer){
+        //note memmap prefix is already subtracted out
+        if(range(address, 0, 4)) {
+            cout << hex << *((uint32_t *) buffer) << endl;
+        }else if(range(address, 4, 8)){
+            char tmp[5];
+            tmp[4]=0;
+            memcpy(tmp, buffer, 4);
+            cout << tmp << endl;
+        }else{
+            cout << "unknown memmap" << endl;
+        }
+    }
+};
 
 
 volatile bool int_cause;
@@ -226,6 +249,7 @@ class PCPorts : PortDevice{
 };
 
 PCMemory memory;
+MapMemory mapMemory;
 PCPorts ports;
 
 x86CPU **cpu_ctrl;
@@ -238,10 +262,7 @@ void each_opcode(x86CPU *thiscpu){
 }
 
 
-//typedef unsigned uint128_t __attribute__((mode(TI)));
 int main(){
-	//cout << sizeof(uint128_t)<<endl;
-	//test_newsystem();
 	MemorySystem Memory;
 	PortSystem Ports;
 	init_memory();
@@ -249,6 +270,7 @@ int main(){
 	static const uint8_t cpu_number=1;
 	cpu_ctrl=new x86CPU *[cpu_number];
 	Memory.Add(0,0xFFFFF,(MemoryDevice*)&memory);
+    Memory.Add(0xFFFF0000, 0xFFFFFFFF, (MemoryDevice*)&mapMemory);
 	printf("!");
 	fflush(stdout);
 	Ports.Add(0,0xFFFF,(PortDevice*)&ports);
@@ -274,7 +296,6 @@ int main(){
 		}
 		try{
 			cpu_ctrl[cpu_i]->Exec(500000);
-			//cpu2->Cycle();
 			if(int_cause){
 				int_cause=false;
 				cpu_ctrl[cpu_i]->Int(int_cause_number);
