@@ -342,7 +342,7 @@ class x86CPU{
 	#else
 	volatile uint16_t freg;
 	#endif
-	volatile uint8_t op_cache[4];
+	volatile uint8_t op_cache[8];
     //These variables should be used instead of cES etc when the segment register can not be overridden
 	volatile uint8_t ES;
 	volatile uint8_t CS;

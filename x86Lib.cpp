@@ -279,7 +279,7 @@ void x86CPU::Cycle(){
 	}
 #endif
 	CheckInterrupts();
-	*(uint32_t*)&op_cache=ReadDword(cCS,eip);
+	*(uint64_t*)&op_cache=ReadQword(cCS,eip);
 	(this->*Opcodes[op_cache[0]])();
 	//operate on the this class with the opcode functions in this class
 	eip=eip+1;
@@ -375,7 +375,7 @@ void x86CPU::InitOpcodes(){
 	InstallOp(0xE4,&x86CPU::op16_in_al_imm8);
 	InstallOp(0xE5,&x86CPU::op16_in_ax_imm8);
 	InstallOp(0x04,&x86CPU::op16_add_al_imm8);
-	InstallOp(0x05,&x86CPU::op16_add_ax_imm8);
+	InstallOp(0x05,&x86CPU::op16_add_ax_imm16);
 	InstallOp(0x28,&x86CPU::op16_sub_rm8_r8);
 	InstallOp(0x80,&x86CPU::op16_group_80);
 	InstallOp(0x29,&x86CPU::op16_sub_rm16_r16);
@@ -566,6 +566,11 @@ void x86CPU::InitOpcodes(){
     InstallOp(0x80,&x86CPU::op16_group_80);
     InstallOp(0xD0,&x86CPU::op16_group_D0);
     InstallOp(0xD2,&x86CPU::op16_group_D2);
+    InstallOp(0xD6,&x86CPU::op16_salc);
+    InstallOp(0xF5,&x86CPU::op16_cmc);
+	InstallOp(0x9E,&x86CPU::op16_sahf);
+	InstallOp(0x9F,&x86CPU::op16_lahf);
+    InstallOp(0xA8,&x86CPU::op16_test_al_imm8);
 
 
     //unsupported opcodes
@@ -588,6 +593,10 @@ void x86CPU::InitOpcodes(){
     InstallOp(0xCF,&x86CPU::op16_iret);
     InstallOp(0xCC,&x86CPU::op16_int3);
     InstallOp(0xCE,&x86CPU::op16_into);
+    InstallOp(0xC5,&x86CPU::op16_lds);
+    InstallOp(0xC4,&x86CPU::op16_les);
+    InstallOp(0xEA,&x86CPU::op16_jmp_imm16_imm16);
+
 
     //changed opcodes to 32bit:
     InstallOp(0x68,&x86CPU::op32_push_imm32);
@@ -605,10 +614,10 @@ void x86CPU::InitOpcodes(){
     InstallOp(0xA4,&x86CPU::op32_movsb);
     InstallOp(0xF2,&x86CPU::op32_rep);
     InstallOp(0xF3,&x86CPU::op32_rep); //different, but handled by the same function...
+    InstallOp(0x05,&x86CPU::op16_add_ax_imm16);
 
 
     //TODO opcodes:
-	InstallOp(0x05,&x86CPU::op16_add_ax_imm8);
 	InstallOp(0x29,&x86CPU::op16_sub_rm16_r16);
 	InstallOp(0x2B,&x86CPU::op16_sub_r16_rm16);
 	InstallOp(0x81,&x86CPU::op16_group_81);
@@ -627,11 +636,8 @@ void x86CPU::InitOpcodes(){
 	InstallOp(0x83,&x86CPU::op16_group_83); //83 is my lucky number btw...
 	InstallOp(0xFF,&x86CPU::op16_group_FF);
 	InstallOp(0xE9,&x86CPU::op16_jmp_rel16);
-	InstallOp(0xEA,&x86CPU::op16_jmp_imm16_imm16);
 	InstallOp(0x6A,&x86CPU::op16_push_imm8);
 	InstallOp(0x8F,&x86CPU::op16_group_8F);
-	InstallOp(0xD6,&x86CPU::op16_salc);
-	InstallOp(0xF5,&x86CPU::op16_cmc);
 	InstallOp(0xFE,&x86CPU::op16_group_FE);
 	InstallOp(0xF6,&x86CPU::op16_group_F6);
 	InstallOp(0xF7,&x86CPU::op16_group_F7);
@@ -649,12 +655,8 @@ void x86CPU::InitOpcodes(){
 	InstallOp(0x15,&x86CPU::op16_adc_ax_imm8);
 	InstallOp(0x11,&x86CPU::op16_adc_rm16_r16);
 	InstallOp(0x13,&x86CPU::op16_adc_r16_rm16);
-	InstallOp(0x9E,&x86CPU::op16_sahf);
-	InstallOp(0x9F,&x86CPU::op16_lahf);
 	InstallOp(0xE1,&x86CPU::op16_loope_rel8);
 	InstallOp(0xE0,&x86CPU::op16_loopne_rel8);
-	InstallOp(0xC5,&x86CPU::op16_lds);
-	InstallOp(0xC4,&x86CPU::op16_les);
 	InstallOp(0x8D,&x86CPU::op16_lea);
 	InstallOp(0x31,&x86CPU::op16_xor_rm16_r16);
 	InstallOp(0x33,&x86CPU::op16_xor_r16_rm16);
@@ -663,7 +665,6 @@ void x86CPU::InitOpcodes(){
 	InstallOp(0x19,&x86CPU::op16_sbb_rm16_r16);
 	InstallOp(0x1B,&x86CPU::op16_sbb_r16_rm16);
 	InstallOp(0x85,&x86CPU::op16_test_rm16_r16);
-	InstallOp(0xA8,&x86CPU::op16_test_al_imm8);
 	InstallOp(0xA9,&x86CPU::op16_test_ax_imm16);
 	InstallOp(0x87,&x86CPU::op16_xchg_rm16_r16);
 	InstallOp(0xD3,&x86CPU::op16_group_D3);
@@ -677,9 +678,6 @@ void x86CPU::InitOpcodes(){
 	InstallOp(0xAB,&x86CPU::op16_stosw);
 }
 
-
-
-//void unknown();
 
 bool x86CPU::IsLocked(){
 	return Memory->IsLocked();

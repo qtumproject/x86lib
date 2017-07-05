@@ -137,19 +137,11 @@ void x86CPU::op16_mov_m16_imm16(){
 }
 
 void x86CPU::op16_lds(){
-	eip++;
-	ModRM rm(this);
-	uint32_t tmp=rm.ReadDword();
-	seg[cDS]=(tmp&0xFFFF0000)>>16;
-	*regs16[rm.GetExtra()]=(tmp&0xFFFF);
+    throw CpuPanic_excp("Unsupported operation (segment register modification)", UNSUPPORTED_EXCP);
 }
 
 void x86CPU::op16_les(){
-	eip++;
-	ModRM rm(this);
-	uint32_t tmp=rm.ReadDword();
-	seg[cES]=(tmp&0xFFFF0000)>>16;
-	*regs16[rm.GetExtra()]=(tmp&0xFFFF);
+    throw CpuPanic_excp("Unsupported operation (segment register modification)", UNSUPPORTED_EXCP);
 }
 
 void x86CPU::op16_lea(){ //wtf is the point of this instruction! why not just mov reg,immediate! seriously frikkin crazy designers of x86

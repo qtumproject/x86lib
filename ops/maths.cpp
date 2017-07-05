@@ -667,10 +667,15 @@ void x86CPU::op16_add_al_imm8(){
 	eip++;
 }
 
-void x86CPU::op16_add_ax_imm8(){
+void x86CPU::op16_add_ax_imm16(){
 	*regs16[AX]=Add16(*regs16[AX],*(uint16_t*)&op_cache[1]);
 	eip++;
 	eip++;
+}
+
+void x86CPU::op32_add_eax_imm32(){
+    regs32[EAX]=Add32(regs32[EAX],*(uint32_t*)&op_cache[1]);
+    eip+=4;
 }
 
 void x86CPU::op16_add_rm8_r8(){

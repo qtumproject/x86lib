@@ -140,7 +140,7 @@ void op16_int3();
 void op16_in_al_imm8();
 void op16_in_ax_imm8();
 void op16_add_al_imm8(); //Tested, pass #1;
-void op16_add_ax_imm8(); //Tested, pass #1;
+void op16_add_ax_imm16(); //Tested, pass #1;
 void op16_sub_rm8_r8(); //Tested, pass #1;
 void op16_group_80(); //Tested, pass #1;
 void op16_sub_r8_rm8();
@@ -278,6 +278,7 @@ void op32_out_dx_eax();
 void op32_movsd();
 void op32_movsb();
 void op32_rep();
+void op32_add_eax_imm32();
 
 
 //Oh God how I hate prototyping and adding the opcodes to the master InstallOp list...
@@ -565,76 +566,37 @@ inline uint8_t ReadByte(uint8_t segm,uint32_t off){
 inline uint16_t ReadWord(uint8_t segm,uint32_t off){
 	Memory->WaitLock(busmaster);
 	uint16_t res=0;
-	if(Opcodes==opcodes_16bit && off>=0xFFFE){
-
-		uint16_t offset=off; //for ease of rounding
-		uint32_t tmp=0;
-		Memory->Read((seg[segm]<<4)|offset,1,&tmp);
-		res=tmp;
-		Memory->Read((seg[segm]<<4)|(uint16_t)(offset+1),1,&tmp);
-		res|=tmp<<8;
-		return res;
-	}else{
-		Memory->Read((seg[segm]<<4)|off,2,&res);
-		return res;
-	}
+    Memory->Read((seg[segm]<<4)|off,2,&res);
+    return res;
 }
 
 inline uint32_t ReadDword(uint8_t segm,uint32_t off){
 	Memory->WaitLock(busmaster);
 	uint32_t res=0;
-	if(Opcodes==opcodes_16bit && off>=0xFFFC){
+    Memory->Read((seg[segm]<<4)|off,4,&res);
+    return res;
+}
 
-		uint16_t offset=off; //for ease of rounding
-		uint32_t tmp=0;
-		Memory->Read((seg[segm]<<4)|offset,1,&tmp);
-		res=tmp;
-		Memory->Read((seg[segm]<<4)|(uint16_t)(offset+1),1,&tmp);
-		res|=tmp<<8;
-		Memory->Read((seg[segm]<<4)|(uint16_t)(offset+2),1,&tmp);
-		res|=tmp<<16;
-		Memory->Read((seg[segm]<<4)|(uint16_t)(offset+3),1,&tmp);
-		res|=tmp<<24;
-		return res;
-	}else{
-		Memory->Read((seg[segm]<<4)|off,4,&res);
-		return res;
-	}
+inline uint64_t ReadQword(uint8_t segm,uint32_t off){
+    Memory->WaitLock(busmaster);
+    uint64_t res=0;
+    Memory->Read((seg[segm]<<4)|off,8,&res);
+    return res;
 }
 
 inline void WriteByte(uint8_t segm,uint32_t off,uint8_t val){
-		Memory->WaitLock(busmaster);
-		Memory->Write((seg[segm]<<4)|off,1,&val);
+    Memory->WaitLock(busmaster);
+    Memory->Write((seg[segm]<<4)|off,1,&val);
 }
 
 inline void WriteWord(uint8_t segm,uint32_t off,uint16_t val){
 	Memory->WaitLock(busmaster);
-	if(Opcodes==opcodes_16bit && off>=0xFFFE){
-		uint16_t offset=off; //for ease of rounding
-		uint16_t tmp=val&0x00FF;
-		Memory->Write((seg[segm]<<4)|offset,1,&tmp);
-		tmp=(val&0xFF00)>>8;
-		Memory->Write((seg[segm]<<4)|(uint16_t)(offset+1),1,&tmp);
-	}else{
-		Memory->Write((seg[segm]<<4)|off,2,&val);
-	}
+    Memory->Write((seg[segm]<<4)|off,2,&val);
 }
 
 inline void WriteDword(uint8_t segm,uint32_t off,uint32_t val){
 	Memory->WaitLock(busmaster);
-	if(Opcodes==opcodes_16bit && off>=0xFFFC){
-		uint16_t offset=off; //for ease of rounding
-		uint32_t tmp=val&0x00FF;
-		Memory->Write((seg[segm]<<4)|offset,1,&tmp);
-		tmp=(val&0xFF00)>>8;
-		Memory->Write((seg[segm]<<4)|(uint16_t)(offset+1),1,&tmp);
-		tmp=(val&0xFF0000)>>16;
-		Memory->Write((seg[segm]<<4)|(uint16_t)(offset+2),1,&tmp);
-		tmp=(val&0xFF000000)>>24;
-		Memory->Write((seg[segm]<<4)|(uint16_t)(offset+3),1,&tmp);
-	}else{
-		Memory->Write((seg[segm]<<4)|off,4,&val);
-	}
+    Memory->Write((seg[segm]<<4)|off,4,&val);
 }
 
 

@@ -51,10 +51,7 @@ void x86CPU::op16_jmp_rel16(){
 }
 
 void x86CPU::op16_jmp_imm16_imm16(){ //far jmp
-	*(uint32_t*)&op_cache=ReadDword(cCS,eip+1);
-	seg[cCS]=*(uint16_t*)&op_cache[2]; //I always forget that they are reversed...
-	eip=*(uint16_t*)&op_cache[0];
-	eip--; //eip will be incremented in Cycle
+    throw CpuPanic_excp("Unsupported operation (segment register modification)", UNSUPPORTED_EXCP);
 }
 
 void x86CPU::op16_jmp_rm16(ModRM &rm){
