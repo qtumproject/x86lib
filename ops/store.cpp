@@ -87,14 +87,22 @@ void x86CPU::op32_mov_rm32_r32(){
 }
 
 void x86CPU::op16_mov_al_off8(){
-	*regs8[AL]=ReadByte(DS,*(uint16_t*)&op_cache[1]);
-	eip++;
-	eip++;
+    if(Use32BitAddress()) {
+        *regs8[AL] = ReadWord(DS, *(uint32_t *) &op_cache[1]);
+        eip+=4;
+    }else{
+        *regs8[AL] = ReadWord(DS, *(uint16_t *) &op_cache[1]);
+        eip+=2;
+    }
 }
 void x86CPU::op16_mov_ax_off16(){
-	*regs16[AX]=ReadWord(DS,*(uint16_t*)&op_cache[1]);
-	eip++;
-	eip++;
+    if(Use32BitAddress()) {
+        *regs16[AX] = ReadWord(DS, *(uint32_t *) &op_cache[1]);
+        eip+=4;
+    }else{
+        *regs16[AX] = ReadWord(DS, *(uint16_t *) &op_cache[1]);
+        eip+=2;
+    }
 }
 
 void x86CPU::op16_mov_rm8_r8(){
@@ -109,14 +117,24 @@ void x86CPU::op16_mov_r8_rm8(){
 	*regs8[rm.GetExtra()]=rm.ReadByter();
 }
 void x86CPU::op16_mov_off8_al(){
-	WriteByte(DS,*(uint16_t*)&op_cache[1],*regs8[AL]);
-	eip++;
-	eip++;
+    if(Use32BitAddress()) {
+        WriteByte(DS, *(uint32_t *) &op_cache[1], *regs8[AL]);
+        eip+=4;
+    }else{
+        WriteByte(DS, *(uint16_t *) &op_cache[1], *regs8[AL]);
+        eip+=2;
+    }
 }
 
 void x86CPU::op16_mov_off16_ax(){
-	WriteWord(DS,*(uint16_t*)&op_cache[1],*regs16[AX]);
-	eip++;eip++;
+    if(Use32BitAddress()) {
+        WriteWord(DS, *(uint32_t *) &op_cache[1], *regs16[AX]);
+        eip+=4;
+    }else{
+        WriteWord(DS, *(uint16_t *) &op_cache[1], *regs16[AX]);
+        eip+=2;
+
+    }
 }
 
 void x86CPU::op16_mov_m8_imm8(){
@@ -327,11 +345,7 @@ void x86CPU::op32_xchg_eax_r32(){ //0x90+r
 }
 
 void x86CPU::op16_xlatb(){
-    if(Use32BitAddress()) {
-        *regs8[AL] = ReadByte(DS, regs32[EBX] + *regs8[AL]);
-    }else{
-        *regs8[AL] = ReadByte(DS, (*regs16[BX]) + (*regs8[AL]));
-    }
+    *regs8[AL] = ReadByte(DS, GetAddressReg(BX) + (*regs8[AL]));
 }
 
 

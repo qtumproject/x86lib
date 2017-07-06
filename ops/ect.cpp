@@ -56,7 +56,7 @@ void x86CPU::op16_unknown(){
 void x86CPU::op16_pre_es_override(){ //0x26
 	SetSegments(cES);
 	eip++;
-	*(uint32_t*)&op_cache=ReadDword(cCS,eip);
+	*(uint64_t*)&op_cache=ReadQword(cCS,eip);
 	(this->*Opcodes[op_cache[0]])();
 
 	ResetSegments();
@@ -65,7 +65,7 @@ void x86CPU::op16_pre_es_override(){ //0x26
 void x86CPU::op16_pre_ds_override(){ //0x3E
 	SetSegments(cDS);
 	eip++;
-	*(uint32_t*)&op_cache=ReadDword(cCS,eip);
+	*(uint64_t*)&op_cache=ReadQword(cCS,eip);
 	(this->*Opcodes[op_cache[0]])();
 
 	ResetSegments();
@@ -74,7 +74,7 @@ void x86CPU::op16_pre_ds_override(){ //0x3E
 void x86CPU::op16_pre_ss_override(){ //0x36
 	SetSegments(cSS);
 	eip++;
-	*(uint32_t*)&op_cache=ReadDword(cCS,eip);
+	*(uint64_t*)&op_cache=ReadQword(cCS,eip);
 	(this->*Opcodes[op_cache[0]])();
 
 	ResetSegments();
@@ -83,7 +83,7 @@ void x86CPU::op16_pre_ss_override(){ //0x36
 void x86CPU::op16_pre_cs_override(){ //0x2E
 	SetSegments(cCS);
 	eip++;
-	*(uint32_t*)&op_cache=ReadDword(cCS,eip);
+	*(uint64_t*)&op_cache=ReadQword(cCS,eip);
 	(this->*Opcodes[op_cache[0]])();
 
 	ResetSegments();
@@ -92,7 +92,7 @@ void x86CPU::op16_pre_cs_override(){ //0x2E
 void x86CPU::op16_rep(){ //repe and repne..(different opcodes, but I make them possible to use the same function)
 	//use a string_compares variable...
 	if(*regs16[CX]==0){ //for this, not executing the instruction is almost as expensive...
-		*(uint16_t*)&op_cache=ReadWord(cCS,eip+1);
+		*(uint16_t*)&op_cache=ReadWord(cCS,eip+1); //note we only need 2 bytes, so don't read a whole Qword
 		int i=0;
 		//get size of opcode and prefixes....
 		for(i=0;i<4;i++){
@@ -118,7 +118,7 @@ void x86CPU::op16_rep(){ //repe and repne..(different opcodes, but I make them p
 		uint32_t tmp=eip;
 		uint8_t t2=op_cache[0];
 		eip++;
-		*(uint32_t*)&op_cache=ReadDword(cCS,eip);
+		*(uint64_t*)&op_cache=ReadQword(cCS,eip);
 		(this->*Opcodes[op_cache[0]])();
 		(*regs16[CX])--;
 		eip=tmp-1;
@@ -142,7 +142,7 @@ void x86CPU::op16_rep(){ //repe and repne..(different opcodes, but I make them p
 void x86CPU::op32_rep(){ //repe and repne..(different opcodes, but I make them possible to use the same function)
     //use a string_compares variable...
     if(regs32[ECX]==0){ //for this, not executing the instruction is almost as expensive...
-        *(uint32_t*)&op_cache=ReadDword(cCS,eip+1);
+        *(uint64_t*)&op_cache=ReadQword(cCS,eip+1);
         int i=0;
         //get size of opcode and prefixes....
         for(i=0;i<4;i++){
@@ -168,7 +168,7 @@ void x86CPU::op32_rep(){ //repe and repne..(different opcodes, but I make them p
         uint32_t tmp=eip;
         uint8_t t2=op_cache[0];
         eip++;
-        *(uint32_t*)&op_cache=ReadDword(cCS,eip);
+        *(uint64_t*)&op_cache=ReadQword(cCS,eip);
         (this->*Opcodes[op_cache[0]])();
         regs32[ECX]--;
         eip=tmp-1;
@@ -198,7 +198,7 @@ void x86CPU::op16_lock(){ //0xF0 prefix
 	#endif
 	Lock();
 	eip++;
-	*(uint32_t*)&op_cache=ReadDword(cCS,eip);
+	*(uint64_t*)&op_cache=ReadQword(cCS,eip);
 	//Add strict opcode testing for 386+
 	(this->*Opcodes[op_cache[0]])();
 	Unlock();
