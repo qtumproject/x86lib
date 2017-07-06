@@ -223,12 +223,10 @@ void PortSystem::Read(uint16_t address,int size,void *buffer){
 
 
 void PortSystem::Write(uint16_t address,int size,void *buffer){
-	int i;
 	if(size==0){return;}
-	size=size-1;
-	for(i=0;i<count;i++){
+	for(int i=0;i<count;i++){
 		if(list[i].low<=address && list[i].high>=address){
-				list[i].portdev->Write(address,size+1,buffer);
+            list[i].portdev->Write(address,size,buffer);
 			return;
 		}
 	}

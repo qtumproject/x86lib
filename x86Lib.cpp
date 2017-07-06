@@ -98,6 +98,7 @@ void x86CPU::Reset(){
 	cli_count=0;
     OperandSize16=false;
     AddressSize16=false;
+    DoStop=false;
 }
 
 
@@ -235,6 +236,10 @@ void x86CPU::Exec(int cyclecount){
 		try{
 			for(;i<cyclecount;i++){
 				Cycle();
+                if(DoStop){
+                    DoStop=false;
+                    return;
+                }
 			}
 		}
 		catch(CpuInt_excp err){
@@ -700,7 +705,14 @@ void x86CPU::Unlock(){
 }
 
 
-
+void x86CPU::ReadMemory(uint32_t address, uint32_t size, void* buffer){
+    Memory->WaitLock(busmaster);
+    Memory->Read(address, size, buffer);
+}
+void x86CPU::WriteMemory(uint32_t address, uint32_t size, void* buffer){
+    Memory->WaitLock(busmaster);
+    Memory->Write(address, size, buffer);
+}
 
 
 

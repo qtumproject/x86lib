@@ -31,220 +31,26 @@ BITS 32
 org 0
 mov al, 'x'
 out 0, al
-mov eax, 0xFFFF0004
-mov ecx, 'foob'
-mov [eax], ecx
 
-mov ax, [ebx * 2 + ecx]
+mov eax, log
+out 1, eax
+out 0xFF, al
 
+;struct ABI_MakeLog{
+;    uint16_t dataSize;
+;    uint32_t dataAddress;
+;    uint16_t topicCount;
+;    uint32_t topicsAddress;
+;}__attribute__((__packed__));
+log:
+dw 4
+dd logData
+dw 1
+dd logTopics
 
-CLD							;Clears direction flag, causes STOSW to increment
-		CLI							;Disable interupts		
-;jmp _test2
-jmp word _test3
-ud2
-ud2
-_test1:
-hlt
-ud2
-ud2
-_test2:
-jmp word _test1
+logData:
+dd 'xyc',0
 
-_test3:
-;hlt
+logTopics:
+times 32 db 10
 
-;For right now, this is just a test file
-
-seperate_cpus:
-;trap all processors but first
-mov al,0x08
-out 0xC1,al
-out 0xC2,al
-mov ax,0
-mov ds,ax
-mov [34],cs
-mov [32],word int_8
-mov [38],cs
-mov [36],word int_9
-mov [42],cs
-mov [40],word int_a
-mov [46],cs
-mov [44],word int_b
-mov [800],byte 0
-sti
-out 0xC0,al
-;;All CPUs are now weeded out except for CPU #0.
-
-
-bios_init:
-mov sp,0x5000 ;not official...
-mov ss,sp
-mov sp,0x505 ;not sure if this is right..
-mov ax,0
-mov es,ax
-;mov cx,0xFAF4
-mov [es:0x10],word 0xFAF4
-call load_os
-call 0:0x7C00
-mov al,1
-out 0xF0,al
-cli
-hlt
-;;;;END;;;;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-speed_test:
-;Speed loop test
-;On my older PC, this code runs at 14s in emulation, and .125s not emulated...
-;emulated ran at 12.5s on my new dual-core 64bit pc..
-;I need speed...
-mov cx,0x100
-
-
-.t2:
-push cx
-mov cx,0xFFFF
-.t1:
-
-push ax
-mov ax,0xF00
-sub ax,0x100
-
-mov ax,0x200
-mov ds,ax
-pop ax
-loop .t1
-pop cx
-;nop
-loop .t2
-ret
-
-
-
-;This will copy the file out of ROM and to 0:0x7C00
-load_os:
-push ax
-push si
-push di
-mov ax,OS_file_end
-sub ax,OS_file
-mov cx,ax ;cx has our file length
-;CX is correct
-push cx
-push es
-push ds
-mov ax,word 0
-mov es,ax
-mov ax,cs
-mov ds,ax
-mov di,0x7C00
-mov si,OS_file
-cld
-rep movsb ;do it!
-pop ds
-pop es
-pop cx
-pop di
-pop si
-pop ax
-ret
-
-
-
-
-
-
-int_8:
-;CPU #0!
-lock add byte [0x800],byte 1
-
-iret
-
-int_9:
-;CPU #1!
-lock add byte [0x800],byte 1
-mov ax,0
-mov ds,ax
-mov [0x700],byte 0
-.check_loop:
-cmp byte[0x700],byte 0
-je .check_loop
-;CPU #1 activated!
-;Set SP and SS
-mov ss,[0x702]
-mov sp,[0x704]
-iret
-
-
-int_a:
-lock add byte [0x800],byte 1
-mov ax,0
-mov ds,ax
-mov [0x710],byte 0
-.check_loop:
-cmp byte[0x710],byte 0
-je .check_loop
-;CPU #1 activated!
-;Set SP and SS
-mov ss,[0x712]
-mov sp,[0x714]
-
-iret
-
-int_b:
-lock add byte [0x800],byte 1
-mov ax,0
-mov ds,ax
-mov [0x720],byte 0
-.check_loop:
-cmp byte[0x720],byte 0
-je .check_loop
-;CPU #1 activated!
-;Set SP and SS
-mov ss,[0x722]
-mov sp,[0x724]
-iret
-
-;How to get additional CPUs
-;The total numbers of CPUs are in 0x800.
-;In order to put additional cpus into action, you must do some things.
-;the base address of each CPU (after CPU #0) is 0x700,0x710,0x720.
-;first, the SS is from 0x02 and SP is from 0x04
-;Note that an iret is done from this stack!
-;and finally, mov 1 to 0x01 and it will put the cpu into action...
-
-
-
-
-
-
-bah: db 0xD5,0xD6
-
-
-OS_file: incbin 'test_os.bin'
-OS_file_end:
-
-test_string: db 0xD1,0xD2,0xD3,0xD4
-
-call_address:
-dw 0x7C00
-dw 0

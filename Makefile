@@ -28,7 +28,7 @@
 
 
 _OBJS=objs/x86Lib.o objs/ops/ect.o objs/ops/groups.o objs/ops/store.o objs/ops/flags.o objs/ops/strings.o objs/ops/flow.o objs/ops/maths.o objs/device_manager.o
-debug_CPPFLAGS=-Wall -g -fexceptions -I./include -DX86LIB_BUILD
+debug_CPPFLAGS=-Wall -g -fexceptions -I./include -DX86LIB_BUILD -fPIC
 release_CPPFLAGS=-Os -I./include -DX86LIB_BUILD
 profile_CPPFLAGS=-pg -O2 -fexceptions -I./include -DX86LIB_BUILD
 #_CPPFLAGS=-O2 -march=athlon64 -I./include -DX86LIB_BUILD

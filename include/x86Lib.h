@@ -359,6 +359,7 @@ class x86CPU{
 	void Init();
     bool OperandSize16;
     bool AddressSize16;
+    bool DoStop;
 	protected:
 	//! Do one CPU opcode
 	/*! This should be put in the main loop, as this is what makes the CPU work.
@@ -447,8 +448,12 @@ class x86CPU{
             return (uint32_t)*regs16[reg];
         }
     }
+    void ReadMemory(uint32_t address, uint32_t size, void* buffer);
+    void WriteMemory(uint32_t address, uint32_t size, void* buffer);
 
-	/*End public interface*/
+	void Stop(){DoStop=true;}
+
+    /*End public interface*/
 	#ifdef X86LIB_BUILD
 	private:
 	#include <opcode_def.h>
