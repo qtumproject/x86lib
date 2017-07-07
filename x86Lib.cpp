@@ -623,6 +623,7 @@ void x86CPU::InitOpcodes(){
     InstallOp(0xF3,&x86CPU::op32_rep); //different, but handled by the same function...
     InstallOp(0x05,&x86CPU::op32_add_eax_imm32);
     InstallOp(0xC7,&x86CPU::op32_mov_m32_imm32);
+    InstallOp(0x03,&x86CPU::op16_add_r16_rm16);
 
 
     //TODO opcodes:

@@ -280,6 +280,9 @@ void op32_movsb();
 void op32_rep();
 void op32_add_eax_imm32();
 void op32_mov_m32_imm32();
+void op32_add_r32_rm32();
+
+
 
 //Oh God how I hate prototyping and adding the opcodes to the master InstallOp list...
 

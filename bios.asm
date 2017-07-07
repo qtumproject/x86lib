@@ -25,16 +25,28 @@
 ;ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ;This file is part of the x86Lib project.
-
+CPU i386
 BITS 32
 
 org 0
-mov al, 'x'
-out 0, al
-
 mov eax, log
 out 1, eax
-out 0xFF, al
+
+mov ebx, 0xF0000
+mov ecx, [ebx]
+mov ebx, logData
+mov [ebx], ecx
+out 1, eax
+
+;result = ++counter + [0xF0000]
+mov edx,[counter]
+inc edx
+mov [counter], edx
+add edx, [0xF0000]
+mov [result], edx
+
+mov eax, abi_exit
+out 0xFF, eax
 
 ;struct ABI_MakeLog{
 ;    uint16_t dataSize;
@@ -54,3 +66,12 @@ dd 'xyc',0
 logTopics:
 times 32 db 10
 
+abi_exit:
+dd 4
+dd result
+
+result:
+resd 0
+
+counter:
+resd 0

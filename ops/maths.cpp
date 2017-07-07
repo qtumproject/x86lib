@@ -702,6 +702,12 @@ void x86CPU::op16_add_r16_rm16(){
 	*regs16[rm.GetExtra()]=Add16(*regs16[rm.GetExtra()],rm.ReadWordr());
 }
 
+void x86CPU::op32_add_r32_rm32(){
+    eip++;
+    ModRM rm(this);
+    regs32[rm.GetExtra()]=Add32(regs32[rm.GetExtra()],rm.ReadDwordr32());
+}
+
 void x86CPU::op16_add_rm8_imm8(ModRM &rm){ //Group 0x80 /0
 	rm.WriteByter(Add8(rm.ReadWordr(),ReadByte(cCS,eip+rm.GetLength())));
 }
