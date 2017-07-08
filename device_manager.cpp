@@ -146,7 +146,7 @@ void MemorySystem::Write(uint32_t address,int size,void *b)
 			if( (address + size) > device.high)
 			{
 				//One device range will not cover the whole request.
-				device.memdev->Write(address, device.high - address + 1, buffer);
+				device.memdev->Write(device.high - address, device.high - address + 1, buffer);
 				
 				size -= device.high - address;
 				

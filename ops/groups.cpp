@@ -107,41 +107,78 @@ void x86CPU::op16_group_81(){
 	eip+=2; //these each have imm16
 }
 
-void x86CPU::op16_group_83(){
-	eip++;
-	ModRM rm(this);
-	switch(rm.GetExtra()){
-		case 0:
-		op16_add_rm16_imm8(rm);
-		break;
-		case 2:
-		op16_adc_rm16_imm8(rm);
-		break;
-		case 5:
-		op16_sub_rm16_imm8(rm);
-		break;
-		case 7:
-		op16_cmp_rm16_imm8(rm);
-		break;
-		case 1:
-		op16_or_rm16_imm8(rm);
-		break;
-		case 6:
-		op16_xor_rm16_imm8(rm);
-		break;
-		case 3:
-		op16_sbb_rm16_imm8(rm);
-		break;
-		case 4:
-		op16_and_rm16_imm8(rm);
-		break;
+void x86CPU::op16_group_83() {
+    eip++;
+    ModRM rm(this);
+    switch (rm.GetExtra()) {
+        case 0:
+            op16_add_rm16_imm8(rm);
+            break;
+        case 2:
+            op16_adc_rm16_imm8(rm);
+            break;
+        case 5:
+            op16_sub_rm16_imm8(rm);
+            break;
+        case 7:
+            op16_cmp_rm16_imm8(rm);
+            break;
+        case 1:
+            op16_or_rm16_imm8(rm);
+            break;
+        case 6:
+            op16_xor_rm16_imm8(rm);
+            break;
+        case 3:
+            op16_sbb_rm16_imm8(rm);
+            break;
+        case 4:
+            op16_and_rm16_imm8(rm);
+            break;
 
-		default:
-		eip--;
-		throw CpuInt_excp(UNK_IEXCP);
-		break;
-	}
-	eip++;
+        default:
+            eip--;
+            throw CpuInt_excp(UNK_IEXCP);
+            break;
+    }
+    eip++;
+}
+
+void x86CPU::op32_group_83() {
+    eip++;
+    ModRM rm(this);
+    switch (rm.GetExtra()) {
+        case 0:
+            op32_add_rm32_imm8(rm);
+            break;
+        case 2:
+            op32_adc_rm32_imm8(rm);
+            break;
+        case 5:
+            op32_sub_rm32_imm8(rm);
+            break;
+        case 7:
+            op32_cmp_rm32_imm8(rm);
+            break;
+        case 1:
+            op32_or_rm32_imm8(rm);
+            break;
+        case 6:
+            op32_xor_rm32_imm8(rm);
+            break;
+        case 3:
+            op32_sbb_rm32_imm8(rm);
+            break;
+        case 4:
+            op32_and_rm32_imm8(rm);
+            break;
+
+        default:
+            eip--;
+            throw CpuInt_excp(UNK_IEXCP);
+            break;
+    }
+    eip++;
 }
 
 void x86CPU::op16_group_8F(){

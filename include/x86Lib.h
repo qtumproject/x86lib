@@ -279,9 +279,9 @@ typedef struct{
 __attribute__((packed))mod_rm; //this struct is a described mod r/m byte..
 
 typedef struct{
-    unsigned char ss:2;
-    unsigned char index:3;
     unsigned char base:3;
+    unsigned char index:3;
+    unsigned char ss:2;
 }__attribute__((packed))scaleindex; //this struct is a described SIB scale index byte
 
 //Note, this will re-cache op_cache, so do not use op_cache afterward

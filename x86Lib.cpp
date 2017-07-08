@@ -93,6 +93,7 @@ void x86CPU::Reset(){
 	eip=0;
 	seg[cCS]=0x0000;
 	*(uint16_t*)&freg=0;
+    regs32[ESP] = 0xEFFF0; //set stack to reasonable address for Qtum
 	string_compares=0;
 	int_pending=0;
 	cli_count=0;
@@ -624,6 +625,7 @@ void x86CPU::InitOpcodes(){
     InstallOp(0x05,&x86CPU::op32_add_eax_imm32);
     InstallOp(0xC7,&x86CPU::op32_mov_m32_imm32);
     InstallOp(0x03,&x86CPU::op16_add_r16_rm16);
+    InstallOp(0x83,&x86CPU::op32_group_83);
 
 
     //TODO opcodes:

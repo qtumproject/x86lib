@@ -179,6 +179,20 @@ uint16_t x86CPU::And16(uint16_t base,uint16_t mask){
 	return base;
 }
 
+uint32_t x86CPU::And32(uint32_t base,uint32_t mask){
+    freg.of=0;
+    freg.cf=0;
+    base=base&mask;
+    CalculatePF32(base);
+    CalculateSF32(base);
+    if(base==0){
+        freg.zf=1;
+    }else{
+        freg.zf=0;
+    }
+    return base;
+}
+
 //Not affects no flags, so just use ~
 
 
@@ -210,6 +224,20 @@ uint16_t x86CPU::Or16(uint16_t base,uint16_t mask){
 	return base;
 }
 
+uint32_t x86CPU::Or32(uint32_t base,uint32_t mask){
+    freg.of=0;
+    freg.cf=0;
+    base=base|mask;
+    CalculatePF32(base);
+    CalculateSF32(base);
+    if(base==0){
+        freg.zf=1;
+    }else{
+        freg.zf=0;
+    }
+    return base;
+}
+
 uint8_t x86CPU::Xor8(uint8_t base,uint8_t mask){
 	freg.of=0;
 	freg.cf=0;
@@ -236,6 +264,19 @@ uint16_t x86CPU::Xor16(uint16_t base,uint16_t mask){
 		freg.zf=0;
 	}
 	return base;
+}
+uint32_t x86CPU::Xor32(uint32_t base,uint32_t mask){
+    freg.of=0;
+    freg.cf=0;
+    base=base^mask;
+    CalculatePF32(base);
+    CalculateSF32(base);
+    if(base==0){
+        freg.zf=1;
+    }else{
+        freg.zf=0;
+    }
+    return base;
 }
 
 uint8_t x86CPU::ShiftLogicalRight8(uint8_t base,uint8_t count){
@@ -532,6 +573,9 @@ void x86CPU::op16_sub_rm16_imm16(ModRM &rm){ //Group 0x81 /5
 void x86CPU::op16_sub_rm16_imm8(ModRM &rm){ //group 0x83 /5
 	rm.WriteWordr(Sub16(rm.ReadWordr(),SignExtend8(ReadByte(cCS,eip+rm.GetLength()))));
 }
+void x86CPU::op32_sub_rm32_imm8(ModRM &rm){ //group 0x83 /5
+    rm.WriteDword(Sub32(rm.ReadDword(),SignExtend8(ReadByte(cCS,eip+rm.GetLength()))));
+}
 
 /****/
 void x86CPU::op16_sbb_al_imm8(){
@@ -578,6 +622,10 @@ void x86CPU::op16_sbb_rm16_imm16(ModRM &rm){ //Group 0x81
 
 void x86CPU::op16_sbb_rm16_imm8(ModRM &rm){ //group 0x83
 	rm.WriteWordr(Sub16(rm.ReadWordr(),SignExtend8(ReadByte(cCS,eip+rm.GetLength())-freg.cf)));
+}
+
+void x86CPU::op32_sbb_rm32_imm8(ModRM &rm){ //group 0x83
+    rm.WriteDword(Sub32(rm.ReadDword(),SignExtend8(ReadByte(cCS,eip+rm.GetLength())-freg.cf)));
 }
 
 
@@ -657,6 +705,10 @@ void x86CPU::op16_cmp_rm16_imm8(ModRM &rm){ //group 83 /7
 	Sub16(rm.ReadWordr(),SignExtend8(ReadByte(cCS,eip+rm.GetLength())));
 }
 
+void x86CPU::op32_cmp_rm32_imm8(ModRM &rm){ //group 83 /7
+    Sub32(rm.ReadDword(),SignExtend8(ReadByte(cCS,eip+rm.GetLength())));
+}
+
 
 
 
@@ -720,6 +772,10 @@ void x86CPU::op16_add_rm16_imm8(ModRM &rm){ //group 0x83 /0
 	rm.WriteWordr(Add16(rm.ReadWordr(),SignExtend8(ReadByte(cCS,eip+rm.GetLength()))));
 }
 
+void x86CPU::op32_add_rm32_imm8(ModRM &rm){ //group 0x83 /0
+    rm.WriteDword(Add32(rm.ReadDword(),SignExtend8(ReadByte(cCS,eip+rm.GetLength()))));
+}
+
 
 /****/
 void x86CPU::op16_adc_al_imm8(){
@@ -767,6 +823,10 @@ void x86CPU::op16_adc_rm16_imm16(ModRM &rm){ //Group 0x81 /2
 
 void x86CPU::op16_adc_rm16_imm8(ModRM &rm){ //group 0x83 /2
 	rm.WriteWordr(Add16(rm.ReadWordr(),SignExtend8(ReadByte(cCS,eip+rm.GetLength()))+freg.cf));
+}
+
+void x86CPU::op32_adc_rm32_imm8(ModRM &rm){ //group 0x83 /2
+    rm.WriteDwordr32(Add32(rm.ReadDwordr32(),SignExtend8(ReadByte(cCS,eip+rm.GetLength()))+freg.cf));
 }
 
 
@@ -988,7 +1048,9 @@ void x86CPU::op16_and_rm16_imm16(ModRM& rm){
 
 void x86CPU::op16_and_rm16_imm8(ModRM& rm){
 	rm.WriteWordr(And16(rm.ReadWordr(),SignExtend8(ReadByte(cCS,eip+rm.GetLength()))));
-	//gotta love parentheses...
+}
+void x86CPU::op32_and_rm32_imm8(ModRM& rm){
+    rm.WriteDwordr32(And32(rm.ReadDwordr32(),SignExtend8(ReadByte(cCS,eip+rm.GetLength()))));
 }
 
 void x86CPU::op16_or_rm8_r8(){
@@ -1036,7 +1098,9 @@ void x86CPU::op16_or_rm16_imm16(ModRM& rm){
 
 void x86CPU::op16_or_rm16_imm8(ModRM& rm){
 	rm.WriteWordr(Or16(rm.ReadWordr(),SignExtend8(ReadByte(cCS,eip+rm.GetLength()))));
-	//gotta love parentheses...
+}
+void x86CPU::op32_or_rm32_imm8(ModRM& rm){
+    rm.WriteDword(Or32(rm.ReadDword(),SignExtend8(ReadByte(cCS,eip+rm.GetLength()))));
 }
 
 
@@ -1086,7 +1150,9 @@ void x86CPU::op16_xor_rm16_imm16(ModRM& rm){
 
 void x86CPU::op16_xor_rm16_imm8(ModRM& rm){
 	rm.WriteWordr(Xor16(rm.ReadWordr(),SignExtend8(ReadByte(cCS,eip+rm.GetLength()))));
-	//gotta love parentheses...
+}
+void x86CPU::op32_xor_rm32_imm8(ModRM& rm){
+    rm.WriteDword(Xor32(rm.ReadDword(),SignExtend8(ReadByte(cCS,eip+rm.GetLength()))));
 }
 
 void x86CPU::op16_test_rm8_r8(){
@@ -1120,7 +1186,9 @@ void x86CPU::op16_test_rm16_imm16(ModRM& rm){
 
 void x86CPU::op16_test_rm16_imm8(ModRM& rm){
 	And16(rm.ReadWordr(),SignExtend8(ReadByte(cCS,eip+rm.GetLength())));
-	//gotta love parentheses...
+}
+void x86CPU::op32_test_rm32_imm8(ModRM& rm){
+    And32(rm.ReadDword(),SignExtend8(ReadByte(cCS,eip+rm.GetLength())));
 }
 
 

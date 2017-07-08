@@ -27,8 +27,8 @@
 ;This file is part of the x86Lib project.
 CPU i386
 BITS 32
+ORG 0
 
-org 0
 mov eax, log
 out 1, eax
 
@@ -45,6 +45,24 @@ mov [counter], edx
 add edx, [0xF0000]
 mov [result], edx
 
+
+mov eax, abi_allocate
+out 4, eax
+
+mov eax, 0
+mov ebx, 0x500000
+mov ecx, 0
+loop1:
+inc eax
+mov [ebx + ecx], al
+cmp ecx, 63
+je _exit
+inc ecx
+jmp loop1
+
+_exit:
+mov eax, abi_allocate
+out 5, eax
 mov eax, abi_exit
 out 0xFF, eax
 
@@ -66,12 +84,24 @@ dd 'xyc',0
 logTopics:
 times 32 db 10
 
+;struct ABI_AllocateMemory{
+;    uint32_t desiredAddress; //can not be less than 0x100000
+;    uint32_t size;
+;}__attribute__((__packed__));
+abi_allocate:
+dd 0x500000
+dd 64
+dd 0x500000 ;for ABI_PersistMemory
+
+
 abi_exit:
-dd 4
 dd result
+dd 4
 
 result:
 resd 0
 
 counter:
 resd 0
+
+

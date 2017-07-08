@@ -39,10 +39,13 @@ uint16_t Sub16(uint16_t,uint16_t);
 uint32_t Sub32(uint32_t,uint32_t);
 uint8_t And8(uint8_t,uint8_t);
 uint16_t And16(uint16_t,uint16_t);
+uint32_t And32(uint32_t,uint32_t);
 uint8_t Or8(uint8_t,uint8_t);
 uint16_t Or16(uint16_t,uint16_t);
+uint32_t Or32(uint32_t,uint32_t);
 uint8_t Xor8(uint8_t,uint8_t);
 uint16_t Xor16(uint16_t,uint16_t);
+uint32_t Xor32(uint32_t,uint32_t);
 uint8_t ShiftLogicalRight8(uint8_t,uint8_t);
 uint16_t ShiftLogicalRight16(uint16_t,uint8_t);
 uint8_t ShiftArithmeticRight8(uint8_t,uint8_t);
@@ -281,7 +284,7 @@ void op32_rep();
 void op32_add_eax_imm32();
 void op32_mov_m32_imm32();
 void op32_add_r32_rm32();
-
+void op32_group_83();
 
 
 //Oh God how I hate prototyping and adding the opcodes to the master InstallOp list...
@@ -368,7 +371,16 @@ void op16_not_rm16(ModRM &rm);
 void op16_call_rm16(ModRM &rm);
 void op16_call_rm16_rm16(ModRM &rm);
 
-
+//32bit groups
+void op32_add_rm32_imm8(ModRM &rm);
+void op32_adc_rm32_imm8(ModRM &rm);
+void op32_and_rm32_imm8(ModRM &rm);
+void op32_or_rm32_imm8(ModRM &rm);
+void op32_xor_rm32_imm8(ModRM &rm);
+void op32_test_rm32_imm8(ModRM &rm);
+void op32_sbb_rm32_imm8(ModRM &rm);
+void op32_cmp_rm32_imm8(ModRM &rm);
+void op32_sub_rm32_imm8(ModRM &rm);
 
 void Push16(uint16_t val){
     if(Use32BitAddress()) {
