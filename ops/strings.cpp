@@ -63,6 +63,11 @@ void x86CPU::op16_cmpsw(){
 	Sub16(ReadWord(DS,GetAddressReg(SI)),ReadWord(cES,GetAddressReg(DI)));
 	SetIndex16();
 }
+void x86CPU::op32_cmpsd(){
+    string_compares=1;
+    Sub32(ReadDword(DS,GetAddressReg(SI)),ReadDword(cES,GetAddressReg(DI)));
+    SetIndex32();
+}
 
 void x86CPU::op16_lodsb(){
 	*regs8[AL]=ReadByte(DS,GetAddressReg(SI));

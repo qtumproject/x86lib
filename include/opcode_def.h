@@ -206,7 +206,7 @@ void op16_cmpsb(); //Tested, pass #1, full
 void op16_cmpsw(); //tested, pass #1, full
 void op16_jcxz_rel8();
 void op16_adc_al_imm8();
-void op16_adc_ax_imm8();
+void op16_adc_ax_imm16();
 void op16_adc_rm8_r8();
 void op16_adc_rm16_r16();
 void op16_adc_r8_rm8();
@@ -306,6 +306,23 @@ void op32_and_eax_imm32();
 void op32_or_rm32_r32();
 void op32_or_r32_rm32();
 void op32_or_eax_imm32();
+void op32_cmpsd();
+void op32_jcxz_rel8();
+void op32_adc_eax_imm32();
+void op32_adc_rm32_r32();
+void op32_adc_r32_rm32();
+void op32_loope_rel8();
+void op32_loopne_rel8();
+void op32_lea();
+void op32_xor_rm32_r32();
+void op32_xor_r32_rm32();
+void op32_xor_eax_imm32();
+void op32_sbb_eax_imm32();
+void op32_sbb_rm32_r32();
+void op32_sbb_r32_rm32();
+void op32_test_rm32_r32();
+void op32_test_eax_imm32();
+void op32_xchg_rm32_r32();
 
 //Oh God how I hate prototyping and adding the opcodes to the master InstallOp list...
 

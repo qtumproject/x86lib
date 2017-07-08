@@ -192,6 +192,12 @@ void x86CPU::op16_lea(){ //wtf is the point of this instruction! why not just mo
 	ModRM rm(this);
 	*regs16[rm.GetExtra()]=rm.ReadOffset();
 }
+void x86CPU::op32_lea(){
+    //this is actually useful because you can use ModRM calculations and displacements without modifying flags
+    eip++;
+    ModRM rm(this);
+    regs32[rm.GetExtra()]=rm.ReadOffset32();
+}
 
 
 
@@ -353,6 +359,21 @@ void x86CPU::op16_xchg_rm16_r16(){
 	*regs16[rm.GetExtra()]=rm.ReadWordr();
 	rm.WriteWordr(tmp);
 	Unlock();
+}
+void x86CPU::op32_xchg_rm32_r32(){
+#ifndef X86_MULTITHREADING
+    if(IsLocked()==1){
+        eip--;
+        return;
+    }
+#endif
+    Lock();
+    eip++;
+    ModRM rm(this);
+    uint32_t tmp=regs32[rm.GetExtra()];
+    regs32[rm.GetExtra()]=rm.ReadDwordr();
+    rm.WriteDwordr(tmp);
+    Unlock();
 }
 
 void x86CPU::op16_xchg_ax_r16(){ //0x90+r

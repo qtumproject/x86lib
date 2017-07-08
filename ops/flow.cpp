@@ -77,6 +77,11 @@ void x86CPU::op16_jcxz_rel8(){
 		Jmp16_near8(op_cache[1]);
 	}
 }
+void x86CPU::op32_jcxz_rel8(){
+    if(regs32[ECX]==0){
+        Jmp16_near8(op_cache[1]);
+    }
+}
 
 
 
@@ -134,12 +139,27 @@ void x86CPU::op16_loope_rel8(){
 	}
 }
 
+void x86CPU::op32_loope_rel8(){
+    regs32[ECX];
+    eip++;
+    if((regs32[ECX]!=0) && (freg.zf==1)){
+        Jmp16_near8(op_cache[1]);
+    }
+}
+
 void x86CPU::op16_loopne_rel8(){
 	(*regs16[CX])--;
 	eip++;
 	if((*regs16[CX]!=0) && (freg.zf==0)){
 		Jmp16_near8(op_cache[1]);
 	}
+}
+void x86CPU::op32_loopne_rel8(){
+    regs32[ECX];
+    eip++;
+    if((regs32[ECX]!=0) && (freg.zf==0)){
+        Jmp16_near8(op_cache[1]);
+    }
 }
 
 
