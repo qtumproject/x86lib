@@ -579,7 +579,10 @@ void x86CPU::InitOpcodes(){
 	InstallOp(0x9E,&x86CPU::op16_sahf);
 	InstallOp(0x9F,&x86CPU::op16_lahf);
     InstallOp(0xA8,&x86CPU::op16_test_al_imm8);
-
+    InstallOp(0xAC,&x86CPU::op16_lodsb);
+    InstallOp(0xAE,&x86CPU::op16_scasb);
+    InstallOp(0xD7,&x86CPU::op16_xlatb);
+    InstallOp(0xAA,&x86CPU::op16_stosb);
 
     //unsupported opcodes
     InstallOp(0x8E,&x86CPU::op16_mov_sr_rm16);
@@ -626,6 +629,10 @@ void x86CPU::InitOpcodes(){
     InstallOp(0xC7,&x86CPU::op32_mov_m32_imm32);
     InstallOp(0x03,&x86CPU::op16_add_r16_rm16);
     InstallOp(0x83,&x86CPU::op32_group_83);
+    InstallOp(0xAD,&x86CPU::op32_lodsd);
+    InstallOp(0xAF,&x86CPU::op32_scasd);
+    InstallOp(0xAB,&x86CPU::op32_stosd);
+
 
 
     //TODO opcodes:
@@ -680,13 +687,6 @@ void x86CPU::InitOpcodes(){
 	InstallOp(0x87,&x86CPU::op16_xchg_rm16_r16);
 	InstallOp(0xD3,&x86CPU::op16_group_D3);
 	InstallOp(0xD1,&x86CPU::op16_group_D1);
-	InstallOp(0xAC,&x86CPU::op16_lodsb);
-	InstallOp(0xAD,&x86CPU::op16_lodsw);
-	InstallOp(0xAE,&x86CPU::op16_scasb);
-	InstallOp(0xAF,&x86CPU::op16_scasw);
-	InstallOp(0xD7,&x86CPU::op16_xlatb);
-	InstallOp(0xAA,&x86CPU::op16_stosb);
-	InstallOp(0xAB,&x86CPU::op16_stosw);
      */
 }
 

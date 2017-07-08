@@ -72,6 +72,10 @@ void x86CPU::op16_lodsw(){
 	*regs16[AX]=ReadWord(DS,GetAddressReg(SI));
 	SetIndex16();
 }
+void x86CPU::op32_lodsd(){
+    regs32[EAX]=ReadDword(DS,GetAddressReg(SI));
+    SetIndex32();
+}
 
 void x86CPU::op16_scasb(){
 	string_compares=1;
@@ -83,13 +87,26 @@ void x86CPU::op16_scasw(){
 	Sub16(*regs16[AX],ReadWord(cES,GetAddressReg(DI)));
 	SetIndex16();
 }
+
+void x86CPU::op32_scasd(){
+    string_compares=1;
+    Sub32(regs32[EAX],ReadDword(cES,GetAddressReg(DI)));
+    SetIndex32();
+}
+
 void x86CPU::op16_stosb(){
 	WriteByte(ES,GetAddressReg(DI),*regs8[AL]);
 	SetIndex8();
 }
+
 void x86CPU::op16_stosw(){
 	WriteWord(ES,GetAddressReg(DI),*regs16[AX]);
 	SetIndex16();
+}
+
+void x86CPU::op32_stosd(){
+    WriteDword(ES,GetAddressReg(DI), regs32[EAX]);
+    SetIndex32();
 }
 
 

@@ -285,6 +285,9 @@ void op32_add_eax_imm32();
 void op32_mov_m32_imm32();
 void op32_add_r32_rm32();
 void op32_group_83();
+void op32_lodsd();
+void op32_scasd();
+void op32_stosd();
 
 
 //Oh God how I hate prototyping and adding the opcodes to the master InstallOp list...
