@@ -62,12 +62,13 @@ void x86CPU::op16_jmp_rm16(ModRM &rm){
 	eip=rm.ReadWordr(); //absolute address...
 	eip--;
 }
+void x86CPU::op32_jmp_rm32(ModRM &rm){
+    eip=rm.ReadDwordr(); //absolute address...
+    eip--;
+}
 
 void x86CPU::op16_jmp_m16_m16(ModRM &rm){
-	*(uint32_t*)&op_cache=rm.ReadDword(); //quicker to use op_cache, than dynamic variables...
-	seg[cCS]=*(uint16_t*)&op_cache[2];
-	eip=*(uint16_t*)&op_cache[0];
-	eip--;
+    throw CpuPanic_excp("Unsupported operation (segment register modification)", UNSUPPORTED_EXCP);
 }
 
 
@@ -192,6 +193,11 @@ void x86CPU::op16_call_rm16(ModRM &rm){ //far call
 	Push16(eip+rm.GetLength()+1);
 	eip=rm.ReadWordr();
 	eip--; //eip will be incremented in Cycle
+}
+void x86CPU::op32_call_rm32(ModRM &rm){ //far call
+    Push32(eip+rm.GetLength()+1);
+    eip=rm.ReadDwordr();
+    eip--; //eip will be incremented in Cycle
 }
 
 void x86CPU::op16_call_rm16_rm16(ModRM &rm){ //far call

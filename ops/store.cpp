@@ -212,6 +212,9 @@ void x86CPU::op32_push_imm8(){
 void x86CPU::op16_push_m16(ModRM &rm){
 	Push16(rm.ReadWordr());
 }
+void x86CPU::op32_push_m32(ModRM &rm){
+    Push32(rm.ReadDwordr());
+}
 
 void x86CPU::op16_push_imm16(){ //0x68
 	eip++;

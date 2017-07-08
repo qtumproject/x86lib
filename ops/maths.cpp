@@ -682,6 +682,11 @@ void x86CPU::op16_dec_rm16(ModRM& rm){
 	rm.WriteWordr(Sub16(rm.ReadWordr(),1));
 	freg.cf=freg.r0;
 }
+void x86CPU::op32_dec_rm32(ModRM& rm){
+	freg.r0=freg.cf;
+	rm.WriteDwordr(Sub32(rm.ReadDwordr(),1));
+	freg.cf=freg.r0;
+}
 
 
 
@@ -924,6 +929,11 @@ void x86CPU::op16_inc_rm16(ModRM &rm){
 	freg.r0=freg.cf;
 	rm.WriteWordr(Add16(rm.ReadWordr(),1));
 	freg.cf=freg.r0;
+}
+void x86CPU::op32_inc_rm32(ModRM &rm){
+    freg.r0=freg.cf;
+    rm.WriteDwordr(Add32(rm.ReadDwordr(),1));
+    freg.cf=freg.r0;
 }
 
 void x86CPU::op16_neg_rm8(ModRM &rm){

@@ -673,9 +673,10 @@ void x86CPU::InitOpcodes(){
     InstallOp(0x85,&x86CPU::op32_test_rm32_r32);
     InstallOp(0xA9,&x86CPU::op32_test_eax_imm32);
     InstallOp(0x87,&x86CPU::op32_xchg_rm32_r32);
+    InstallOp(0xFF,&x86CPU::op32_group_FF);
+
     //TODO opcodes:
     /*
-	InstallOp(0xFF,&x86CPU::op16_group_FF);
 	InstallOp(0x8F,&x86CPU::op16_group_8F);
 	InstallOp(0xFE,&x86CPU::op16_group_FE);
 	InstallOp(0xF6,&x86CPU::op16_group_F6);
