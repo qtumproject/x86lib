@@ -499,6 +499,9 @@ inline uint16_t ModRM::ReadWordr(){
 		}
 	}
 }
+inline uint32_t ModRM::ReadDwordr(){ //make this for consistency. Need to refactor this whole class later..
+    return ReadDword();
+}
 inline uint32_t ModRM::ReadDword(){
     if(this_cpu->Use32BitAddress()){
         return ReadDwordr32();
@@ -507,10 +510,7 @@ inline uint32_t ModRM::ReadDword(){
 	op_specific=0;
 	uint16_t disp=GetDisp();
 	if(op_specific==1){
-		//cout << "h" << endl;
-		throw CpuInt_excp(UNK_IEXCP);
-		//We can't return regs16 because it needs 32bits!
-		//return *regs16[modrm.rm];
+		return this_cpu->regs32[modrm.rm];
 	}else{
 
 		if(use_ss==1){
@@ -557,6 +557,9 @@ inline void ModRM::WriteWordr(uint16_t word){
 		}
 	}
 }
+inline void ModRM::WriteDwordr(uint32_t dword){
+    WriteDword(dword);
+}
 inline void ModRM::WriteDword(uint32_t dword){
     if(this_cpu->Use32BitAddress()){
         return WriteDword(dword);
@@ -565,8 +568,7 @@ inline void ModRM::WriteDword(uint32_t dword){
 	op_specific=0;
 	uint16_t disp=GetDisp();
 	if(op_specific==1){
-		//*regs16[modrm.rm]=word;
-		throw CpuInt_excp(UNK_IEXCP);
+		this_cpu->regs32[modrm.rm]=dword;
 	}else{
 
 		if(use_ss==1){

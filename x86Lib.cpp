@@ -632,14 +632,13 @@ void x86CPU::InitOpcodes(){
     InstallOp(0xAD,&x86CPU::op32_lodsd);
     InstallOp(0xAF,&x86CPU::op32_scasd);
     InstallOp(0xAB,&x86CPU::op32_stosd);
+    InstallOp(0x29,&x86CPU::op32_sub_rm32_r32);
+    InstallOp(0x2B,&x86CPU::op32_sub_r32_rm32);
 
-
+    InstallOp(0x81,&x86CPU::op32_group_81);
 
     //TODO opcodes:
     /*
-	InstallOp(0x29,&x86CPU::op16_sub_rm16_r16);
-	InstallOp(0x2B,&x86CPU::op16_sub_r16_rm16);
-	InstallOp(0x81,&x86CPU::op16_group_81);
 	InstallOp(0x01,&x86CPU::op16_add_rm16_r16);
 	InstallOp(0x03,&x86CPU::op16_add_r16_rm16);
 	InstallOp(0xA0,&x86CPU::op16_mov_al_off8);

@@ -107,6 +107,43 @@ void x86CPU::op16_group_81(){
 	eip+=2; //these each have imm16
 }
 
+void x86CPU::op32_group_81(){
+    eip++;
+    ModRM rm(this);
+    switch(rm.GetExtra()){
+        case 5:
+            op32_sub_rm32_imm32(rm);
+            break;
+        case 0:
+            op32_add_rm32_imm32(rm);
+            break;
+        case 2:
+            op32_adc_rm32_imm32(rm);
+            break;
+        case 7:
+            op32_cmp_rm32_imm32(rm);
+            break;
+        case 1:
+            op32_or_rm32_imm32(rm);
+            break;
+        case 6:
+            op32_xor_rm32_imm32(rm);
+            break;
+        case 3:
+            op32_sbb_rm32_imm32(rm);
+            break;
+        case 4:
+            op32_and_rm32_imm32(rm);
+            break;
+
+        default:
+            eip--;
+            throw CpuInt_excp(UNK_IEXCP);
+            break;
+    }
+    eip+=4; //these each have imm32
+}
+
 void x86CPU::op16_group_83() {
     eip++;
     ModRM rm(this);

@@ -310,9 +310,11 @@ class ModRM{ //This is the best thing I have ever done...
 	inline uint8_t ReadByter();
 	inline uint16_t ReadWordr();
 	inline uint32_t ReadDword();
+    inline uint32_t ReadDwordr();
 	inline void WriteByter(uint8_t byte);
 	inline void WriteWordr(uint16_t word);
 	inline void WriteDword(uint32_t dword);
+    inline void WriteDwordr(uint32_t dword);
     inline uint8_t ReadByter32();
     inline uint16_t ReadWordr32();
     inline uint32_t ReadDwordr32();

@@ -288,6 +288,9 @@ void op32_group_83();
 void op32_lodsd();
 void op32_scasd();
 void op32_stosd();
+void op32_sub_rm32_r32();
+void op32_sub_r32_rm32();
+void op32_group_81();
 
 
 //Oh God how I hate prototyping and adding the opcodes to the master InstallOp list...
@@ -384,6 +387,16 @@ void op32_test_rm32_imm8(ModRM &rm);
 void op32_sbb_rm32_imm8(ModRM &rm);
 void op32_cmp_rm32_imm8(ModRM &rm);
 void op32_sub_rm32_imm8(ModRM &rm);
+void op32_cmp_rm32_imm32(ModRM &rm);
+void op32_add_rm32_imm32(ModRM &rm);
+void op32_adc_rm32_imm32(ModRM &rm);
+void op32_and_rm32_imm32(ModRM &rm);
+void op32_or_rm32_imm32(ModRM &rm);
+void op32_xor_rm32_imm32(ModRM &rm);
+void op32_test_rm32_imm32(ModRM &rm);
+void op32_sub_rm32_imm32(ModRM &rm);
+void op32_sbb_rm32_imm32(ModRM &rm);
+
 
 void Push16(uint16_t val){
     if(Use32BitAddress()) {
