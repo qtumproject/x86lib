@@ -257,6 +257,9 @@ void x86CPU::op16_push_ss(){
 void x86CPU::op16_pop_m16(ModRM &rm){
 	rm.WriteWordr(Pop16());
 }
+void x86CPU::op32_pop_m32(ModRM &rm){
+    rm.WriteDwordr(Pop32());
+}
 
 void x86CPU::op16_pop_r16(){ //0x58+reg
 	*regs16[op_cache[0]-0x58]=Pop16();

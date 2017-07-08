@@ -48,18 +48,25 @@ uint16_t Xor16(uint16_t,uint16_t);
 uint32_t Xor32(uint32_t,uint32_t);
 uint8_t ShiftLogicalRight8(uint8_t,uint8_t);
 uint16_t ShiftLogicalRight16(uint16_t,uint8_t);
+uint32_t ShiftLogicalRight32(uint32_t,uint8_t);
 uint8_t ShiftArithmeticRight8(uint8_t,uint8_t);
 uint16_t ShiftArithmeticRight16(uint16_t,uint8_t);
+uint32_t ShiftArithmeticRight32(uint32_t,uint8_t);
 uint8_t ShiftLogicalLeft8(uint8_t,uint8_t);
 uint16_t ShiftLogicalLeft16(uint16_t,uint8_t);
+uint32_t ShiftLogicalLeft32(uint32_t,uint8_t);
 uint8_t RotateRight8(uint8_t,uint8_t);
 uint16_t RotateRight16(uint16_t,uint8_t);
+uint32_t RotateRight32(uint32_t,uint8_t);
 uint8_t RotateLeft8(uint8_t,uint8_t);
 uint16_t RotateLeft16(uint16_t,uint8_t);
+uint32_t RotateLeft32(uint32_t,uint8_t);
 uint8_t RotateCarryRight8(uint8_t,uint8_t);
 uint16_t RotateCarryRight16(uint16_t,uint8_t);
+uint32_t RotateCarryRight32(uint32_t,uint8_t);
 uint8_t RotateCarryLeft8(uint8_t,uint8_t);
 uint16_t RotateCarryLeft16(uint16_t,uint8_t);
+uint32_t RotateCarryLeft32(uint32_t,uint8_t);
 
 
 void InstallOp(uint8_t,opcode,uint32_t=CPU086);
@@ -323,6 +330,9 @@ void op32_test_rm32_r32();
 void op32_test_eax_imm32();
 void op32_xchg_rm32_r32();
 void op32_group_FF();
+void op32_group_8F();
+void op32_group_D1();
+
 
 //Oh God how I hate prototyping and adding the opcodes to the master InstallOp list...
 
@@ -432,6 +442,14 @@ void op32_push_m32(ModRM &rm);
 void op32_inc_rm32(ModRM &rm);
 void op32_dec_rm32(ModRM &rm);
 void op32_call_rm32(ModRM &rm);
+void op32_pop_m32(ModRM &rm);
+void op32_sar_rm32_1(ModRM &rm);
+void op32_shl_rm32_1(ModRM &rm);
+void op32_shr_rm32_1(ModRM &rm);
+void op32_rol_rm32_1(ModRM &rm);
+void op32_ror_rm32_1(ModRM &rm);
+void op32_rcr_rm32_1(ModRM &rm);
+void op32_rcl_rm32_1(ModRM &rm);
 
 
 void Push16(uint16_t val){

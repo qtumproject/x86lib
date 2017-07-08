@@ -233,6 +233,21 @@ void x86CPU::op16_group_8F(){
 	}
 }
 
+void x86CPU::op32_group_8F(){
+    eip++;
+    ModRM rm(this);
+    switch(rm.GetExtra()){
+        case 0:
+            op32_pop_m32(rm);
+            break;
+
+        default:
+            eip--;
+            throw CpuInt_excp(UNK_IEXCP);
+            break;
+    }
+}
+
 void x86CPU::op16_group_F6(){
 	eip++;
 	ModRM rm(this);
@@ -450,6 +465,40 @@ void x86CPU::op16_group_D1(){
 		throw CpuInt_excp(UNK_IEXCP);
 		break;
 	}
+}
+
+void x86CPU::op32_group_D1(){
+    eip++;
+    ModRM rm(this);
+    switch(rm.GetExtra()){
+        case 7:
+            op32_sar_rm32_1(rm);
+            break;
+        case 4:
+            op32_shl_rm32_1(rm);
+            break;
+        case 5:
+            op32_shr_rm32_1(rm);
+            break;
+        case 0:
+            op32_rol_rm32_1(rm);
+            break;
+        case 1:
+            op32_ror_rm32_1(rm);
+            break;
+        case 3:
+            op32_rcr_rm32_1(rm);
+            break;
+        case 2:
+            op32_rcl_rm32_1(rm);
+            break;
+
+
+        default:
+            eip--;
+            throw CpuInt_excp(UNK_IEXCP);
+            break;
+    }
 }
 
 void x86CPU::op16_group_D2(){

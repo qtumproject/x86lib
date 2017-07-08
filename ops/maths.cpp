@@ -324,6 +324,30 @@ uint16_t x86CPU::ShiftLogicalRight16(uint16_t base,uint8_t count){
 	freg.of=0;
 	return base;
 }
+
+uint32_t x86CPU::ShiftLogicalRight32(uint32_t base,uint8_t count){
+    count&=0x1F; //only use bottom 5 bits
+    if(count==0){
+        CalculatePF32(base);
+        CalculateSF32(base);
+        freg.zf=1;
+        return base;
+    }
+    freg.of=(base&0x80000000)>>31;
+    freg.cf=(base>>(count-1))&1;
+    base=base>>count;
+    freg.of=freg.of^((base&0x80000000)>>31); //if the sign bit changed, then set it to 1
+    CalculatePF32(base);
+    CalculateSF32(base);
+    if(base==0){
+        freg.zf=1;
+    }else{
+        freg.zf=0;
+    }
+    freg.of=0;
+    return base;
+}
+
 uint8_t x86CPU::ShiftArithmeticRight8(uint8_t base,uint8_t count){
 	count&=0x1F; //only use bottom 5 bits
 	if(count==0){
@@ -375,6 +399,32 @@ uint16_t x86CPU::ShiftArithmeticRight16(uint16_t base,uint8_t count){
 	return base;
 }
 
+uint32_t x86CPU::ShiftArithmeticRight32(uint32_t base,uint8_t count){
+    count&=0x1F; //only use bottom 5 bits
+    if(count==0){
+        CalculatePF32(base);
+        CalculateSF32(base);
+        freg.zf=1;
+        return base;
+    }
+    freg.cf=(base>>(count-1))&1;
+    if((base&0x80000000)!=0){
+        base=(base>>count)|(~(0xFFFFFFFF>>count)); //this replaces displaced zero bits with the sign bit
+    }else{
+        base=(base>>count);
+    }
+    freg.of=0;
+    CalculatePF32(base);
+    CalculateSF32(base);
+    if(base==0){
+        freg.zf=1;
+    }else{
+        freg.zf=0;
+    }
+    freg.of=0;
+    return base;
+}
+
 uint8_t x86CPU::ShiftLogicalLeft8(uint8_t base,uint8_t count){
 	count&=0x1F; //only use bottom 5 bits
 	if(count==0){
@@ -420,8 +470,31 @@ uint16_t x86CPU::ShiftLogicalLeft16(uint16_t base,uint8_t count){
 	return base;
 }
 
+uint32_t x86CPU::ShiftLogicalLeft32(uint32_t base,uint8_t count){
+    count&=0x1F; //only use bottom 5 bits
+    if(count==0){
+        CalculatePF32(base);
+        CalculateSF32(base);
+        freg.zf=1;
+        return base;
+    }
+    freg.of=(base&0x80000000)>>31;
+    freg.cf=((base<<(count-1))&0x80000000)>>31;
+    base=base<<count;
+    freg.of=freg.of^((base&0x80000000)>>31); //if the sign bit changed, then set it to 1
+    CalculatePF32(base);
+    CalculateSF32(base);
+    if(base==0){
+        freg.zf=1;
+    }else{
+        freg.zf=0;
+    }
+    return base;
+}
+
 /**ToDo: Possibly adapt BOCHS source so that we avoid this loop crap...**/
 uint8_t x86CPU::RotateRight8(uint8_t base,uint8_t count){
+    count&=0x1F; //only use bottom 5 bits
 	freg.of=(base&0x80)>>7;
 	while(count>0){
 		freg.cf=(base&0x01);
@@ -433,6 +506,7 @@ uint8_t x86CPU::RotateRight8(uint8_t base,uint8_t count){
 }
 
 uint16_t x86CPU::RotateRight16(uint16_t base,uint8_t count){
+    count&=0x1F; //only use bottom 5 bits
 	freg.of=(base&0x8000)>>15;
 	while(count>0){
 		freg.cf=(base&0x01);
@@ -442,8 +516,20 @@ uint16_t x86CPU::RotateRight16(uint16_t base,uint8_t count){
 	freg.of=freg.of^((base&0x80)>>15);
 	return base;
 }
+uint32_t x86CPU::RotateRight32(uint32_t base,uint8_t count){
+    count&=0x1F; //only use bottom 5 bits
+    freg.of=(base&0x80000000)>>31;
+    while(count>0){
+        freg.cf=(base&0x01);
+        base=(freg.cf<<31)|(base>>1);
+        count--;
+    }
+    freg.of=freg.of^((base&0x80)>>31);
+    return base;
+}
 
 uint8_t x86CPU::RotateLeft8(uint8_t base,uint8_t count){
+    count&=0x1F; //only use bottom 5 bits
 	freg.of=(base&0x80)>>7;
 	while(count>0){
 		freg.cf=(base&0x80)>>7;
@@ -455,6 +541,7 @@ uint8_t x86CPU::RotateLeft8(uint8_t base,uint8_t count){
 }
 
 uint16_t x86CPU::RotateLeft16(uint16_t base,uint8_t count){
+    count&=0x1F; //only use bottom 5 bits
 	freg.of=(base&0x8000)>>15;
 	while(count>0){
 		freg.cf=(base&0x8000)>>15;
@@ -465,7 +552,20 @@ uint16_t x86CPU::RotateLeft16(uint16_t base,uint8_t count){
 	return base;
 }
 
+uint32_t x86CPU::RotateLeft32(uint32_t base,uint8_t count){
+    count&=0x1F; //only use bottom 5 bits
+    freg.of=(base&0x80000000)>>31;
+    while(count>0){
+        freg.cf=(base&0x80000000)>>31;
+        base=(freg.cf)|(base<<1);
+        count--;
+    }
+    freg.of=freg.of^((base&0x80000000)>>31);
+    return base;
+}
+
 uint8_t x86CPU::RotateCarryLeft8(uint8_t base,uint8_t count){
+    count&=0x1F; //only use bottom 5 bits
    freg.of=(base&0x80)>>7;
    while(count>0){
       freg.r0=freg.cf; //reserved bit as a temp variable...
@@ -479,6 +579,7 @@ uint8_t x86CPU::RotateCarryLeft8(uint8_t base,uint8_t count){
 }
 
 uint16_t x86CPU::RotateCarryLeft16(uint16_t base,uint8_t count){
+    count&=0x1F; //only use bottom 5 bits
 	freg.of=(base&0x8000)>>15;
 	while(count>0){
 		freg.r0=freg.cf; //reserved bit as a temp variable...
@@ -491,7 +592,22 @@ uint16_t x86CPU::RotateCarryLeft16(uint16_t base,uint8_t count){
 	return base;
 }
 
+uint32_t x86CPU::RotateCarryLeft32(uint32_t base,uint8_t count){
+    count&=0x1F; //only use bottom 5 bits
+    freg.of=(base&0x80000000)>>31;
+    while(count>0){
+        freg.r0=freg.cf; //reserved bit as a temp variable...
+        freg.cf=(base&0x80000000)>>31;
+        base=(base<<1);
+        base=(base&0xFFFFFFFE)|freg.r0; //zeros the 0 bit and puts (old)CF in it's place
+        count--;
+    }
+    freg.of=freg.of^((base&0x80000000)>>31);
+    return base;
+}
+
 uint8_t x86CPU::RotateCarryRight8(uint8_t base,uint8_t count){
+    count&=0x1F; //only use bottom 5 bits
 	freg.of=(base&0x80)>>7;
 	while(count>0){
 		freg.r0=freg.cf;
@@ -504,6 +620,7 @@ uint8_t x86CPU::RotateCarryRight8(uint8_t base,uint8_t count){
 }
 
 uint16_t x86CPU::RotateCarryRight16(uint16_t base,uint8_t count){
+    count&=0x1F; //only use bottom 5 bits
 	freg.of=(base&0x8000)>>15;
 	while(count>0){
 		freg.r0=freg.cf;
@@ -515,6 +632,18 @@ uint16_t x86CPU::RotateCarryRight16(uint16_t base,uint8_t count){
 	return base;
 }
 
+uint32_t x86CPU::RotateCarryRight32(uint32_t base,uint8_t count){
+    count&=0x1F; //only use bottom 5 bits
+    freg.of=(base&0x80000000)>>31;
+    while(count>0){
+        freg.r0=freg.cf;
+        freg.cf=(base&0x01);
+        base=(freg.r0<<31)|(base>>1);
+        count--;
+    }
+    freg.of=freg.of^((base&0x80000000)>>31);
+    return base;
+}
 
 
 
@@ -1395,6 +1524,9 @@ void x86CPU::op16_shr_rm8_1(ModRM &rm){
 void x86CPU::op16_shr_rm16_1(ModRM &rm){
 	rm.WriteWordr(ShiftLogicalRight16(rm.ReadWordr(),1));
 }
+void x86CPU::op32_shr_rm32_1(ModRM &rm){
+    rm.WriteDwordr(ShiftLogicalRight32(rm.ReadDwordr(),1));
+}
 
 void x86CPU::op16_shl_rm8_1(ModRM &rm){
 	rm.WriteByter(ShiftLogicalLeft8(rm.ReadByter(),1));
@@ -1403,11 +1535,17 @@ void x86CPU::op16_shl_rm16_1(ModRM &rm){
 	rm.WriteWordr(ShiftLogicalLeft16(rm.ReadWordr(),1));
 }
 
+void x86CPU::op32_shl_rm32_1(ModRM &rm){
+    rm.WriteDwordr(ShiftLogicalLeft32(rm.ReadDwordr(),1));
+}
 void x86CPU::op16_sar_rm8_1(ModRM &rm){
 	rm.WriteByter(ShiftArithmeticRight8(rm.ReadByter(),1));
 }
 void x86CPU::op16_sar_rm16_1(ModRM &rm){
 	rm.WriteWordr(ShiftArithmeticRight16(rm.ReadWordr(),1));
+}
+void x86CPU::op32_sar_rm32_1(ModRM &rm){
+    rm.WriteDwordr(ShiftArithmeticRight32(rm.ReadDwordr(),1));
 }
 
 void x86CPU::op16_rol_rm8_1(ModRM &rm){
@@ -1416,12 +1554,18 @@ void x86CPU::op16_rol_rm8_1(ModRM &rm){
 void x86CPU::op16_rol_rm16_1(ModRM &rm){
 	rm.WriteWordr(RotateLeft16(rm.ReadWordr(),1));
 }
+void x86CPU::op32_rol_rm32_1(ModRM &rm){
+    rm.WriteDwordr(RotateLeft32(rm.ReadDwordr(),1));
+}
 
 void x86CPU::op16_ror_rm8_1(ModRM &rm){
 	rm.WriteByter(RotateRight8(rm.ReadByter(),1));
 }
 void x86CPU::op16_ror_rm16_1(ModRM &rm){
 	rm.WriteWordr(RotateRight16(rm.ReadWordr(),1));
+}
+void x86CPU::op32_ror_rm32_1(ModRM &rm){
+	rm.WriteDwordr(RotateRight32(rm.ReadDwordr(),1));
 }
 
 
@@ -1431,12 +1575,18 @@ void x86CPU::op16_rcl_rm8_1(ModRM &rm){
 void x86CPU::op16_rcl_rm16_1(ModRM &rm){
 	rm.WriteWordr(RotateCarryLeft16(rm.ReadWordr(),1));
 }
+void x86CPU::op32_rcl_rm32_1(ModRM &rm){
+    rm.WriteDwordr(RotateCarryLeft32(rm.ReadDwordr(),1));
+}
 
 void x86CPU::op16_rcr_rm8_1(ModRM &rm){
 	rm.WriteByter(RotateCarryRight8(rm.ReadByter(),1));
 }
 void x86CPU::op16_rcr_rm16_1(ModRM &rm){
 	rm.WriteWordr(RotateCarryRight16(rm.ReadWordr(),1));
+}
+void x86CPU::op32_rcr_rm32_1(ModRM &rm){
+    rm.WriteDwordr(RotateCarryRight32(rm.ReadDwordr(),1));
 }
 
 void x86CPU::op16_not_rm8(ModRM &rm){
