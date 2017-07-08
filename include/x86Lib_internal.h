@@ -164,11 +164,21 @@ static inline uint16_t SignExtend8(uint8_t val){ //sign extend a byte to a word
 }
 
 //convert signed integer into unsigned, and store top bit in store
+static inline uint64_t Unsign64(uint64_t val,bool &store){
+
+    if(val>=0x8000000000000000){
+        store=1;
+        return (~(val))+1;
+    }else{
+        store=0;
+        return val;
+    }
+
+}
 static inline uint32_t Unsign32(uint32_t val,bool &store){
 
 	if(val>=0x80000000){
 		store=1;
-		//cout << hex << "0x" << (int) ~(-2) << endl;
 		return (~(val))+1;
 	}else{
 		store=0;
@@ -180,7 +190,6 @@ static inline uint32_t Unsign32(uint32_t val,bool &store){
 static inline uint16_t Unsign16(uint16_t val,bool &store){
 	if(val>=0x8000){
 		store=1;
-		//cout << hex << "0x" << (int) ~(-2) << endl;
 		return (~(val))+1;
 	}else{
 		store=0;
@@ -202,6 +211,13 @@ static inline uint8_t Unsign8(uint8_t val,bool &store){
 
 /**Resign an unsigned integer using the store as the sign bit.
 --Note, in order to combine two sign bits, just bitwise XOR(^) them!*/
+static inline uint64_t Resign64(uint64_t val,bool store1){
+    if((store1)==1){
+        return (~(val))+1;
+    }else{
+        return val;
+    }
+}
 static inline uint32_t Resign32(uint32_t val,bool store1){
 	if((store1)==1){
 		return (~(val))+1;

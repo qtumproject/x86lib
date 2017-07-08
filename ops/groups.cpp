@@ -316,6 +316,40 @@ void x86CPU::op16_group_F7(){
 	}
 }
 
+void x86CPU::op32_group_F7(){
+    eip++;
+    ModRM rm(this);
+    switch(rm.GetExtra()){
+        case 6:
+            op32_div_rm32(rm);
+            break;
+        case 7:
+            op32_idiv_rm32(rm);
+            break;
+        case 4:
+            op32_mul_rm32(rm);
+            break;
+        case 5:
+            op32_imul_rm32(rm);
+            break;
+        case 3:
+            op32_neg_rm32(rm);
+            break;
+        case 0:
+            op32_test_rm32_imm32(rm);
+            eip+=4;
+            break;
+        case 2:
+            op32_not_rm32(rm);
+            break;
+
+        default:
+            eip--;
+            throw CpuInt_excp(UNK_IEXCP);
+            break;
+    }
+}
+
 
 void x86CPU::op16_group_FF(){
 	eip++;

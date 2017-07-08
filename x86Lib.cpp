@@ -679,8 +679,7 @@ void x86CPU::InitOpcodes(){
     InstallOp(0x8F,&x86CPU::op32_group_8F);
 
     InstallOp(0xD1,&x86CPU::op32_group_D1);
-    InstallOp(0xF7,&x86CPU::op16_group_F7);
-    InstallOp(0xD2,&x86CPU::op16_group_D2);
+    InstallOp(0xF7,&x86CPU::op32_group_F7);
 }
 
 

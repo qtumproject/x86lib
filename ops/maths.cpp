@@ -1092,6 +1092,20 @@ void x86CPU::op16_neg_rm16(ModRM &rm){
 	}
 }
 
+void x86CPU::op32_neg_rm32(ModRM &rm){
+    uint32_t tmp=rm.ReadDwordr();
+    if(tmp==0xFFFFFFFF){
+        freg.of=1;
+        return;
+    }
+    rm.WriteDwordr(Sub32(0,tmp));
+    if(tmp==0){
+        freg.cf=0;
+    }else{
+        freg.cf=1;
+    }
+}
+
 
 
 void x86CPU::op16_div_rm8(ModRM &rm){
@@ -1112,8 +1126,19 @@ void x86CPU::op16_div_rm16(ModRM &rm){
 	if((((*regs16[DX]<<16)|(*regs16[AX]))/rm.ReadWordr())>0xFFFF){
 		throw CpuInt_excp(DIV0_IEXCP);
 	}
-	*regs8[AX]=((*regs16[DX]<<16)|(*regs16[AX]))/rm.ReadWordr();
-	*regs8[DX]=((*regs16[DX]<<16)|(*regs16[AX]))%rm.ReadWordr();
+	*regs16[AX]=((*regs16[DX]<<16)|(*regs16[AX]))/rm.ReadWordr();
+	*regs16[DX]=((*regs16[DX]<<16)|(*regs16[AX]))%rm.ReadWordr();
+}
+
+void x86CPU::op32_div_rm32(ModRM &rm){
+    if(rm.ReadDwordr()==0){
+        throw CpuInt_excp(DIV0_IEXCP);
+    }
+    if((((uint64_t)regs32[EDX]<<32)|((uint64_t)regs32[EAX])/(uint64_t)rm.ReadDwordr()) > 0xFFFFFFFF){
+        throw CpuInt_excp(DIV0_IEXCP);
+    }
+    regs32[EAX]=(((uint64_t)regs32[EDX]<<32)|(regs32[EAX]))/rm.ReadDwordr();
+    regs32[EDX]=(((uint64_t)regs32[EDX]<<32)|(regs32[EAX]))%rm.ReadDwordr();
 }
 
 
@@ -1144,7 +1169,7 @@ void x86CPU::op16_idiv_rm16(ModRM &rm){
 	uint16_t tmp=rm.ReadWordr();
 	bool store1,store2;
 	tmp=Unsign16(tmp,store1);
-	static uint32_t tmp2=Unsign32(((*regs16[DX])<<16)|(*regs16[AX]),store2);
+	uint32_t tmp2=Unsign32(((*regs16[DX])<<16)|(*regs16[AX]),store2);
 
 	if((tmp2/tmp)>0xFFFF){
 		throw CpuInt_excp(DIV0_IEXCP);
@@ -1153,6 +1178,24 @@ void x86CPU::op16_idiv_rm16(ModRM &rm){
 	*regs16[DX]=tmp2%tmp;
 
 	*regs16[AX]=Resign16(*regs16[AX],store1^store2);
+}
+
+void x86CPU::op32_idiv_rm32(ModRM &rm){
+    uint32_t tmp= rm.ReadDwordr();
+    if(tmp == 0){
+        throw CpuInt_excp(DIV0_IEXCP);
+    }
+    bool store1,store2;
+    tmp=Unsign32(tmp,store1);
+    uint64_t tmp2=Unsign64((((uint64_t)regs32[EDX])<<32)|(regs32[EAX]),store2);
+
+    if(((uint64_t)tmp2/(uint64_t)tmp)>0xFFFFFFFF){
+        throw CpuInt_excp(DIV0_IEXCP);
+    }
+    regs32[EAX]=tmp2/tmp;
+    regs32[EDX]=tmp2%tmp;
+
+    regs32[EAX]=Resign32(regs32[EAX],store1^store2);
 }
 
 
@@ -1175,6 +1218,20 @@ void x86CPU::op16_mul_rm16(ModRM &rm){
     *regs16[AX]=result&0x0000FFFF;
     *regs16[DX]=(result&0xFFFF0000)>>16;
     if((*regs16[DX])>0){ //if tophalf of result has anything in it
+        freg.cf=1;
+        freg.of=1;
+    }else{
+        freg.cf=0;
+        freg.of=0;
+    }
+}
+
+void x86CPU::op32_mul_rm32(ModRM &rm){
+    uint64_t result;
+    result=(regs32[EAX])*(uint64_t)rm.ReadDwordr();
+    regs32[EAX]=result&0x00000000FFFFFFFF;
+    regs32[EDX]=(result&0xFFFFFFFF00000000)>>32;
+    if((regs32[EDX])>0){ //if tophalf of result has anything in it
         freg.cf=1;
         freg.of=1;
     }else{
@@ -1209,6 +1266,21 @@ void x86CPU::op16_imul_rm16(ModRM &rm){
 	result=Resign32(result,store1^store2);
 	*regs16[DX]=(result&0xFFFF0000)>>16;
 	*regs16[AX]=(result&0xFFFF);
+}
+
+void x86CPU::op32_imul_rm32(ModRM &rm){
+    bool store1,store2;
+    uint64_t result=Unsign32(regs32[EAX],store1) * (uint64_t)Unsign32(rm.ReadDwordr(),store2);
+    if((result&0xFFFFFFFF00000000)>0){
+        freg.of=1;
+        freg.cf=1;
+    }else{
+        freg.of=0;
+        freg.cf=0;
+    }
+    result=Resign64(result,store1^store2);
+    regs32[EDX]=(result&0xFFFFFFFF00000000)>>32;
+    regs32[EAX]=(result&0xFFFFFFFF);
 }
 
 
@@ -1455,7 +1527,7 @@ void x86CPU::op16_test_rm16_imm16(ModRM& rm){
 	And16(rm.ReadWordr(),ReadWord(cCS,eip+rm.GetLength()));
 }
 void x86CPU::op32_test_rm32_imm32(ModRM& rm){
-	And32(rm.ReadDwordr(),ReadDword(cCS,eip+rm.GetLength()));
+    And32(rm.ReadDwordr(),ReadDword(cCS,eip+rm.GetLength()));
 }
 
 void x86CPU::op16_test_rm16_imm8(ModRM& rm){
@@ -1595,6 +1667,9 @@ void x86CPU::op16_not_rm8(ModRM &rm){
 
 void x86CPU::op16_not_rm16(ModRM &rm){
 	rm.WriteWordr(~(rm.ReadWordr()));
+}
+void x86CPU::op32_not_rm32(ModRM &rm){
+    rm.WriteDwordr(~(rm.ReadDwordr()));
 }
 
 

@@ -332,6 +332,7 @@ void op32_xchg_rm32_r32();
 void op32_group_FF();
 void op32_group_8F();
 void op32_group_D1();
+void op32_group_F7();
 
 
 //Oh God how I hate prototyping and adding the opcodes to the master InstallOp list...
@@ -450,6 +451,12 @@ void op32_rol_rm32_1(ModRM &rm);
 void op32_ror_rm32_1(ModRM &rm);
 void op32_rcr_rm32_1(ModRM &rm);
 void op32_rcl_rm32_1(ModRM &rm);
+void op32_div_rm32(ModRM &rm);
+void op32_idiv_rm32(ModRM &rm);
+void op32_mul_rm32(ModRM &rm);
+void op32_imul_rm32(ModRM &rm);
+void op32_neg_rm32(ModRM &rm);
+void op32_not_rm32(ModRM &rm);
 
 
 void Push16(uint16_t val){
