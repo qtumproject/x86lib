@@ -37,10 +37,6 @@ void x86CPU::op16_movsb(){
 	WriteByte(cES,GetAddressReg(DI),ReadByte(DS,GetAddressReg(SI)));
 	SetIndex8();
 }
-void x86CPU::op32_movsb(){
-    WriteByte(cES,GetAddressReg(DI),ReadByte(DS,GetAddressReg(SI)));
-    SetIndex8();
-}
 
 void x86CPU::op16_movsw(){
 	WriteWord(cES,GetAddressReg(DI),ReadWord(DS,GetAddressReg(SI)));

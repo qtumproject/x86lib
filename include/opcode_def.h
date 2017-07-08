@@ -279,7 +279,6 @@ void op32_in_eax_imm8();
 void op32_in_eax_dx();
 void op32_out_dx_eax();
 void op32_movsd();
-void op32_movsb();
 void op32_rep();
 void op32_add_eax_imm32();
 void op32_mov_m32_imm32();

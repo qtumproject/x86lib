@@ -589,6 +589,7 @@ void x86CPU::InitOpcodes(){
     InstallOp(0x3C,&x86CPU::op16_cmp_al_imm8);
     InstallOp(0x24,&x86CPU::op16_and_al_imm8);
     InstallOp(0xA6,&x86CPU::op16_cmpsb);
+    InstallOp(0xA4,&x86CPU::op16_movsb);
 
     //unsupported opcodes
     InstallOp(0x8E,&x86CPU::op16_mov_sr_rm16);
@@ -628,7 +629,6 @@ void x86CPU::InitOpcodes(){
     InstallOp(0xED,&x86CPU::op32_in_eax_dx);
     InstallOp(0xEF,&x86CPU::op32_out_dx_eax);
     InstallOp(0xA5,&x86CPU::op32_movsd);
-    InstallOp(0xA4,&x86CPU::op32_movsb);
     InstallOp(0xF2,&x86CPU::op32_rep);
     InstallOp(0xF3,&x86CPU::op32_rep); //different, but handled by the same function...
     InstallOp(0x05,&x86CPU::op32_add_eax_imm32);
@@ -656,8 +656,6 @@ void x86CPU::InitOpcodes(){
     InstallOp(0x09,&x86CPU::op32_or_rm32_r32);
     InstallOp(0x0B,&x86CPU::op32_or_r32_rm32);
     InstallOp(0x0D,&x86CPU::op32_or_eax_imm32);
-
-
     InstallOp(0xA7,&x86CPU::op32_cmpsd);
     InstallOp(0xE3,&x86CPU::op32_jcxz_rel8);
     InstallOp(0x15,&x86CPU::op32_adc_eax_imm32);
