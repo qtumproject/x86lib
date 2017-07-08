@@ -88,10 +88,10 @@ void x86CPU::op32_mov_rm32_r32(){
 
 void x86CPU::op16_mov_al_off8(){
     if(Use32BitAddress()) {
-        *regs8[AL] = ReadWord(DS, *(uint32_t *) &op_cache[1]);
+        *regs8[AL] = ReadByte(DS, *(uint32_t *) &op_cache[1]);
         eip+=4;
     }else{
-        *regs8[AL] = ReadWord(DS, *(uint16_t *) &op_cache[1]);
+        *regs8[AL] = ReadByte(DS, *(uint16_t *) &op_cache[1]);
         eip+=2;
     }
 }
@@ -101,6 +101,15 @@ void x86CPU::op16_mov_ax_off16(){
         eip+=4;
     }else{
         *regs16[AX] = ReadWord(DS, *(uint16_t *) &op_cache[1]);
+        eip+=2;
+    }
+}
+void x86CPU::op32_mov_eax_off32(){
+    if(Use32BitAddress()) {
+        regs32[EAX] = ReadDword(DS, *(uint32_t *) &op_cache[1]);
+        eip+=4;
+    }else{
+        regs32[EAX] = ReadDword(DS, *(uint16_t *) &op_cache[1]);
         eip+=2;
     }
 }
@@ -132,6 +141,16 @@ void x86CPU::op16_mov_off16_ax(){
         eip+=4;
     }else{
         WriteWord(DS, *(uint16_t *) &op_cache[1], *regs16[AX]);
+        eip+=2;
+
+    }
+}
+void x86CPU::op32_mov_off32_eax(){
+    if(Use32BitAddress()) {
+        WriteDword(DS, *(uint32_t *) &op_cache[1], regs32[EAX]);
+        eip+=4;
+    }else{
+        WriteDword(DS, *(uint16_t *) &op_cache[1], regs32[EAX]);
         eip+=2;
 
     }
@@ -179,6 +198,10 @@ void x86CPU::op16_lea(){ //wtf is the point of this instruction! why not just mo
 void x86CPU::op16_push_imm8(){
 	eip++;
 	Push16(op_cache[1]);
+}
+void x86CPU::op32_push_imm8(){
+    eip++;
+    Push32(op_cache[1]);
 }
 void x86CPU::op16_push_m16(ModRM &rm){
 	Push16(rm.ReadWordr());

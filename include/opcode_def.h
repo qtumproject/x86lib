@@ -291,7 +291,21 @@ void op32_stosd();
 void op32_sub_rm32_r32();
 void op32_sub_r32_rm32();
 void op32_group_81();
-
+void op32_mov_eax_off32();
+void op32_mov_off32_eax();
+void op32_add_rm32_r32();
+void op32_cmp_rm32_r32();
+void op32_cmp_r32_rm32();
+void op32_cmp_eax_imm32();
+void op32_jmp_rel32();
+void op32_push_imm8();
+void op32_cwq();
+void op32_and_rm32_r32();
+void op32_and_r32_rm32();
+void op32_and_eax_imm32();
+void op32_or_rm32_r32();
+void op32_or_r32_rm32();
+void op32_or_eax_imm32();
 
 //Oh God how I hate prototyping and adding the opcodes to the master InstallOp list...
 

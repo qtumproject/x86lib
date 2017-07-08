@@ -583,6 +583,11 @@ void x86CPU::InitOpcodes(){
     InstallOp(0xAE,&x86CPU::op16_scasb);
     InstallOp(0xD7,&x86CPU::op16_xlatb);
     InstallOp(0xAA,&x86CPU::op16_stosb);
+    InstallOp(0xA0,&x86CPU::op16_mov_al_off8);
+    InstallOp(0xA2,&x86CPU::op16_mov_off8_al);
+    InstallOp(0xC6,&x86CPU::op16_mov_m8_imm8);
+    InstallOp(0x3C,&x86CPU::op16_cmp_al_imm8);
+    InstallOp(0x24,&x86CPU::op16_and_al_imm8);
 
     //unsupported opcodes
     InstallOp(0x8E,&x86CPU::op16_mov_sr_rm16);
@@ -627,45 +632,39 @@ void x86CPU::InitOpcodes(){
     InstallOp(0xF3,&x86CPU::op32_rep); //different, but handled by the same function...
     InstallOp(0x05,&x86CPU::op32_add_eax_imm32);
     InstallOp(0xC7,&x86CPU::op32_mov_m32_imm32);
-    InstallOp(0x03,&x86CPU::op16_add_r16_rm16);
+    InstallOp(0x03,&x86CPU::op32_add_r32_rm32);
     InstallOp(0x83,&x86CPU::op32_group_83);
     InstallOp(0xAD,&x86CPU::op32_lodsd);
     InstallOp(0xAF,&x86CPU::op32_scasd);
     InstallOp(0xAB,&x86CPU::op32_stosd);
     InstallOp(0x29,&x86CPU::op32_sub_rm32_r32);
     InstallOp(0x2B,&x86CPU::op32_sub_r32_rm32);
-
     InstallOp(0x81,&x86CPU::op32_group_81);
+    InstallOp(0xA1,&x86CPU::op32_mov_eax_off32);
+    InstallOp(0xA3,&x86CPU::op32_mov_off32_eax);
+    InstallOp(0x01,&x86CPU::op32_add_rm32_r32);
+    InstallOp(0x39,&x86CPU::op32_cmp_rm32_r32);
+    InstallOp(0x3B,&x86CPU::op32_cmp_r32_rm32);
+    InstallOp(0x3D,&x86CPU::op32_cmp_eax_imm32);
+    InstallOp(0xE9,&x86CPU::op32_jmp_rel32);
+
+
+    InstallOp(0x6A,&x86CPU::op32_push_imm8);
+    InstallOp(0x99,&x86CPU::op32_cwq);
+    InstallOp(0x21,&x86CPU::op32_and_rm32_r32);
+    InstallOp(0x23,&x86CPU::op32_and_r32_rm32);
+    InstallOp(0x25,&x86CPU::op32_and_eax_imm32);
+    InstallOp(0x09,&x86CPU::op32_or_rm32_r32);
+    InstallOp(0x0B,&x86CPU::op32_or_r32_rm32);
+    InstallOp(0x0D,&x86CPU::op32_or_eax_imm32);
 
     //TODO opcodes:
     /*
-	InstallOp(0x01,&x86CPU::op16_add_rm16_r16);
-	InstallOp(0x03,&x86CPU::op16_add_r16_rm16);
-	InstallOp(0xA0,&x86CPU::op16_mov_al_off8);
-	InstallOp(0xA1,&x86CPU::op16_mov_ax_off16);
-	InstallOp(0xA2,&x86CPU::op16_mov_off8_al);
-	InstallOp(0xA3,&x86CPU::op16_mov_off16_ax);
-	InstallOp(0xC6,&x86CPU::op16_mov_m8_imm8);
-	InstallOp(0x39,&x86CPU::op16_cmp_rm16_r16);
-	InstallOp(0x3B,&x86CPU::op16_cmp_r16_rm16);
-	InstallOp(0x3C,&x86CPU::op16_cmp_al_imm8);
-	InstallOp(0x3D,&x86CPU::op16_cmp_ax_imm16); //3D TimD Tim Vision TV!!! Yay!!!
-	InstallOp(0x83,&x86CPU::op16_group_83); //83 is my lucky number btw...
 	InstallOp(0xFF,&x86CPU::op16_group_FF);
-	InstallOp(0xE9,&x86CPU::op16_jmp_rel16);
-	InstallOp(0x6A,&x86CPU::op16_push_imm8);
 	InstallOp(0x8F,&x86CPU::op16_group_8F);
 	InstallOp(0xFE,&x86CPU::op16_group_FE);
 	InstallOp(0xF6,&x86CPU::op16_group_F6);
 	InstallOp(0xF7,&x86CPU::op16_group_F7);
-	InstallOp(0x99,&x86CPU::op16_cwd);
-	InstallOp(0x21,&x86CPU::op16_and_rm16_r16);
-	InstallOp(0x23,&x86CPU::op16_and_r16_rm16);
-	InstallOp(0x24,&x86CPU::op16_and_al_imm8);
-	InstallOp(0x25,&x86CPU::op16_and_ax_imm16);
-	InstallOp(0x09,&x86CPU::op16_or_rm16_r16);
-	InstallOp(0x0B,&x86CPU::op16_or_r16_rm16);
-	InstallOp(0x0D,&x86CPU::op16_or_ax_imm16);
 	InstallOp(0xA6,&x86CPU::op16_cmpsb);
 	InstallOp(0xA7,&x86CPU::op16_cmpsw);
 	InstallOp(0xE3,&x86CPU::op16_jcxz_rel8);

@@ -223,6 +223,13 @@ void x86CPU::op16_cwd(){
 		*regs16[DX]=0;
 	}
 }
+void x86CPU::op32_cwq(){
+    if(regs32[EAX]>=0x80000000){
+        regs32[EDX]=0xFFFFFFFF;
+    }else{
+        regs16[EDX]=0;
+    }
+}
 
 void x86CPU::op16_escape(){
 	/**This is for FPU escape opcodes

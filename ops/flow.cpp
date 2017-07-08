@@ -49,6 +49,10 @@ void x86CPU::op16_jmp_rel16(){
 	eip+=2; //get to last byte of address so jmp works right
 	Jmp16_near16(*(uint16_t*)&op_cache[1]);
 }
+void x86CPU::op32_jmp_rel32(){
+    eip+=4; //get to last byte of address so jmp works right
+    Jmp32_near32(*(uint32_t*)&op_cache[1]);
+}
 
 void x86CPU::op16_jmp_imm16_imm16(){ //far jmp
     throw CpuPanic_excp("Unsupported operation (segment register modification)", UNSUPPORTED_EXCP);
