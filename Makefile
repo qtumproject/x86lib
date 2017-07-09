@@ -60,8 +60,8 @@ VERSION=1.0
 
 default:
 #build the library
-	i386-elf-gcc -Os -c testos.c -o testos.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra -fdata-sections -ffunction-sections
-	i386-elf-gcc -Os -dead_strip -T linker.ld -o testos.bin -ffreestanding -O2 -nostdlib testos.o -lgcc -Wl,--gc-sections
+	i386-elf-gcc -c testos.c -o testos.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra -fdata-sections -ffunction-sections
+	i386-elf-gcc -dead_strip -T linker.ld -o testos.bin -ffreestanding -O2 -nostdlib testos.o -lgcc -Wl,--gc-sections
 	yasm -o test_os.bin test_os.asm
 	yasm -o bios.bin bios.asm
 	g++ $(debug_CPPFLAGS) -c x86Lib.cpp -o objs/x86Lib.o

@@ -578,7 +578,7 @@ inline void ModRM::WriteDwordr(uint32_t dword){
 }
 inline void ModRM::WriteDword(uint32_t dword){
     if(this_cpu->Use32BitAddress()){
-        return WriteDword(dword);
+        return WriteDwordr32(dword);
     }
 	use_ss=0;
 	op_specific=0;

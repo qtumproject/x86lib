@@ -1,11 +1,12 @@
 OUTPUT_FORMAT("binary")
 ENTRY(start)
-phys = 0x00000000;
+phys = 0x0000;
 SECTIONS
 {
   .text phys : AT(phys) {
     code = .;
-    *(.text)
+    *(.text.start);
+    *(.text*)
     *(.rodata)
     . = ALIGN(4);
   }
