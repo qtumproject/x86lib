@@ -35,71 +35,8 @@ This file is part of the x86Lib project.
 
 
 namespace x86Lib{
-	//32 bit register macros
-static const int EAX=0;
-static const int ECX=1;
-static const int EDX=2;
-static const int EBX=3;
-static const int ESP=4;
-static const int EBP=5;
-static const int ESI=6;
-static const int EDI=7;
 
-
-//16 bit register macros
-static const int AX=0;
-static const int CX=1;
-static const int DX=2;
-static const int BX=3;
-static const int SP=4;
-static const int BP=5;
-static const int SI=6;
-static const int DI=7;
-
-//8 bit register macros
-static const int AL=0;
-static const int CL=1;
-static const int DL=2;
-static const int BL=3;
-static const int AH=4;
-static const int CH=5;
-static const int DH=6;
-static const int BH=7;
-
-
-//segment registers constants(the defaults)
-static const int cES=0;
-static const int cCS=1;
-static const int cSS=2;
-static const int cDS=3;
-static const int cFS=4;
-static const int cGS=5;
-static const int cIS=6; //this is an imaginary segment only used for direct segment overrides
-//for instance it would be used in mov [1000:bx],ax
-
-
-
-typedef struct{
-    unsigned char cf:1;
-    unsigned char r0:1;
-    unsigned char pf:1;
-    unsigned char r1:1;
-    unsigned char af:1;
-    unsigned char r2:1;
-    unsigned char zf:1;
-    unsigned char sf:1;
-    unsigned char tf:1;
-    unsigned char _if:1;
-    unsigned char df:1;
-    unsigned char of:1;
-    unsigned char iopl:2; //not yet used
-    unsigned char nt:1;
-    unsigned char r3:1;
-}__attribute__((packed))FLAGS; //this is a better representation of flags(much easier to use)
-
-
-
-
+class x86CPU;
 
 typedef void (x86Lib::x86CPU::*opcode)(); /**You have no idea how hard it was to figure out how to do that!**/
 
@@ -233,10 +170,3 @@ static inline uint8_t Resign8(uint8_t val,bool store1){
 
 #endif
 
-
-#ifdef X86_POST_CPU
-
-#ifndef X86LIB_INTERNAL_H_POST_CPU
-#define X86LIB_INTERNAL_H_POST_CPU
-#endif
-#endif

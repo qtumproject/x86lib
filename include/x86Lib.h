@@ -35,6 +35,10 @@ This file is part of the x86Lib project.
 #include <stdint.h>
 #include <string>
 
+#ifdef X86LIB_BUILD
+#include <x86Lib_internal.h>
+#endif
+
 //! The main namespace of x86Lib
 namespace x86Lib{
 
@@ -261,11 +265,64 @@ struct x86SaveData{
 
 };
 
-#ifdef X86LIB_BUILD
+//32 bit register macros
+static const int EAX=0;
+static const int ECX=1;
+static const int EDX=2;
+static const int EBX=3;
+static const int ESP=4;
+static const int EBP=5;
+static const int ESI=6;
+static const int EDI=7;
 
-#include <x86Lib_internal.h>
-#endif
 
+//16 bit register macros
+static const int AX=0;
+static const int CX=1;
+static const int DX=2;
+static const int BX=3;
+static const int SP=4;
+static const int BP=5;
+static const int SI=6;
+static const int DI=7;
+
+//8 bit register macros
+static const int AL=0;
+static const int CL=1;
+static const int DL=2;
+static const int BL=3;
+static const int AH=4;
+static const int CH=5;
+static const int DH=6;
+static const int BH=7;
+
+//segment registers constants(the defaults)
+static const int cES=0;
+static const int cCS=1;
+static const int cSS=2;
+static const int cDS=3;
+static const int cFS=4;
+static const int cGS=5;
+static const int cIS=6; //this is an imaginary segment only used for direct segment overrides
+//for instance it would be used in mov [1000:bx],ax
+
+typedef struct{
+    unsigned char cf:1;
+    unsigned char r0:1;
+    unsigned char pf:1;
+    unsigned char r1:1;
+    unsigned char af:1;
+    unsigned char r2:1;
+    unsigned char zf:1;
+    unsigned char sf:1;
+    unsigned char tf:1;
+    unsigned char _if:1;
+    unsigned char df:1;
+    unsigned char of:1;
+    unsigned char iopl:2; //not yet used
+    unsigned char nt:1;
+    unsigned char r3:1;
+}__attribute__((packed))FLAGS; //this is a better representation of flags(much easier to use)
 
 
 namespace x86Lib{
@@ -338,11 +395,7 @@ class x86CPU{
 	volatile uint8_t *regs8[8];
 	volatile uint16_t seg[7];
 	volatile uint32_t eip;
-	#ifdef X86LIB_BUILD
 	volatile FLAGS freg;
-	#else
-	volatile uint16_t freg;
-	#endif
 	volatile uint8_t op_cache[8];
     //These variables should be used instead of cES etc when the segment register can not be overridden
 	volatile uint8_t ES;
@@ -454,6 +507,26 @@ class x86CPU{
 
 	void Stop(){DoStop=true;}
 
+    //provided mainly for slightly easier debugging
+    uint8_t ReadByte(uint32_t address){
+        uint8_t res;
+        Memory->Read(address, 1, &res);
+        return res;
+    }
+
+    uint32_t GetRegister32(int reg){
+        if(reg > 7){
+            return 0;
+        }
+        return regs32[reg];
+    }
+    void SetRegister32(int reg, uint32_t val){
+        if(reg > 7){
+            return;
+        }
+        regs32[reg] = val;
+    }
+
     /*End public interface*/
 	#ifdef X86LIB_BUILD
 	private:
@@ -461,30 +534,6 @@ class x86CPU{
 	#endif
 
 };
-
-
-
-#ifdef X86LIB_BUILD
-#define X86_POST_CPU
-#include <x86Lib_internal.h>
-#undef X86_POST_CPU
-#endif
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

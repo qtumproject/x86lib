@@ -71,18 +71,6 @@ uint32_t RotateCarryLeft32(uint32_t,uint8_t);
 
 void InstallOp(uint8_t,opcode,uint32_t=CPU086);
 void InitOpcodes();
-/*
-uint8_t ReadByte(uint8_t seg,uint32_t offset);
-uint16_t ReadWord(uint8_t seg,uint32_t offset);
-uint32_t ReadDword(uint8_t seg,uint32_t offset);
-
-void WriteByte(uint8_t seg,uint32_t offset,uint8_t data);
-void WriteWord(uint8_t seg,uint32_t offset,uint16_t data);
-void WriteDword(uint8_t seg,uint32_t offset,uint32_t data);
-*/
-
-
-
 
 
 void op16_unknown();
@@ -336,8 +324,6 @@ void op32_group_F7();
 
 
 //Oh God how I hate prototyping and adding the opcodes to the master InstallOp list...
-
-
 
 
 /**Group Include Functions(not direct opcodes)**/
