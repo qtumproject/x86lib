@@ -5,7 +5,7 @@ using namespace x86Lib;
 
 void x86CPU::Push16(uint16_t val){
     if(Use32BitAddress()) {
-        regs16[ESP] -= 4;
+        regs32[ESP] -= 4;
         WriteWord(cSS, regs32[ESP], val);
     }else{
         *regs16[SP] -= 2;

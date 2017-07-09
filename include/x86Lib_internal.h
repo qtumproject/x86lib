@@ -77,12 +77,20 @@ class CpuInt_excp{ //Used internally for handling interrupt exceptions...
 
 /**Random support functions that are static inline'd**/
 
-static inline uint16_t SignExtend8(uint8_t val){ //sign extend a byte to a word
+static inline uint16_t SignExtend8to16(uint8_t val){ //sign extend a byte to a word
 	if((val&0x80)!=0){
 		return 0xFF00|val;
 	}else{
 		return val;
 	}
+}
+
+static inline uint32_t SignExtend8to32(uint8_t val){ //sign extend a byte to a word
+    if((val&0x80)!=0){
+        return 0xFFFFFFFF00|val;
+    }else{
+        return val;
+    }
 }
 
 //convert signed integer into unsigned, and store top bit in store
