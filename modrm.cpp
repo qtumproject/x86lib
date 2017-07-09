@@ -109,7 +109,7 @@ uint32_t ModRM::GetDisp32(){
             break;
         case 1: //byte displacement(signed)
             if(modrm.rm == 4){
-                return GetSIBDisp() + (int32_t)this_cpu->op_cache[2];
+                return (int32_t)GetSIBDisp() + (int32_t)this_cpu->op_cache[2];
             }else{
                 return (int32_t)reg+(int32_t)this_cpu->op_cache[1];
             }

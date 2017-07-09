@@ -530,6 +530,7 @@ class x86CPU{
         }
         regs32[reg] = val;
     }
+    std::vector<uint32_t> wherebeen;
 
     /*End public interface*/
 	#ifdef X86LIB_BUILD

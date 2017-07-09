@@ -121,12 +121,12 @@ struct ABI_Selfdestruct{
 
 
 //first is a 16bit size, then data follows
-uint8_t* abi_area = (void*)0xF0000;
+volatile uint8_t* abi_area = (void*)0xF0000;
 
 uint8_t owner[32];
 
-void exitResult(void* result, size_t size){
-    struct ABI_Exit abi;
+void exitResult(volatile void* result, size_t size){
+    volatile struct ABI_Exit abi;
     abi.resultAddress = (uint32_t)result;
     abi.resultSize = size;
     outd(ABI_EXIT, (uint32_t) &abi);
@@ -154,24 +154,24 @@ void getSender(uint8_t* output){
     outd(ABI_GETMSGINFO, (uint32_t)&output);
 }
 
-void allocateMemory(void* where, int size){
-    struct ABI_AllocateMemory abi;
+void allocateMemory(volatile void* where, int size){
+    volatile struct ABI_AllocateMemory abi;
     abi.desiredAddress=(uint32_t) where;
     abi.size=size;
     outd(ABI_ALLOCATE_MEMORY, (uint32_t) &abi);
 }
-void persistRestoreMemory(void* where, int size, void* storageAddress, int restore){
-    struct ABI_PersistMemory abi;
+void persistRestoreMemory(volatile void* where, int size, volatile void* storageAddress, int restore){
+    volatile struct ABI_PersistMemory abi;
     abi.address=(uint32_t) where;
     abi.storageAddress=(uint32_t)storageAddress;
     abi.size=size;
-    uint16_t port = restore ? ABI_PERSIST_MEMORY : ABI_PERSIST_MEMORY;
+    uint16_t port = restore ? ABI_RESTORE_MEMORY : ABI_PERSIST_MEMORY;
     outd(port, (uint32_t)&abi);
 }
 
 //we store greeting as first uint16_t is size, follows is string data
-uint16_t* greetingSize = (void*) (INITIAL_AREA + 0x1000);
-char* greeting = (void*) (INITIAL_AREA + 0x1002);
+volatile uint16_t* greetingSize = (void*) (INITIAL_AREA + 0x1000);
+volatile char* greeting = (void*) (INITIAL_AREA + 0x1002);
 
 
 
@@ -187,13 +187,14 @@ void kill(){
 }
 void greet(){
     //we must explicitly restore memory that we need
+    allocateMemory(greetingSize, 0x10002);
     persistRestoreMemory(greetingSize, 32, greetingSize, 1);
     if(*greetingSize > 30){
         persistRestoreMemory(greeting+30, *greetingSize-30, greeting+30, 1);
     }
     exitResult(greeting, *greetingSize);
 }
-void setGreeting(void* begin){
+void setGreeting(volatile void* begin){
     //greeting should already be in size+data format, so just store directly
     uint16_t size = *(uint16_t*)begin;
     outd(0xEE, size);

@@ -289,6 +289,7 @@ void x86CPU::Cycle(){
 #endif
 	CheckInterrupts();
 	*(uint64_t*)&op_cache=ReadQword(cCS,eip);
+    wherebeen.push_back((uint32_t)eip);
     //note this bit for 0x0F checking could probably be better in this very critical loop
     if(op_cache[0] == 0x0F){
         //two byte opcode
@@ -320,9 +321,15 @@ void x86CPU::InstallOp(uint8_t num,opcode func, opcode *opcode_table){
 void x86CPU::InitOpcodes(){
 	Opcodes=opcodes_16bit;
 	int i;
-	for(i=0;i<256;i++){
-		InstallOp(i,&x86CPU::op16_unknown);
-	}
+
+    //init all to unknown
+    for(i=0;i<256;i++){
+        InstallOp(i, &x86CPU::op16_unknown, opcodes_32bit_ext);
+        InstallOp(i, &x86CPU::op16_unknown, opcodes_32bit);
+        InstallOp(i, &x86CPU::op16_unknown, opcodes_16bit_ext);
+        InstallOp(i, &x86CPU::op16_unknown, opcodes_16bit);
+    }
+
 	for(i=0;i<=7;i++){
 		InstallOp(0xB0+i,&x86CPU::op16_mov_r8_imm8);
 		InstallOp(0x58+i,&x86CPU::op16_pop_r16);
@@ -503,10 +510,10 @@ void x86CPU::InitOpcodes(){
 	InstallOp(0xAB,&x86CPU::op16_stosw);
 
     Opcodes=opcodes_32bit;
-    InstallOp(0x66, &x86CPU::op32_size16);
     for(i=0;i<256;i++){
         InstallOp(i,&x86CPU::op16_unknown);
     }
+    InstallOp(0x66, &x86CPU::op32_size16);
     for(i=0;i<=7;i++){
         InstallOp(0xB0+i,&x86CPU::op16_mov_r8_imm8);
         InstallOp(0x58+i,&x86CPU::op32_pop_r32);
