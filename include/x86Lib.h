@@ -190,7 +190,7 @@ typedef struct DeviceRange
 	uint32_t high;
 	uint32_t low;
 }DeviceRange_t;
-/*Myk I hate you. This is going to be harder to implement than I thought. lol */
+
 class MemorySystem{
 	std::vector<DeviceRange_t> memorySystemVector;
 	protected:
@@ -288,8 +288,7 @@ typedef struct{
 //Also, eip should be on the modrm byte!
 //On return, it is on the last byte of the modrm block, so no advancement needed unelss there is an immediate
 //Also, this will advance EIP upon exiting the opcode(deconstruction)
-class ModRM{ //This is the best thing I have ever done...
-	//I love this class so much...am I cheating on her? lol
+class ModRM{
 	protected:
 	bool use_ss;
 	bool op_specific;
@@ -297,36 +296,36 @@ class ModRM{ //This is the best thing I have ever done...
 	private:
 	mod_rm modrm;
     scaleindex sib;
-	inline uint16_t GetRegD(); //This returns the register displacement value
-    inline uint32_t GetRegD32(); //This returns the register displacement value
-	inline uint16_t GetDisp();
-    inline uint32_t GetDisp32();
-    inline uint32_t GetSIBDisp();
+	uint16_t GetRegD(); //This returns the register displacement value
+    uint32_t GetRegD32(); //This returns the register displacement value
+	uint16_t GetDisp();
+    uint32_t GetDisp32();
+    uint32_t GetSIBDisp();
 	public:
 
-	inline ModRM(x86CPU* this_cpu_);
-	inline ~ModRM();
+	ModRM(x86CPU* this_cpu_);
+	~ModRM();
 	//The r suffix means /r, which means for op_specific=1, use general registers
-	inline uint8_t ReadByter();
-	inline uint16_t ReadWordr();
-	inline uint32_t ReadDword();
-    inline uint32_t ReadDwordr();
-	inline void WriteByter(uint8_t byte);
-	inline void WriteWordr(uint16_t word);
-	inline void WriteDword(uint32_t dword);
-    inline void WriteDwordr(uint32_t dword);
-    inline uint8_t ReadByter32();
-    inline uint16_t ReadWordr32();
-    inline uint32_t ReadDwordr32();
-    inline void WriteByter32(uint8_t byte);
-    inline void WriteWordr32(uint16_t word);
-    inline void WriteDwordr32(uint32_t dword);
-	inline uint8_t GetLength(); //This returns how many total bytes the modrm block consumes
-	inline uint8_t GetExtra(); //Get the extra fied from mod_rm
-	inline uint16_t ReadOffset(); //This is only used by LEA. It will obtain the offset and not dereference it...
-    inline uint32_t ReadOffset32(); //This is only used by LEA. It will obtain the offset and not dereference it...
+	uint8_t ReadByter();
+	uint16_t ReadWordr();
+	uint32_t ReadDword();
+    uint32_t ReadDwordr();
+	void WriteByter(uint8_t byte);
+	void WriteWordr(uint16_t word);
+	void WriteDword(uint32_t dword);
+    void WriteDwordr(uint32_t dword);
+    uint8_t ReadByter32();
+    uint16_t ReadWordr32();
+    uint32_t ReadDwordr32();
+    void WriteByter32(uint8_t byte);
+    void WriteWordr32(uint16_t word);
+    void WriteDwordr32(uint32_t dword);
+	uint8_t GetLength(); //This returns how many total bytes the modrm block consumes
+	uint8_t GetExtra(); //Get the extra fied from mod_rm
+	uint16_t ReadOffset(); //This is only used by LEA. It will obtain the offset and not dereference it...
+    uint32_t ReadOffset32(); //This is only used by LEA. It will obtain the offset and not dereference it...
 
-}; //I hope that SIB and ModR/M32 will be this good!
+};
 
 //!	The main CPU control class
 /*!	This class is the complete CPU. That being said, it is quite big
