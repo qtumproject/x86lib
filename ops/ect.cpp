@@ -261,8 +261,14 @@ void x86CPU::op32_size16(){
     eip++; //increment past override byte
     OperandSize16 = true;
     *(uint64_t*)&op_cache=ReadQword(cCS,eip);
-    (this->*opcodes_16bit[op_cache[0]])();
-    //operate on the this class with the opcode functions in this class
+    if(op_cache[0] == 0x0F){
+        //two byte opcode
+        eip++;
+        *(uint64_t*)&op_cache=ReadQword(cCS,eip);
+        (this->*opcodes_16bit_ext[op_cache[0]])();
+    }else {
+        (this->*opcodes_16bit[op_cache[0]])();
+    }
 }
 
 

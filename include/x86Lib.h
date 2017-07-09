@@ -421,7 +421,11 @@ class x86CPU{
 	void Cycle();
 	opcode opcodes_16bit[256];
     opcode opcodes_32bit[256];
-	opcode *Opcodes;
+    //2 byte opcodes beginning with 0x0F
+    opcode opcodes_16bit_ext[256];
+    opcode opcodes_32bit_ext[256];
+	opcode *Opcodes; //current opcode mode
+    opcode *Opcodes_ext; //current extended opcode mode
 	
 	/*!
 	\return 0 if no interrupts are pending

@@ -69,7 +69,7 @@ uint16_t RotateCarryLeft16(uint16_t,uint8_t);
 uint32_t RotateCarryLeft32(uint32_t,uint8_t);
 
 
-void InstallOp(uint8_t,opcode,uint32_t=CPU086);
+void InstallOp(uint8_t num,opcode op,opcode *table=NULL);
 void InitOpcodes();
 
 
@@ -444,6 +444,12 @@ void op32_imul_rm32(ModRM &rm);
 void op32_neg_rm32(ModRM &rm);
 void op32_not_rm32(ModRM &rm);
 
+
+
+//2-byte opcodes
+void op16_movzx_r16_rm8();
+void op32_movzx_r32_rm8();
+void op32_movzx_r32_rm16();
 
 
 //helpers

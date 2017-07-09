@@ -398,7 +398,21 @@ void x86CPU::op16_xlatb(){
     *regs8[AL] = ReadByte(DS, GetAddressReg(BX) + (*regs8[AL]));
 }
 
-
+void x86CPU::op16_movzx_r16_rm8(){
+    eip++;
+    ModRM rm(this);
+    *regs16[rm.GetExtra()] = rm.ReadByter();
+}
+void x86CPU::op32_movzx_r32_rm8(){
+    eip++;
+    ModRM rm(this);
+    regs32[rm.GetExtra()] = rm.ReadByter();
+}
+void x86CPU::op32_movzx_r32_rm16(){
+    eip++;
+    ModRM rm(this);
+    regs32[rm.GetExtra()] = rm.ReadWordr();
+}
 
 
 

@@ -81,6 +81,7 @@ void x86CPU::Reset(){
 	//assumes pmem and ports are still the same...
 	InitOpcodes();
     Opcodes = opcodes_32bit; //for smart contracts, don't use this as a full VM, just straight to 32bit mode
+    Opcodes_ext = opcodes_32bit_ext;
 	uint32_t i;
 	for(i=0;i<8;i++){
 		regs32[i]=0;
@@ -288,8 +289,16 @@ void x86CPU::Cycle(){
 #endif
 	CheckInterrupts();
 	*(uint64_t*)&op_cache=ReadQword(cCS,eip);
-	(this->*Opcodes[op_cache[0]])();
-	//operate on the this class with the opcode functions in this class
+    //note this bit for 0x0F checking could probably be better in this very critical loop
+    if(op_cache[0] == 0x0F){
+        //two byte opcode
+        eip++;
+        *(uint64_t*)&op_cache=ReadQword(cCS,eip);
+        (this->*Opcodes_ext[op_cache[0]])();
+    }else {
+        //operate on the this class with the opcode functions in this class
+        (this->*Opcodes[op_cache[0]])();
+    }
 	eip=eip+1;
 }
 
@@ -299,10 +308,12 @@ void x86CPU::Cycle(){
 
 
 
-void x86CPU::InstallOp(uint8_t num,opcode func,uint32_t level){
-	if((cpu_level&level)>0){
-		Opcodes[num]=func;
-	}
+void x86CPU::InstallOp(uint8_t num,opcode func, opcode *opcode_table){
+    if(opcode_table){
+        opcode_table[num]=func;
+    }else {
+        Opcodes[num] = func;
+    }
 }
 
 
@@ -345,7 +356,7 @@ void x86CPU::InitOpcodes(){
 	InstallOp(0x7F,&x86CPU::op16_jg_rel8);
 	InstallOp(0x8E,&x86CPU::op16_mov_sr_rm16);
 	InstallOp(0x8C,&x86CPU::op16_mov_rm16_sr);
-	InstallOp(0x68,&x86CPU::op16_push_imm16,CPU286_REAL);
+	InstallOp(0x68,&x86CPU::op16_push_imm16);
 	InstallOp(0x07,&x86CPU::op16_pop_es);
 	InstallOp(0x17,&x86CPU::op16_pop_ss);
 	InstallOp(0x1F,&x86CPU::op16_pop_ds);
@@ -680,6 +691,18 @@ void x86CPU::InitOpcodes(){
 
     InstallOp(0xD1,&x86CPU::op32_group_D1);
     InstallOp(0xF7,&x86CPU::op32_group_F7);
+
+
+
+    //two byte opcodes (new as of i286)
+    InstallOp(0xB6,&x86CPU::op16_movzx_r16_rm8, opcodes_16bit_ext);
+    InstallOp(0xB6,&x86CPU::op32_movzx_r32_rm8, opcodes_32bit_ext);
+    InstallOp(0xB7,&x86CPU::op32_movzx_r32_rm16, opcodes_32bit_ext);
+
+
+
+
+
 }
 
 
@@ -708,27 +731,6 @@ void x86CPU::WriteMemory(uint32_t address, uint32_t size, void* buffer){
     Memory->WaitLock(busmaster);
     Memory->Write(address, size, buffer);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 };

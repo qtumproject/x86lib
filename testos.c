@@ -196,8 +196,10 @@ void greet(){
 void setGreeting(void* begin){
     //greeting should already be in size+data format, so just store directly
     uint16_t size = *(uint16_t*)begin;
+    outd(0xEE, size);
+    outd(0xEE, (uint32_t)greetingSize);
     //no need to copy, just tell storage layer what address to store the data under
-    persistRestoreMemory(begin, size, greetingSize, 0);
+    persistRestoreMemory(begin, size+2, greetingSize, 0);
 }
 //handles external calls
 void handleAbi(){
@@ -209,6 +211,7 @@ void handleAbi(){
             break;
         case 1:
             //set greeting
+            outd(0xEE, *(uint32_t*)&abi_area[3]);
             setGreeting(&abi_area[3]);
             break;
         case 255:
@@ -221,8 +224,6 @@ void handleAbi(){
 
 void start() __attribute__((section(".text.start")));
 void start(){
-
-    asm volatile("nop");
     if(isCreation()){
         getSender(owner);
         persistInitialArea(); //save owner into contract code
