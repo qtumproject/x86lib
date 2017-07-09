@@ -28,7 +28,7 @@
 
 
 _OBJS=objs/x86Lib.o objs/ops/ect.o objs/ops/groups.o objs/ops/store.o objs/ops/flags.o objs/ops/strings.o objs/ops/flow.o objs/ops/maths.o \
-      objs/device_manager.o objs/modrm.o
+      objs/device_manager.o objs/modrm.o objs/cpu_helpers.o
 
 
 debug_CPPFLAGS=-Wall -g -fexceptions -I./include -DX86LIB_BUILD -fPIC
@@ -72,6 +72,7 @@ default:
 	g++ $(debug_CPPFLAGS) -c ops/groups.cpp -o objs/ops/groups.o
 	g++ $(debug_CPPFLAGS) -c device_manager.cpp -o objs/device_manager.o
 	g++ $(debug_CPPFLAGS) -c modrm.cpp -o objs/modrm.o
+	g++ $(debug_CPPFLAGS) -c cpu_helpers.cpp -o objs/cpu_helpers.o
 	ar crs libx86Lib.a $(_OBJS)
 	g++ -fPIC -shared $(_OBJS) -o libx86Lib.so.$(VERSION)
 #Build test client application

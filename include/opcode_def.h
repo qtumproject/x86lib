@@ -459,248 +459,32 @@ void op32_neg_rm32(ModRM &rm);
 void op32_not_rm32(ModRM &rm);
 
 
-void Push16(uint16_t val){
-    if(Use32BitAddress()) {
-        regs16[ESP] -= 4;
-        WriteWord(cSS, regs32[ESP], val);
-    }else{
-        *regs16[SP] -= 2;
-        WriteWord(cSS, *regs16[SP], val);
-    }
-}
-uint16_t Pop16(){
-	uint16_t register tmp;
-    if(Use32BitAddress()) {
-        tmp = ReadWord(cSS, regs32[ESP]);
-        regs32[ESP] += 4;
-    }else{
-        tmp = ReadWord(cSS, *regs16[SP]);
-        *regs16[SP] += 2;
-    }
-	return tmp;
-}
 
-void Push32(uint32_t val){
-    regs32[ESP]-=4;
-    WriteDword(cSS,regs32[ESP],val);
-}
-uint32_t Pop32(){
-    uint32_t register tmp;
-    tmp=ReadDword(cSS,regs32[ESP]);
-    regs32[ESP]+=4;
-    return tmp;
-}
-
-inline void SetIndex8(){ //this just makes my code look better...
-	if(freg.df==0){
-		(*regs16[SI])++;
-		(*regs16[DI])++;
-	}else{
-		(*regs16[SI])--;
-		(*regs16[DI])--;
-	}
-}
-
-inline void SetIndex16(){
-	if(freg.df==0){
-		(*regs16[SI])+=2;
-		(*regs16[DI])+=2;
-	}else{
-		(*regs16[SI])-=2;
-		(*regs16[DI])-=2;
-	}
-}
-
-inline void SetIndex32(){
-    if(freg.df==0){
-        (regs32[ESI])+=4;
-        (regs32[EDI])+=4;
-    }else{
-        (regs32[ESI])-=4;
-        (regs32[EDI])-=4;
-    }
-}
-inline void CalculatePF8(uint8_t val){
-    unsigned int i;
-    unsigned int count=0;
-    for(i=0;i<=7;i++){
-        if((val&((1<<i)))!=0){count++;}
-    }
-    if((count%2)==0){freg.pf=1;}else{freg.pf=0;}
-
-
-
-
-}
-
-inline void CalculatePF16(uint16_t val){
-	#ifndef USE_NATIVE
-    unsigned int i;
-    unsigned int count=0;
-    for(i=0;i<=15;i++){
-    	/* TODO (Jordan#4#): speed this up! */
-        if((val&((1<<i)))!=0){count++;}
-    }
-    if((count%2)==0){freg.pf=1;}else{freg.pf=0;}
-    #else
-    //x86 ASM optimization..
-    __asm(".intel_syntax noprefix\n"
-    "cmp WORD PTR [ebp-10],0\n"
-    "jp .yes__\n"
-    ".att_syntax\n");
-    val=0;
-	__asm(".intel_syntax noprefix\n"
-	"jmp .end__\n"
-    ".local .yes__:\n"
-    ".att_syntax\n");
-    val=1;
-    __asm(".intel_syntax noprefix\n"
-    ".local .end__:\n"
-    ".att_syntax\n");
-    freg.pf=val;
-    return;
-    #endif
-}
-
-inline void CalculatePF32(uint32_t val){
-#ifndef USE_NATIVE
-    unsigned int i;
-    unsigned int count=0;
-    for(i=0;i<=31;i++){
-        /* TODO (Jordan#4#): speed this up! */
-        if((val&((1<<i)))!=0){count++;}
-    }
-    if((count%2)==0){freg.pf=1;}else{freg.pf=0;}
-#else
-#error "not yet supported"
-    //x86 ASM optimization..
-    __asm(".intel_syntax noprefix\n"
-    "cmp WORD PTR [ebp-10],0\n"
-    "jp .yes__\n"
-    ".att_syntax\n");
-    val=0;
-	__asm(".intel_syntax noprefix\n"
-	"jmp .end__\n"
-    ".local .yes__:\n"
-    ".att_syntax\n");
-    val=1;
-    __asm(".intel_syntax noprefix\n"
-    ".local .end__:\n"
-    ".att_syntax\n");
-    freg.pf=val;
-    return;
-#endif
-}
-
-//these calculate SF for the given operand size
-inline void CalculateSF8(uint8_t val){
-    if((val&0x80)==0){freg.sf=0;}else{freg.sf=1;}
-}
-
-inline void CalculateSF16(uint16_t val){
-    if((val&0x8000)==0){freg.sf=0;}else{freg.sf=1;}
-}
-
-inline void CalculateSF32(uint32_t val){
-    if((val&0x80000000)==0){freg.sf=0;}else{freg.sf=1;}
-}
-
-
-void Jmp32_near32(uint32_t off){
-    //I thought there would be a good way to do this, but I suppose this works..
-    if((off&0x80000000)==0){ //if unsigned
-        eip=eip+off;
-    }else{
-        eip=eip-((uint32_t)-off);
-    }
-}
-
-void Jmp16_near16(uint16_t off){
-	//I thought there would be a good way to do this, but I suppose this works..
-	if((off&0x8000)==0){ //if unsigned
-		eip=eip+off;
-	}else{
-		eip=eip-((uint16_t)-off);
-	}
-}
-
-void Jmp16_near8(uint8_t off){
-	//I thought there would be a good way to do this, but I suppose this works..
-	if((off&0x80)==0){ //if unsigned
-		eip=eip+off;
-	}else{
-		eip=eip-((uint8_t)-off);
-	}
-	//eip++;
-}
-
-void Int16(uint8_t num){
-    throw CpuPanic_excp("Unsupported operation (segment register modification)", UNSUPPORTED_EXCP);
-}
-
-inline void ResetSegments(){
-	ES=cES;
-	CS=cCS;
-	SS=cSS;
-	DS=cDS;
-	FS=cFS;
-	GS=cGS;
-}
-
-inline void SetSegments(uint8_t segm){
-	ES=segm;
-	CS=segm;
-	SS=segm;
-	DS=segm;
-	FS=segm;
-	GS=segm;
-}
-
-
-
-inline uint8_t ReadByte(uint8_t segm,uint32_t off){
-	Memory->WaitLock(busmaster);
-	uint8_t res=0;
-	Memory->Read((seg[segm]<<4)|off,1,&res);
-	return res;
-}
-
-inline uint16_t ReadWord(uint8_t segm,uint32_t off){
-	Memory->WaitLock(busmaster);
-	uint16_t res=0;
-    Memory->Read((seg[segm]<<4)|off,2,&res);
-    return res;
-}
-
-inline uint32_t ReadDword(uint8_t segm,uint32_t off){
-	Memory->WaitLock(busmaster);
-	uint32_t res=0;
-    Memory->Read((seg[segm]<<4)|off,4,&res);
-    return res;
-}
-
-inline uint64_t ReadQword(uint8_t segm,uint32_t off){
-    Memory->WaitLock(busmaster);
-    uint64_t res=0;
-    Memory->Read((seg[segm]<<4)|off,8,&res);
-    return res;
-}
-
-inline void WriteByte(uint8_t segm,uint32_t off,uint8_t val){
-    Memory->WaitLock(busmaster);
-    Memory->Write((seg[segm]<<4)|off,1,&val);
-}
-
-inline void WriteWord(uint8_t segm,uint32_t off,uint16_t val){
-	Memory->WaitLock(busmaster);
-    Memory->Write((seg[segm]<<4)|off,2,&val);
-}
-
-inline void WriteDword(uint8_t segm,uint32_t off,uint32_t val){
-	Memory->WaitLock(busmaster);
-    Memory->Write((seg[segm]<<4)|off,4,&val);
-}
-
-
-
+//helpers
+void Push16(uint16_t val);
+uint16_t Pop16();
+void Push32(uint32_t val);
+uint32_t Pop32();
+void SetIndex8();
+void SetIndex16();
+void SetIndex32();
+void CalculatePF8(uint8_t val);
+void CalculatePF16(uint16_t val);
+void CalculatePF32(uint32_t val);
+void CalculateSF8(uint8_t val);
+void CalculateSF16(uint16_t val);
+void CalculateSF32(uint32_t val);
+void Jmp32_near32(uint32_t off);
+void Jmp16_near16(uint16_t off);
+void Jmp16_near8(uint8_t off);
+void Int16(uint8_t num);
+void ResetSegments();
+void SetSegments(uint8_t segm);
+uint8_t ReadByte(uint8_t segm,uint32_t off);
+uint16_t ReadWord(uint8_t segm,uint32_t off);
+uint32_t ReadDword(uint8_t segm,uint32_t off);
+uint64_t ReadQword(uint8_t segm,uint32_t off);
+void WriteByte(uint8_t segm,uint32_t off,uint8_t val);
+void WriteWord(uint8_t segm,uint32_t off,uint16_t val);
+void WriteDword(uint8_t segm,uint32_t off,uint32_t val);
 
