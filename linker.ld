@@ -9,17 +9,19 @@ SECTIONS
     *(.rodata)
     . = ALIGN(4);
   }
+  __text_end=.;
   .data : AT(phys + (data - code))
   {
     data = .;
     *(.data)
     . = ALIGN(4);
   }
+  __data_end=.;
   .bss : AT(phys + (bss - code))
   {
     bss = .;
     *(.bss)
     . = ALIGN(4);
   }
-  end = .;
+  __binary_end = .;
 }
