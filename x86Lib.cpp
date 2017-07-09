@@ -345,22 +345,6 @@ void x86CPU::InitOpcodes(){
 	InstallOp(0xEB,&x86CPU::op16_jmp_rel8);
 	InstallOp(0x2C,&x86CPU::op16_sub_al_imm8);
 	InstallOp(0x2D,&x86CPU::op16_sub_ax_imm16);
-	InstallOp(0x77,&x86CPU::op16_ja_rel8);
-	InstallOp(0x70,&x86CPU::op16_jo_rel8);
-	InstallOp(0x71,&x86CPU::op16_jno_rel8);
-	InstallOp(0x72,&x86CPU::op16_jc_rel8);
-	InstallOp(0x73,&x86CPU::op16_jnc_rel8);
-	InstallOp(0x74,&x86CPU::op16_jz_rel8);
-	InstallOp(0x75,&x86CPU::op16_jnz_rel8);
-	InstallOp(0x77,&x86CPU::op16_jbe_rel8);
-	InstallOp(0x78,&x86CPU::op16_js_rel8);
-	InstallOp(0x79,&x86CPU::op16_jns_rel8);
-	InstallOp(0x7A,&x86CPU::op16_jp_rel8);
-	InstallOp(0x7B,&x86CPU::op16_jnp_rel8);
-	InstallOp(0x7C,&x86CPU::op16_jl_rel8);
-	InstallOp(0x7D,&x86CPU::op16_jge_rel8);
-	InstallOp(0x7E,&x86CPU::op16_jle_rel8);
-	InstallOp(0x7F,&x86CPU::op16_jg_rel8);
 	InstallOp(0x8E,&x86CPU::op16_mov_sr_rm16);
 	InstallOp(0x8C,&x86CPU::op16_mov_rm16_sr);
 	InstallOp(0x68,&x86CPU::op16_push_imm16);
@@ -530,22 +514,6 @@ void x86CPU::InitOpcodes(){
     InstallOp(0x90,&x86CPU::op16_nop);
     InstallOp(0xEB,&x86CPU::op16_jmp_rel8);
     InstallOp(0x2C,&x86CPU::op16_sub_al_imm8);
-    InstallOp(0x77,&x86CPU::op16_ja_rel8);
-    InstallOp(0x70,&x86CPU::op16_jo_rel8);
-    InstallOp(0x71,&x86CPU::op16_jno_rel8);
-    InstallOp(0x72,&x86CPU::op16_jc_rel8);
-    InstallOp(0x73,&x86CPU::op16_jnc_rel8);
-    InstallOp(0x74,&x86CPU::op16_jz_rel8);
-    InstallOp(0x75,&x86CPU::op16_jnz_rel8);
-    InstallOp(0x77,&x86CPU::op16_jbe_rel8);
-    InstallOp(0x78,&x86CPU::op16_js_rel8);
-    InstallOp(0x79,&x86CPU::op16_jns_rel8);
-    InstallOp(0x7A,&x86CPU::op16_jp_rel8);
-    InstallOp(0x7B,&x86CPU::op16_jnp_rel8);
-    InstallOp(0x7C,&x86CPU::op16_jl_rel8);
-    InstallOp(0x7D,&x86CPU::op16_jge_rel8);
-    InstallOp(0x7E,&x86CPU::op16_jle_rel8);
-    InstallOp(0x7F,&x86CPU::op16_jg_rel8);
     InstallOp(0xF8,&x86CPU::op16_clc); //technically for 32bit, some of these should have protection, but doesn't matter for smart contracts
     InstallOp(0xFC,&x86CPU::op16_cld);
     InstallOp(0xFA,&x86CPU::op16_cli);
@@ -700,6 +668,12 @@ void x86CPU::InitOpcodes(){
     InstallOp(0xF7,&x86CPU::op32_group_F7);
 
 
+    for(int i=0;i<16;i++){
+        InstallOp(0x70+i, &x86CPU::op_jcc_imm8, opcodes_16bit);
+        InstallOp(0x70+i, &x86CPU::op_jcc_imm8, opcodes_32bit);
+        InstallOp(0x80+i, &x86CPU::op16_jcc_imm16, opcodes_16bit_ext);
+        InstallOp(0x80+i, &x86CPU::op32_jcc_imm32, opcodes_32bit_ext);
+    }
 
     //two byte opcodes (new as of i286)
     InstallOp(0xB6,&x86CPU::op16_movzx_r16_rm8, opcodes_16bit_ext);

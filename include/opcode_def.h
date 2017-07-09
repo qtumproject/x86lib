@@ -323,6 +323,10 @@ void op32_group_D1();
 void op32_group_F7();
 
 
+void op_jcc_imm8();
+void op16_jcc_imm16();
+void op32_jcc_imm32();
+
 //Oh God how I hate prototyping and adding the opcodes to the master InstallOp list...
 
 

@@ -31,125 +31,69 @@ This file is part of the x86Lib project.
 namespace x86Lib{
 using namespace std;
 
-//jmp rel8 jcc stuff
-void x86CPU::op16_ja_rel8(){ //is also jnbe
-	eip++;
-    if(freg.cf==0 && freg.zf==0){
-		Jmp16_near8(op_cache[1]);
+
+static bool jcc(int condition, volatile FLAGS &f){
+    switch(condition){ //see http://www.ousob.com/ng/iapx86/ng10482.php for a good reference
+        case 0:
+            return f.of;
+        case 1:
+            return !f.of;
+        case 2:
+            return f.cf;
+        case 3:
+            return !f.cf;
+        case 4:
+            return f.zf;
+        case 5:
+            return !f.zf;
+        case 6:
+            return f.cf | f.zf;
+        case 7:
+            return !f.cf & !f.zf;
+        case 8:
+            return f.sf;
+        case 9:
+            return !f.sf;
+        case 10:
+            return f.pf;
+        case 11:
+            return !f.pf;
+        case 12:
+            return f.sf!=f.of;
+        case 13:
+            return f.sf==f.of;
+        case 14:
+            return (f.sf!=f.of) | f.zf;
+        case 15:
+            return (f.sf==f.of) & f.zf;
+        default:
+            throw new CpuPanic_excp("This code should not be reached", 0xFFFF);
     }
 }
 
-void x86CPU::op16_jnc_rel8(){ //is also jae and jnb
-	eip++;
-    if(freg.cf==0){
-        Jmp16_near8(op_cache[1]);
-    }
-}
-
-
-void x86CPU::op16_jbe_rel8(){ //is also jna
-	eip++;
-    if(freg.cf==1 || freg.zf==1){
-        Jmp16_near8(op_cache[1]);
-    }else{
-    	eip++;
-    }
-}
-
-void x86CPU::op16_jc_rel8(){ //is also jb and jnae
-	eip++;
-    if(freg.cf==1){
-        Jmp16_near8(op_cache[1]);
-    }
-}
-
-void x86CPU::op16_jz_rel8(){ //is also je
-	eip++;
-    if(freg.zf==1){
-        Jmp16_near8(op_cache[1]);
-    }
-}
-
-void x86CPU::op16_jnz_rel8(){ //is also jne
-	eip++;
-    if(freg.zf==0){
-        Jmp16_near8(op_cache[1]);
-    }
-}
-
-
-void x86CPU::op16_jp_rel8(){ //also jpe
-	eip++;
-    if(freg.pf==1){
-        Jmp16_near8(op_cache[1]);
-    }
-}
-
-void x86CPU::op16_jnp_rel8(){ //is also jpo
-	eip++;
-    if(freg.pf==0){
-        Jmp16_near8(op_cache[1]);
-    }
-}
-
-void x86CPU::op16_jg_rel8(){ //is also jnle
-	eip++;
-    if(freg.sf==freg.of && freg.zf==0){
-        Jmp16_near8(op_cache[1]);
-    }
-}
-
-
-void x86CPU::op16_jge_rel8(){ //is also jnl
-	eip++;
-    if(freg.sf==freg.of){
-        Jmp16_near8(op_cache[1]);
-    }
-}
-
-void x86CPU::op16_jle_rel8(){ //is also jng
-	eip++;
-    if(freg.sf!=freg.of || freg.zf==1){
-        Jmp16_near8(op_cache[1]);
-    }
-}
-
-void x86CPU::op16_jl_rel8(){ //is also jnge
-	eip++;
-    if(freg.sf!=freg.of){
-        Jmp16_near8(op_cache[1]);
-    }
-}
-
-
-void x86CPU::op16_jo_rel8(){
+void x86CPU::op_jcc_imm8(){
+    int cc = op_cache[0]-0x70;
     eip++;
-	if(freg.of==1){
-       Jmp16_near8(op_cache[1]);
-    }
-}
-
-void x86CPU::op16_jno_rel8(){
-	eip++;
-    if(freg.of==0){
+    if(jcc(cc, freg)){
         Jmp16_near8(op_cache[1]);
     }
 }
 
-void x86CPU::op16_js_rel8(){ //is negative
-	eip++;
-    if(freg.sf==1){
-        Jmp16_near8(op_cache[1]);
+void x86CPU::op16_jcc_imm16(){
+    int cc = op_cache[0]-0x80;
+    eip+=2;
+    if(jcc(cc, freg)){
+        Jmp16_near16(*(uint16_t*)&op_cache[1]);
     }
 }
 
-void x86CPU::op16_jns_rel8(){ //is  positive
-	eip++;
-    if(freg.sf==0){
-        Jmp16_near8(op_cache[1]);
+void x86CPU::op32_jcc_imm32(){
+    int cc = op_cache[0]-0x80;
+    eip+=2;
+    if(jcc(cc, freg)){
+        Jmp32_near32(*(uint32_t*)&op_cache[1]);
     }
 }
-
 
 
 void x86CPU::op16_clc(){
