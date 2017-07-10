@@ -55,7 +55,7 @@ struct ABI_MakeLog{
 
 struct ABI_Exit{
     uint32_t resultAddress;
-    uint32_t resultSize;
+    uint16_t resultSize;
 }__attribute__((__packed__));
 
 struct ABI_TransferValueSilent{
@@ -164,6 +164,7 @@ void persistRestoreMemory(volatile void* where, int size, volatile void* storage
     volatile struct ABI_PersistMemory abi;
     abi.address=(uint32_t) where;
     abi.storageAddress=(uint32_t)storageAddress;
+    size+= 32 - (size % 32); //round up to next 32nd byte
     abi.size=size;
     uint16_t port = restore ? ABI_RESTORE_MEMORY : ABI_PERSIST_MEMORY;
     outd(port, (uint32_t)&abi);
@@ -187,18 +188,16 @@ void kill(){
 }
 void greet(){
     //we must explicitly restore memory that we need
-    allocateMemory(greetingSize, 0x10002);
+    allocateMemory(greetingSize, 0x10000);
     persistRestoreMemory(greetingSize, 32, greetingSize, 1);
     if(*greetingSize > 30){
-        persistRestoreMemory(greeting+30, *greetingSize-30, greeting+30, 1);
+        persistRestoreMemory(greetingSize+32, *greetingSize-30, greetingSize+32, 1);
     }
     exitResult(greeting, *greetingSize);
 }
 void setGreeting(volatile void* begin){
     //greeting should already be in size+data format, so just store directly
-    uint16_t size = *(uint16_t*)begin;
-    outd(0xEE, size);
-    outd(0xEE, (uint32_t)greetingSize);
+    uint32_t size = *(uint16_t*)begin;
     //no need to copy, just tell storage layer what address to store the data under
     persistRestoreMemory(begin, size+2, greetingSize, 0);
 }
