@@ -227,7 +227,7 @@ void x86CPU::op32_cwq(){
     if(regs32[EAX]>=0x80000000){
         regs32[EDX]=0xFFFFFFFF;
     }else{
-        regs16[EDX]=0;
+        regs32[EDX]=0;
     }
 }
 
