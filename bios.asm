@@ -35,7 +35,12 @@ mov eax, 0
 add eax, 1
 inc eax
 
+mov [0x100000], eax
+mov ebx, [0x100000]
+mov eax, ebx
+
 out 0xF0, ax
+hlt
 
 ;add 10 bytes of padding for reasons
 nop
