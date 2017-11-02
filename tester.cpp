@@ -244,7 +244,7 @@ int main(int argc, char* argv[]){
 	if(argc > 1){
 		fileToLoad = argv[1];
 	}else{
-		cout << "./x86Lib_test program.bin" << endl;
+		cout << "./x86test program.bin" << endl;
 		return 1;
 	}
 	PortSystem Ports;

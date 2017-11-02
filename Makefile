@@ -79,7 +79,7 @@ default:
 	g++ -fPIC -shared $(_OBJS) -o libx86Lib.so.$(VERSION)
 #Build test client application
 	g++ $(debug_CPPFLAGS) -c tester.cpp -o objs/tester.o
-	g++ $(debug_CPPFLAGS) -static -o x86Lib_test objs/tester.o -lx86Lib -L.
+	g++ $(debug_CPPFLAGS) -static -o x86test objs/tester.o -lx86Lib -L.
 
 install_static:
 #This is only for unix based OSs, where /usr/local/lib is library dir, and /usr/local/include is include dircd /usr

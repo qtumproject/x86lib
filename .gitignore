@@ -1,0 +1,12 @@
+#CLion stuff
+.idea
+CMakeLists.txt
+cmake-build-debug
+cmake-build-release
+
+#outputs
+objs
+libx86Lib.*
+*.bin
+*.o
+x86test
