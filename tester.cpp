@@ -38,27 +38,58 @@ This file is part of the x86Lib project.
 using namespace std;
 using namespace x86Lib;
 
+char* fileToLoad;
+uint32_t fileLength;
+
 uint8_t *ptr_memory;
 size_t size_memory;
 void init_memory(){
-	size_memory=0xFFFFF;
+	size_memory=0xFF000;
 	ptr_memory=new uint8_t[size_memory];
 	memset(ptr_memory,0x66,size_memory); //initialize it all to 0x66, an invalid opcode
-	//Load bios...
-	ifstream bios("testos.bin",ios::binary); //open it readonly binary
-	bios.read((char*)&ptr_memory[0x0000],0xFFFF);
-	int i;
-	for(i=0;i<=0xF;i++){
-		ptr_memory[0xFFFF0+i]=0x90;
-	}
+	ifstream file(fileToLoad, ios::binary); //open it readonly binary
+	file.seekg(0, file.end);
+	fileLength = file.tellg();
+	file.seekg(0, file.beg);
+	file.read((char*)&ptr_memory[0x0000],size_memory);
 }
-
-class PCMemory : MemoryDevice{
+bool ROMLoaded = false;
+class ROMemory : public MemoryDevice{
 	uint8_t *ptr;
 	uint32_t size;
 	public:
-	PCMemory(){
-		init_memory();
+	ROMemory(){
+		if(ROMLoaded){
+			throw new std::runtime_error("can't load two ROM memories");
+		}
+		ROMLoaded = true;
+		ptr = ptr_memory;
+		size = fileLength;
+	}
+	~ROMemory(){
+		delete ptr;
+	}
+	virtual void Read(uint32_t address,int count,void *buffer){
+		if(address + count > fileLength){
+			throw new Mem_excp(address);
+		}
+		memcpy(buffer,&ptr_memory[address],count);
+	}
+	virtual void Write(uint32_t address,int count,void *buffer){
+		throw new Mem_excp(address);
+	}
+};
+
+class RAMemory : public MemoryDevice{
+	uint8_t *ptr;
+	uint32_t size;
+	public:
+	RAMemory(uint32_t size_){
+		ptr = new uint8_t[size];
+		size = size_;
+	}
+	~RAMemory(){
+		free(ptr);
 	}
 	virtual void Read(uint32_t address,int count,void *buffer){
 		memcpy(buffer,&ptr_memory[address],count);
@@ -67,7 +98,8 @@ class PCMemory : MemoryDevice{
 		memcpy(&ptr_memory[address],buffer,count);
 	}
 };
-class MapMemory : MemoryDevice{
+
+class MapMemory : public MemoryDevice{
     bool range(uint32_t val, uint32_t min, uint32_t len){
         return val >= min && val < min+len;
     }
@@ -91,36 +123,28 @@ public:
     }
 };
 
+MemorySystem Memory;
 
 volatile bool int_cause;
-volatile uint8_t int_cause_number=0;
-
-
-
-
+volatile uint8_t int_cause_number=33;
 
 void DumpMemory(){
 	uint32_t i;
 	FILE *fh;
 	fh=fopen("mem_dump.bin","w");
-	for(i=0;i<=0xFFFFF;i++){
-		//fputc(memory.ReadByte(i),fh);
+	uint8_t *tmp = new uint8_t[0x100000];
+	Memory.Read(0x100000, 0x100000 - 1, tmp);
+	for(i=0;i<=0x100000;i++){
+		fputc(tmp[i],fh);
 	}
 	fclose(fh);
 }
 
-
-
-
-
-
 void WritePort(uint16_t port,uint32_t val){
 	/*Not going to try to emulate actual hardware...but rather just give us some useful
 	functions to try out...*/
-	static uint8_t interrupt_start=0;
-	static uint8_t counter=0;
 	switch(port){
-		case 0: //print asci char of val
+		case 0: //print ascii char of val
 		cout << (char) val << flush;
 		break;
 		case 1: //print value of byte
@@ -139,54 +163,13 @@ void WritePort(uint16_t port,uint32_t val){
 		case 0xF0: //exit with val
 		exit(val);
 		break;
-		case 0xF1: //dump small bit of memory
-		cout << "debug info...Dumping 0:0-to-0:200" << endl;
-		/*
-		cout << "0: "<< hex << memory.ReadDword(0) << endl;
-		cout << "4: "<< hex << memory.ReadDword(4) << endl;
-		cout << "8: "<< hex << memory.ReadDword(8) << endl;
-		cout << "B: "<< hex << memory.ReadDword(12) << endl;
-		cout << "10: "<< hex << memory.ReadDword(16) << endl;
-		cout << "14: "<< hex << memory.ReadDword(20) << endl;
-		cout << "18: "<< hex << memory.ReadDword(24) << endl;
-		cout << "1B: "<< hex << memory.ReadDword(28) << endl;
-		cout << "20: "<< hex << memory.ReadDword(32) << endl;*/
-		break;
-		case 0xF2: //a two word command; first is segment, second is offset; prints value of memory there
-		static uint16_t seg_temp;
-		static bool flip_flop=0;
-		if(flip_flop==1){
-			flip_flop=0;
-			//cout <<hex << memory.ReadDword((seg_temp<<4)|val) << endl;
-		}else{
-			flip_flop=1;
-			seg_temp=val;
-		}
-		break;
 		case 0xF3: /*Dump memory to external file*/
 		DumpMemory();
 		break;
-		case 0xF20F: //clear flip-flop of F2
-		flip_flop=0;
-		break;
 
 		case 0x30: //prints value
-
 		putchar(val);
 		break;
-
-		case 0xC0: //This will cause an interrupt of the number of the counter.(on only the CURRENT cpu)
-		int_cause_number=interrupt_start+counter;
-		int_cause=1;
-		counter++;
-		break;
-		case 0xC1: //This will change the base interrupt number
-		interrupt_start=val;
-		break;
-		case 0xC2: //This will reset the counter to 0
-		counter=0;
-		break;
-
 
 		default:
 		cout << "undefined port" << endl;
@@ -234,100 +217,79 @@ void port_write(x86CPU *thiscpu,uint16_t port,int size,void *buffer){
 	WritePort(port,val);
 }
 
-class PCPorts : PortDevice{
+class PCPorts : public PortDevice{
 	public:
 	~PCPorts(){}
-	void Read(uint16_t port,int size,void *buffer){
+	virtual void Read(uint16_t port,int size,void *buffer){
 		port_read(NULL,port,size,buffer);
 	}
-	void Write(uint16_t port,int size,void *buffer){
+	virtual void Write(uint16_t port,int size,void *buffer){
 		port_write(NULL,port,size,buffer);
 	}
 };
 
-PCMemory memory;
-MapMemory mapMemory;
 PCPorts ports;
 
-x86CPU **cpu_ctrl;
+x86CPU *cpu;
 
 void each_opcode(x86CPU *thiscpu){
 	if(int_cause){
 		int_cause=false;
-		thiscpu->Int(int_cause_number);
+		cpu->Int(int_cause_number);
 	}
 }
 
 
-int main(){
-	MemorySystem Memory;
-	PortSystem Ports;
-	init_memory();
-	uint8_t cpu_i=0;
-	static const uint8_t cpu_number=1;
-	cpu_ctrl=new x86CPU *[cpu_number];
-	Memory.Add(0,0xFFFFF,(MemoryDevice*)&memory);
-    Memory.Add(0xFFFF0000, 0xFFFFFFFF, (MemoryDevice*)&mapMemory);
-	printf("!");
-	fflush(stdout);
-	Ports.Add(0,0xFFFF,(PortDevice*)&ports);
-	printf("!");
-	fflush(stdout);
-	for(cpu_i=0;cpu_i<cpu_number;cpu_i++){
-		cpu_ctrl[cpu_i]=new x86CPU();
-		cpu_ctrl[cpu_i]->Memory=(MemorySystem*)&Memory;
-		cpu_ctrl[cpu_i]->Ports=(PortSystem*)&Ports;
-#ifdef ENABLE_OPCODE_CALLBACK
-		cpu_ctrl[cpu_i]->EachOpcodeCallback=&each_opcode;
-#endif
-		printf("!");
-		fflush(stdout);
+int main(int argc, char* argv[]){
+	if(argc > 1){
+		fileToLoad = argv[1];
+	}else{
+		cout << "./x86Lib_test program.bin" << endl;
+		return 1;
 	}
-	cpu_i=0;
-	cout << "constructed.."<<endl;
+	PortSystem Ports;
+	ROMemory coderom;
+	RAMemory config(0x1000);
+	RAMemory scratch(0x100000);
+	
+	Memory.Add(0, 0x1000, &config);
+	Memory.Add(0x1000, 0x100000, &coderom);
+	Memory.Add(0x100000, 0x200000, &scratch);
+
+	Ports.Add(0,0xFFFF,(PortDevice*)&ports);
+	cpu=new x86CPU();
+	cpu->Memory=&Memory;
+	cpu->Ports=&Ports;
+	cout << "Loaded! Beginning execution..." << endl;
 
 	
 	for(;;){
-		if(cpu_i==cpu_number){
-			cpu_i=0;
-		}
 		try{
-			cpu_ctrl[cpu_i]->Exec(500000);
+			cpu->Exec(1000);
 			if(int_cause){
 				int_cause=false;
-				cpu_ctrl[cpu_i]->Int(int_cause_number);
+				cpu->Int(int_cause_number);
 			}
 		}
 		catch(CpuPanic_excp err){
-			cout << "CPU Panic! CPU Number=" << (int)cpu_i <<endl;
+			cout << "CPU Panic!" <<endl;
 			cout << "Message: " << err.desc << endl;
 			cout << "Code: 0x" << hex << err.code << endl;
-			//cout << "Opcode: 0x" << hex << (int)op_cache[0] << endl;
-			for(cpu_i=0;cpu_i<cpu_number;cpu_i++){
-				cout << "CPU #" << (int)cpu_i << endl;
-				cpu_ctrl[cpu_i]->DumpState(cout);
-				cout << endl;
-			}
-			return 0;
-			for(;;){}
+			cpu->DumpState(cout);
+			cout << endl;
+			return 1;
 		}
 		catch(Default_excp err){
 			cout << "!!Undefined Error!!" << endl;
 			cout << "File: " << err.file << endl;
 			cout << "Function: " << err.func << "()" <<endl;
 			cout << "Line: " << err.line << endl;
-			return 0;
-			for(;;){}
+			return 1;
 		}
-		cpu_i++;
 	}
-
-
-
-
-
-
+	return 0;
 }
+
 
 
 
