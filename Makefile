@@ -60,10 +60,6 @@ testos_CFLAGS=-fdata-sections -ffunction-sections
 
 default:
 #build the library
-	i386-elf-gcc -c testos.c -o testos.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra $(testos_CFLAGS)
-	i386-elf-gcc -T linker.ld -o testos.bin -ffreestanding -O2 -nostdlib testos.o -lgcc -Wl,--gc-sections $(testos_CFLAGS) -dead_strip
-	yasm -o test_os.bin test_os.asm
-	yasm -o bios.bin bios.asm
 	g++ $(debug_CPPFLAGS) -c x86Lib.cpp -o objs/x86Lib.o
 	g++ $(debug_CPPFLAGS) -c ops/ect.cpp -o objs/ops/ect.o
 	g++ $(debug_CPPFLAGS) -c ops/maths.cpp -o objs/ops/maths.o
@@ -80,6 +76,11 @@ default:
 #Build test client application
 	g++ $(debug_CPPFLAGS) -c tester.cpp -o objs/tester.o
 	g++ $(debug_CPPFLAGS) -static -o x86test objs/tester.o -lx86Lib -L.
+
+buildtest:
+	i386-elf-gcc -c testos.c -o testos.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra $(testos_CFLAGS)
+	i386-elf-gcc -T linker.ld -o testos.bin -ffreestanding -O2 -nostdlib testos.o -lgcc -Wl,--gc-sections $(testos_CFLAGS) -dead_strip
+	yasm -o testasm.bin testasm.asm
 
 install_static:
 #This is only for unix based OSs, where /usr/local/lib is library dir, and /usr/local/include is include dircd /usr
