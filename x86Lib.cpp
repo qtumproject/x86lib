@@ -377,7 +377,7 @@ void x86CPU::InitOpcodes(){
 	InstallOp(0xE6,&x86CPU::op16_out_imm8_al);
 	InstallOp(0xE7,&x86CPU::op16_out_imm8_ax);
 	InstallOp(0x9A,&x86CPU::op16_call_imm16_imm16);
-	InstallOp(0xCB,&x86CPU::op16_retf); //lol...CB...<inside joke>
+	InstallOp(0xCB,&x86CPU::op16_retf); 
 	InstallOp(0xCD,&x86CPU::op16_int_imm8);
 	InstallOp(0xCF,&x86CPU::op16_iret);
 	InstallOp(0xCC,&x86CPU::op16_int3);
@@ -409,8 +409,8 @@ void x86CPU::InitOpcodes(){
 	InstallOp(0x3A,&x86CPU::op16_cmp_r8_rm8);
 	InstallOp(0x3B,&x86CPU::op16_cmp_r16_rm16);
 	InstallOp(0x3C,&x86CPU::op16_cmp_al_imm8);
-	InstallOp(0x3D,&x86CPU::op16_cmp_ax_imm16); //3D TimD Tim Vision TV!!! Yay!!!
-	InstallOp(0x83,&x86CPU::op16_group_83); //83 is my lucky number btw...
+	InstallOp(0x3D,&x86CPU::op16_cmp_ax_imm16); 
+	InstallOp(0x83,&x86CPU::op16_group_83);
 	InstallOp(0xFF,&x86CPU::op16_group_FF);
 	InstallOp(0xE9,&x86CPU::op16_jmp_rel16);
 	InstallOp(0xEA,&x86CPU::op16_jmp_imm16_imm16);

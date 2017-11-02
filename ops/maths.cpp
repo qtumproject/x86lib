@@ -32,9 +32,6 @@ namespace x86Lib{
 using namespace std;
 
 
-
-
-// TODO (Jordan#4#): Get AF stuff working in this!!
 uint8_t x86CPU::Sub8(uint8_t base,uint8_t subt){
     int8_t result;
     if(subt>base){freg.cf=1;}else{freg.cf=0;}
@@ -194,7 +191,6 @@ uint32_t x86CPU::And32(uint32_t base,uint32_t mask){
 }
 
 //Not affects no flags, so just use ~
-
 
 uint8_t x86CPU::Or8(uint8_t base,uint8_t mask){
 	freg.of=0;
@@ -657,12 +653,12 @@ void x86CPU::op16_sub_al_imm8(){ //0x2C
 	eip++;
 }
 
-void x86CPU::op16_sub_ax_imm16(){ //0x2D..yay! 2D and not 3!
+void x86CPU::op16_sub_ax_imm16(){ //0x2D
 	*regs16[AX]=Sub16(*regs16[AX],*(uint16_t*)&op_cache[1]);
 	eip+=2;
 }
 
-void x86CPU::op32_sub_eax_imm32(){ //0x2D..yay! 2D and not 3!
+void x86CPU::op32_sub_eax_imm32(){ //0x2D
     regs32[EAX]=Sub32(regs32[EAX],ReadDword(cCS, eip+1));
     eip+=4;
 }
@@ -671,7 +667,6 @@ void x86CPU::op16_sub_rm8_r8(){
 	eip++;
 	ModRM rm8(this);
 	rm8.WriteByter(Sub8(rm8.ReadByter(),*regs8[rm8.GetExtra()]));
-	//finally learning the power of deconstructors!
 }
 
 void x86CPU::op16_sub_rm16_r16(){
@@ -1049,7 +1044,7 @@ void x86CPU::op32_inc_r32(){ //0x40+r
 }
 
 void x86CPU::op16_inc_rm8(ModRM &rm){
-	freg.r0=freg.cf; //yay for reserved flags!
+	freg.r0=freg.cf; //yay for reserved flags! TODO check for qtum
 	rm.WriteByter(Add8(rm.ReadByter(),1));
 	freg.cf=freg.r0;
 }
@@ -1142,8 +1137,7 @@ void x86CPU::op32_div_rm32(ModRM &rm){
 }
 
 
-void x86CPU::op16_idiv_rm8(ModRM &rm){ //This WORKS! both signed, and unsigned!
-	//grrr...who the crap does signed division anyway!?
+void x86CPU::op16_idiv_rm8(ModRM &rm){
 	if(rm.ReadByter()==0){
 		throw CpuInt_excp(DIV0_IEXCP);
 	}

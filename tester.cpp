@@ -32,7 +32,6 @@ This file is part of the x86Lib project.
 #include <fstream>
 #include <string.h>
 #include <stdlib.h>
-//#include <conio.h>
 #undef X86LIB_BUILD //so we don't need special makefile flags for this specific file.
 #include <x86Lib.h>
 
@@ -54,7 +53,6 @@ void init_memory(){
 	}
 }
 
-/*Yea yea. hackjob, I know.. but I want this to work!**/
 class PCMemory : MemoryDevice{
 	uint8_t *ptr;
 	uint32_t size;

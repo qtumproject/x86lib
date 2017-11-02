@@ -37,7 +37,6 @@ using namespace std;
 
 
 void x86CPU::op16_mov_r8_imm8(){ //0xB0+r
-	//I suppose the first real instruction is the hardest...
 	*regs8[op_cache[0]-0xB0]=op_cache[1];
 	eip++;
 }
@@ -187,13 +186,12 @@ void x86CPU::op16_les(){
     throw CpuPanic_excp("Unsupported operation (segment register modification)", UNSUPPORTED_EXCP);
 }
 
-void x86CPU::op16_lea(){ //wtf is the point of this instruction! why not just mov reg,immediate! seriously frikkin crazy designers of x86
+void x86CPU::op16_lea(){
 	eip++;
 	ModRM rm(this);
 	*regs16[rm.GetExtra()]=rm.ReadOffset();
 }
 void x86CPU::op32_lea(){
-    //this is actually useful because you can use ModRM calculations and displacements without modifying flags
     eip++;
     ModRM rm(this);
     regs32[rm.GetExtra()]=rm.ReadOffset32();
