@@ -201,42 +201,42 @@ void x86CPU::SetSegments(uint8_t segm){
 uint8_t x86CPU::ReadByte(uint8_t segm,uint32_t off){
     Memory->WaitLock(busmaster);
     uint8_t res=0;
-    Memory->Read((seg[segm]<<4)|off,1,&res);
+    Memory->Read(off,1,&res);
     return res;
 }
 
 uint16_t x86CPU::ReadWord(uint8_t segm,uint32_t off){
     Memory->WaitLock(busmaster);
     uint16_t res=0;
-    Memory->Read((seg[segm]<<4)|off,2,&res);
+    Memory->Read(off,2,&res);
     return res;
 }
 
 uint32_t x86CPU::ReadDword(uint8_t segm,uint32_t off){
     Memory->WaitLock(busmaster);
     uint32_t res=0;
-    Memory->Read((seg[segm]<<4)|off,4,&res);
+    Memory->Read(off,4,&res);
     return res;
 }
 
 uint64_t x86CPU::ReadQword(uint8_t segm,uint32_t off){
     Memory->WaitLock(busmaster);
     uint64_t res=0;
-    Memory->Read((seg[segm]<<4)|off,8,&res);
+    Memory->Read(off,8,&res);
     return res;
 }
 
 void x86CPU::WriteByte(uint8_t segm,uint32_t off,uint8_t val){
     Memory->WaitLock(busmaster);
-    Memory->Write((seg[segm]<<4)|off,1,&val);
+    Memory->Write(off,1,&val);
 }
 
 void x86CPU::WriteWord(uint8_t segm,uint32_t off,uint16_t val){
     Memory->WaitLock(busmaster);
-    Memory->Write((seg[segm]<<4)|off,2,&val);
+    Memory->Write(off,2,&val);
 }
 
 void x86CPU::WriteDword(uint8_t segm,uint32_t off,uint32_t val){
     Memory->WaitLock(busmaster);
-    Memory->Write((seg[segm]<<4)|off,4,&val);
+    Memory->Write(off,4,&val);
 }

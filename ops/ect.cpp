@@ -54,39 +54,19 @@ void x86CPU::op16_unknown(){
 
 //Segment overrides...
 void x86CPU::op16_pre_es_override(){ //0x26
-	SetSegments(cES);
-	eip++;
-	*(uint64_t*)&op_cache=ReadQword(cCS,eip);
-	(this->*Opcodes[op_cache[0]])();
-
-	ResetSegments();
+	//nop
 }
 
 void x86CPU::op16_pre_ds_override(){ //0x3E
-	SetSegments(cDS);
-	eip++;
-	*(uint64_t*)&op_cache=ReadQword(cCS,eip);
-	(this->*Opcodes[op_cache[0]])();
-
-	ResetSegments();
+	//nop
 }
 
 void x86CPU::op16_pre_ss_override(){ //0x36
-	SetSegments(cSS);
-	eip++;
-	*(uint64_t*)&op_cache=ReadQword(cCS,eip);
-	(this->*Opcodes[op_cache[0]])();
-
-	ResetSegments();
+	//nop
 }
 
 void x86CPU::op16_pre_cs_override(){ //0x2E
-	SetSegments(cCS);
-	eip++;
-	*(uint64_t*)&op_cache=ReadQword(cCS,eip);
-	(this->*Opcodes[op_cache[0]])();
-
-	ResetSegments();
+	//nop
 }
 
 void x86CPU::op16_rep(){ //repe and repne..(different opcodes, but I make them possible to use the same function)
@@ -269,6 +249,7 @@ void x86CPU::op32_size16(){
     }else {
         (this->*opcodes_16bit[op_cache[0]])();
     }
+    OperandSize16 = false;
 }
 
 

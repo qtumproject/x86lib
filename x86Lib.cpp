@@ -290,7 +290,7 @@ void x86CPU::Cycle(){
         //two byte opcode
         eip++;
         *(uint64_t*)&op_cache=ReadQword(cCS,eip);
-        (this->*Opcodes_ext[op_cache[0]])();
+        (this->*Opcodes_ext[op_cache[0]])(); //if in 32-bit mode, then go to 16-bit opcode
     }else {
         //operate on the this class with the opcode functions in this class
         (this->*Opcodes[op_cache[0]])();
@@ -372,10 +372,11 @@ void x86CPU::InitOpcodes(){
 	InstallOp(0xE7,&x86CPU::op16_out_imm8_ax);
 	InstallOp(0x9A,&x86CPU::op16_call_imm16_imm16);
 	InstallOp(0xCB,&x86CPU::op16_retf); 
-	InstallOp(0xCD,&x86CPU::op16_int_imm8);
-	InstallOp(0xCF,&x86CPU::op16_iret);
-	InstallOp(0xCC,&x86CPU::op16_int3);
-	InstallOp(0xCE,&x86CPU::op16_into);
+	//can't override these opcodes
+	//InstallOp(0xCD,&x86CPU::op16_int_imm8);
+	//InstallOp(0xCF,&x86CPU::op16_iret);
+	//InstallOp(0xCC,&x86CPU::op16_int3);
+	//InstallOp(0xCE,&x86CPU::op16_into);
 	InstallOp(0xE4,&x86CPU::op16_in_al_imm8);
 	InstallOp(0xE5,&x86CPU::op16_in_ax_imm8);
 	InstallOp(0x04,&x86CPU::op16_add_al_imm8);

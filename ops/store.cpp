@@ -52,11 +52,15 @@ void x86CPU::op32_mov_r32_imm32(){ //0xB8+r
 }
 
 void x86CPU::op16_mov_sr_rm16(){ //0x8E
-    throw CpuPanic_excp("Unsupported operation (segment register modification)",UNSUPPORTED_EXCP);
+    eip++;
+    ModRM16 rm16(this);
+    //need ModRM for parsing, but otherwise it's a no-op
 }
 
 void x86CPU::op16_mov_rm16_sr(){ //0x8C
-    throw CpuPanic_excp("Unsupported operation (segment register modification)",UNSUPPORTED_EXCP);
+    eip++;
+    ModRM16 rm16(this);
+    rm16.WriteWordr(0);
 }
 
 
@@ -179,11 +183,19 @@ void x86CPU::op32_mov_m32_imm32(){
     eip+=4;
 }
 void x86CPU::op16_lds(){
-    throw CpuPanic_excp("Unsupported operation (segment register modification)", UNSUPPORTED_EXCP);
+    eip++;
+    ModRM16 rm(this);
+    uint32_t tmp=rm.ReadDword();
+    seg[cDS]=0;
+    *regs16[rm.GetExtra()]=(tmp&0xFFFF);
 }
 
 void x86CPU::op16_les(){
-    throw CpuPanic_excp("Unsupported operation (segment register modification)", UNSUPPORTED_EXCP);
+    eip++;
+    ModRM16 rm(this);
+    uint32_t tmp=rm.ReadDword();
+    seg[cES]=0;
+    *regs16[rm.GetExtra()]=(tmp&0xFFFF);
 }
 
 void x86CPU::op16_lea(){
@@ -266,12 +278,15 @@ void x86CPU::op32_pop_r32(){ //0x58+reg
 }
 
 void x86CPU::op16_pop_es(){
+    Pop32();
 }
 
 void x86CPU::op16_pop_ss(){
+    Pop32();
 }
 
 void x86CPU::op16_pop_ds(){
+    Pop32();
 }
 
 

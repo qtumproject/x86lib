@@ -258,7 +258,7 @@ struct x86SaveData{
 	//! Which opcode map is currently in use
 	uint32_t opcode_mode;
 	//! Flags register
-	uint16_t freg;
+	uint32_t freg;
 	//! CPU level
 	uint32_t cpu_level;
 };
@@ -322,6 +322,7 @@ typedef struct{
     unsigned char iopl:2; //not yet used
     unsigned char nt:1;
     unsigned char r3:1;
+    unsigned int upper:16;
 }__attribute__((packed))FLAGS; //this is a better representation of flags(much easier to use)
 
 

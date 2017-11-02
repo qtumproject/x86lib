@@ -48,7 +48,10 @@ void x86CPU::op32_jmp_rel32(){
 }
 
 void x86CPU::op16_jmp_imm16_imm16(){ //far jmp
-    throw CpuPanic_excp("Unsupported operation (segment register modification)", UNSUPPORTED_EXCP);
+    *(uint32_t*)&op_cache=ReadDword(cCS,eip+1);
+	seg[cCS]=0; //*(uint16_t*)&op_cache[2]; //I always forget that they are reversed...
+	eip=*(uint16_t*)&op_cache[0];
+	eip--; //eip will be incremented in Cycle
 }
 
 void x86CPU::op16_jmp_rm16(ModRM &rm){
@@ -61,7 +64,10 @@ void x86CPU::op32_jmp_rm32(ModRM &rm){
 }
 
 void x86CPU::op16_jmp_m16_m16(ModRM &rm){
-    throw CpuPanic_excp("Unsupported operation (segment register modification)", UNSUPPORTED_EXCP);
+    *(uint32_t*)&op_cache=rm.ReadDword(); //quicker to use op_cache, than dynamic variables...
+	seg[cCS]=0; //*(uint16_t*)&op_cache[2];
+	eip=*(uint16_t*)&op_cache[0];
+	eip--;
 }
 
 
@@ -158,10 +164,16 @@ void x86CPU::op32_loopne_rel8(){
 
 
 void x86CPU::op16_call_imm16_imm16() { //far call
-    throw CpuPanic_excp("Unsupported operation (segment register modification)", UNSUPPORTED_EXCP);
+    Push16(); //seg[cCS]);
+	Push16(eip+4);
+	*(uint32_t*)&op_cache=ReadDword(cCS,eip+1);
+	seg[cCS]=0; //*(uint16_t*)&op_cache[2]; //I always forget that they are reversed...
+	eip=*(uint16_t*)&op_cache[0];
+	eip--; //eip will be incremented in Cycle
 }
 void x86CPU::op16_retf(){
-    throw CpuPanic_excp("Unsupported operation (segment register modification)", UNSUPPORTED_EXCP);
+	eip=Pop16();
+	seg[cCS]=0; //Pop16();
 }
 
 void x86CPU::op16_int_imm8(){
@@ -170,7 +182,10 @@ void x86CPU::op16_int_imm8(){
 }
 
 void x86CPU::op16_iret(){
-    throw CpuPanic_excp("Unsupported operation (segment register modification)", UNSUPPORTED_EXCP);
+	//TODO mark fault handled
+    eip=Pop16();
+	seg[cCS]=0; //Pop16();
+	*(uint16_t*)&freg=Pop16();;
 }
 
 void x86CPU::op16_int3(){
@@ -194,7 +209,12 @@ void x86CPU::op32_call_rm32(ModRM &rm){ //far call
 }
 
 void x86CPU::op16_call_rm16_rm16(ModRM &rm){ //far call
-    throw CpuPanic_excp("Unsupported operation (segment register modification)", UNSUPPORTED_EXCP);
+    Push16(0); //seg[cCS]);
+	Push16(eip+rm.GetLength()+1);
+	*(uint32_t*)&op_cache=ReadDword(DS,rm.ReadDword());
+	seg[cCS]=0; //*(uint16_t*)&op_cache[2]; //I always forget that they are reversed...
+	eip=*(uint16_t*)&op_cache[0];
+	eip--; //eip will be incremented in Cycle
 }
 
 
