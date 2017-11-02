@@ -51,10 +51,6 @@ x86CPU::x86CPU(x86SaveData &load_data,uint32_t flags){
 }
 
 void x86CPU::Init(){
-	//ports=new x86Ports();
-#ifdef ENABLE_OPCODE_CALLBACK
-	EachOpcodeCallback=NULL;
-#endif
 	Reset();
 }
 
@@ -90,7 +86,6 @@ void x86CPU::Reset(){
 		seg[i]=0;
 	}
 	ResetSegments();
-	//eip=0xFFFE;
 	eip=0;
 	seg[cCS]=0x0000;
 	*(uint16_t*)&freg=0;
@@ -316,7 +311,6 @@ void x86CPU::InstallOp(uint8_t num,opcode func, opcode *opcode_table){
         Opcodes[num] = func;
     }
 }
-
 
 void x86CPU::InitOpcodes(){
 	Opcodes=opcodes_16bit;

@@ -432,9 +432,6 @@ class x86CPU{
 	 */
 	int CheckInterrupts();
 	public:
-#ifdef ENABLE_OPCODE_CALLBACK
-	void (*EachOpcodeCallback)(x86CPU *thiscpu);
-#endif
 	MemorySystem *Memory;
 	PortSystem *Ports;
 	/*!

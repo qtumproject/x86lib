@@ -38,7 +38,7 @@ namespace x86Lib{
 
 class x86CPU;
 
-typedef void (x86Lib::x86CPU::*opcode)(); /**You have no idea how hard it was to figure out how to do that!**/
+typedef void (x86Lib::x86CPU::*opcode)();
 
 
 static const uint32_t OPCODE_REAL_16=1;

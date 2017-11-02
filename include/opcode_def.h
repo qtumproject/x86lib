@@ -327,8 +327,6 @@ void op_jcc_imm8();
 void op16_jcc_imm16();
 void op32_jcc_imm32();
 
-//Oh God how I hate prototyping and adding the opcodes to the master InstallOp list...
-
 
 /**Group Include Functions(not direct opcodes)**/
 void op16_sub_rm8_imm8(ModRM&); //group 0x80 /5

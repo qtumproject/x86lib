@@ -234,22 +234,20 @@ void x86CPU::op32_push_r32(){ //0x50+reg
 }
 
 void x86CPU::op16_push_es(){
-    throw CpuPanic_excp("Unsupported operation (segment register modification)",UNSUPPORTED_EXCP);
+    Push32(0);
 }
 
 void x86CPU::op16_push_cs(){
-    throw CpuPanic_excp("Unsupported operation (segment register modification)",UNSUPPORTED_EXCP);
+    Push32(0);
 }
 
 void x86CPU::op16_push_ds(){
-    throw CpuPanic_excp("Unsupported operation (segment register modification)",UNSUPPORTED_EXCP);
+    Push32(0);
 }
-
 
 void x86CPU::op16_push_ss(){
-    throw CpuPanic_excp("Unsupported operation (segment register modification)",UNSUPPORTED_EXCP);
+    Push32(0);
 }
-
 
 
 void x86CPU::op16_pop_m16(ModRM &rm){
@@ -268,15 +266,12 @@ void x86CPU::op32_pop_r32(){ //0x58+reg
 }
 
 void x86CPU::op16_pop_es(){
-    throw CpuPanic_excp("Unsupported operation (segment register modification)",UNSUPPORTED_EXCP);
 }
 
 void x86CPU::op16_pop_ss(){
-    throw CpuPanic_excp("Unsupported operation (segment register modification)",UNSUPPORTED_EXCP);
 }
 
 void x86CPU::op16_pop_ds(){
-    throw CpuPanic_excp("Unsupported operation (segment register modification)",UNSUPPORTED_EXCP);
 }
 
 

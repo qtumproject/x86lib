@@ -30,27 +30,11 @@ This file is part of the x86Lib project.
 #ifndef CONFIG_H
 #define CONFIG_H
 
-//#define SAFE_MODE //This should be set if debugging, or if there are
-//mysterious errors... This should be disabled in release builds so that it is faster
-//static const bool Default_A20=1;
-
-//#define ENABLE_OPCODE_CALLBACK //warning! Bug when this is enabled and a callback is not assigned! 
-/**Define this for a callback to be available for EachOpcode. This callback will be called
-   after every opcode executed. This slows down the main loop so only enable if needed!**/
-
 #ifdef __i386__
 //#define USE_NATIVE //This means to optimize by using native assembly when available...
 #endif
 
-//#define STRICT_OPCODES //This should be defined if strict opcode errors should be used...this may slow down the CPU however
-
 //#define X86_MULTITHREADING //This should be defined to enable multi-threading optimizations(note, these will break most single thread implementations)
-
-//#define ENABLE_OPCODE_CALLBACK //provide a callback for each time an opcode is executed. Useful for debugging 8086 programs
-
-#define NEW_API_11
-/**This is the option to use the "new" API for version 1.1.x
-   This is for using the MemorySystem and MemoryDevice classes**/
 
 
 

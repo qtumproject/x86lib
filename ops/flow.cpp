@@ -33,13 +33,6 @@ using namespace std;
 
 
 
-
-
-
-
-
-
-
 void x86CPU::op16_jmp_rel8(){
 	eip++;
 	Jmp16_near8(op_cache[1]);
