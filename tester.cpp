@@ -38,19 +38,23 @@ This file is part of the x86Lib project.
 using namespace std;
 using namespace x86Lib;
 
-char* fileToLoad;
 uint32_t fileLength;
 
 uint8_t *ptr_memory;
 size_t size_memory;
-void init_memory(){
+void init_memory(char* fileToLoad){
 	size_memory=0xFF000;
 	ptr_memory=new uint8_t[size_memory];
 	memset(ptr_memory,0x66,size_memory); //initialize it all to 0x66, an invalid opcode
-	ifstream file(fileToLoad, ios::binary); //open it readonly binary
-	file.seekg(0, file.end);
+	ifstream file(fileToLoad, ios::binary);
+	if(!file){
+		cout << "file " << fileToLoad << " does not exist" << endl;
+		exit(1);
+	}
 	fileLength = file.tellg();
-	file.seekg(0, file.beg);
+	file.seekg(0, std::ios::end);
+	fileLength = file.tellg() - fileLength;
+	file.seekg(0, std::ios::beg);
 	file.read((char*)&ptr_memory[0x0000],size_memory);
 }
 bool ROMLoaded = false;
@@ -161,6 +165,7 @@ void WritePort(uint16_t port,uint32_t val){
 		break;
 
 		case 0xF0: //exit with val
+		cout << "exiting with code " << val << endl;
 		exit(val);
 		break;
 		case 0xF3: /*Dump memory to external file*/
@@ -241,20 +246,19 @@ void each_opcode(x86CPU *thiscpu){
 
 
 int main(int argc, char* argv[]){
-	if(argc > 1){
-		fileToLoad = argv[1];
-	}else{
+	if(argc != 2){
 		cout << "./x86test program.bin" << endl;
 		return 1;
 	}
+	init_memory(argv[1]);
 	PortSystem Ports;
 	ROMemory coderom;
 	RAMemory config(0x1000);
 	RAMemory scratch(0x100000);
 	
-	Memory.Add(0, 0x1000, &config);
-	Memory.Add(0x1000, 0x100000, &coderom);
-	Memory.Add(0x100000, 0x200000, &scratch);
+	Memory.Add(0, 0xFFF, &config);
+	Memory.Add(0x1000, 0xFFFFF, &coderom);
+	Memory.Add(0x100000, 0x1FFFFF, &scratch);
 
 	Ports.Add(0,0xFFFF,(PortDevice*)&ports);
 	cpu=new x86CPU();

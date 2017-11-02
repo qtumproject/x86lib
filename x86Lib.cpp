@@ -86,10 +86,10 @@ void x86CPU::Reset(){
 		seg[i]=0;
 	}
 	ResetSegments();
-	eip=0;
-	seg[cCS]=0x0000;
+	eip=0x1000;
+	seg[cCS]=0;
 	*(uint16_t*)&freg=0;
-    regs32[ESP] = 0xEFFF0; //set stack to reasonable address for Qtum
+    regs32[ESP] = 0x1FF000; //set stack to reasonable address for Qtum
 	string_compares=0;
 	int_pending=0;
 	cli_count=0;
