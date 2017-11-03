@@ -96,6 +96,7 @@ void x86CPU::Reset(){
     OperandSize16=false;
     AddressSize16=false;
     DoStop=false;
+    PrefixCount = 0;
 }
 
 

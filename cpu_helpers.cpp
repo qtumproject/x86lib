@@ -34,6 +34,13 @@ void x86CPU::SetIndex8(){ //this just makes my code look better...
     }
 }
 
+void x86CPU::SetIndex(){
+    if(OperandSize16){
+        SetIndex16();
+    }else{
+        SetIndex32();
+    }
+}
 void x86CPU::SetIndex16(){
     if(freg.df==0){
         (*regs16[SI])+=2;
@@ -60,6 +67,14 @@ void x86CPU::CalculatePF8(uint8_t val){
         if((val&((1<<i)))!=0){count++;}
     }
     if((count%2)==0){freg.pf=1;}else{freg.pf=0;}
+}
+
+void x86CPU::CalculatePF(uint32_t val){
+    if(OperandSize16){
+        CalculatePF16(val);
+    }else{
+        CalculatePF32(val);
+    }
 }
 
 void x86CPU::CalculatePF16(uint16_t val){
@@ -104,7 +119,7 @@ void x86CPU::CalculatePF32(uint32_t val){
     #error "not yet supported"
     //x86 ASM optimization..
     __asm(".intel_syntax noprefix\n"
-    "cmp WORD PTR [ebp-10],0\n"
+    "cmp DWORD PTR [ebp-10],0\n"
     "jp .yes__\n"
     ".att_syntax\n");
     val=0;
@@ -126,6 +141,13 @@ void x86CPU::CalculateSF8(uint8_t val){
     if((val&0x80)==0){freg.sf=0;}else{freg.sf=1;}
 }
 
+void x86CPU::CalculateSF(uint32_t val){
+    if(OperandSize16){
+        CalculateSF16(val);
+    }else{
+        CalculateSF32(val);
+    }
+}
 void x86CPU::CalculateSF16(uint16_t val){
     if((val&0x8000)==0){freg.sf=0;}else{freg.sf=1;}
 }
@@ -134,8 +156,15 @@ void x86CPU::CalculateSF32(uint32_t val){
     if((val&0x80000000)==0){freg.sf=0;}else{freg.sf=1;}
 }
 
-
 void x86CPU::Jmp_near(uint32_t off){
+    if(OperandSize16){
+        Jmp16_near16(off);
+    }else{
+        Jmp_near32(off);
+    }
+}
+
+void x86CPU::Jmp_near32(uint32_t off){
     //I thought there would be a good way to do this, but I suppose this works..
     if((off&0x80000000)==0){ //if unsigned
         eip=eip+off;
@@ -162,6 +191,7 @@ void x86CPU::Jmp16_near8(uint8_t off){
     }else{
         eip=eip-((uint8_t)-off);
     }
+    eip = Operand(eip);
     //eip++;
 }
 
@@ -189,7 +219,7 @@ void x86CPU::SetSegments(uint8_t segm){
 
 
 
-uint8_t x86CPU::ReadByte(uint8_t segm,uint32_t off){
+uint8_t x86CPU::ReadByte(uint32_t off){
     Memory->WaitLock(busmaster);
     uint8_t res=0;
     Memory->Read(off,1,&res);
@@ -231,3 +261,27 @@ void x86CPU::WriteDword(uint8_t segm,uint32_t off,uint32_t val){
     Memory->WaitLock(busmaster);
     Memory->Write(off,4,&val);
 }
+
+void x86CPU::Write(uint8_t segm, uint32_t off, uint32_t val){
+    if(AddressSize16){
+        off = off & 0xFFFF;
+    }
+    if(OperandSize16){
+        WriteWord(segm, off, val);
+    }else{
+        WriteDword(segm, off, val);
+    }
+}
+
+uint32_t x86CPU::Read(uint8_t segm, uint32_t off){
+    if(AddressSize16){
+        off = off & 0xFFFF;
+    }
+    if(OperandSize16){
+        return ReadWord(segm, off);
+    }else{
+        return ReadDword(segm, off);
+    }
+}
+
+

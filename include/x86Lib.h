@@ -415,6 +415,7 @@ class x86CPU{
     bool OperandSize16;
     bool AddressSize16;
     bool DoStop;
+    int PrefixCount; //otherwise, someone could make some ridiculously long prefix chain (apparently Intel CPUs don't error until you get past 14)
 	protected:
 	//! Do one CPU opcode
 	/*! This should be put in the main loop, as this is what makes the CPU work.
@@ -428,9 +429,6 @@ class x86CPU{
 	opcode *Opcodes; //current opcode mode
     opcode *Opcodes_ext; //current extended opcode mode
 
-    //parsing opcodes
-    opcodeExtended opcodes_32bit_modrm_r
-	
 	/*!
 	\return 0 if no interrupts are pending
 	 */
@@ -538,6 +536,56 @@ class x86CPU{
 	private:
 	#include <opcode_def.h>
 	#endif
+
+	inline uint32_t Address(uint32_t a){
+		if(AddressSize16){
+			return a & 0xFFFF;
+		}
+		return a;
+	}
+	inline uint32_t Operand(uint32_t val){
+		if(OperandSize16){
+			return val & 0xFFFF;
+		}
+		return val;
+	}
+
+	inline uint32_t OperandImm(){
+		if(OperandSize16){
+			eip+=2;
+			return (uint32_t) (*(uint16_t*)&op_cache[1]);
+		}
+		eip+=4;
+		return (*(uint32_t*)&op_cache[1]);
+	}
+
+	inline uint32_t OperandDisp(){
+		if(AddressSize16){
+			eip+=2;
+			return (uint32_t) (*(uint16_t*)&op_cache[1]);
+		}
+		eip+=4;
+		return (*(uint32_t*)&op_cache[1]);
+	}
+
+	inline void ToOperand(uint32_t *to, uint32_t val){
+		if(OperandSize16){
+			*(uint16_t*)to = val;
+		}else{
+			*to = val;
+		}
+
+	}
+	inline void Write(uint32_t addr, uint32_t v){
+		if(AddressSize16){
+			addr &= 0xFFFF;
+		}
+		if(OperandSize16){
+			WriteWord(0, addr, v);
+		}else{
+			WriteDword(0, addr, v);
+		}
+	}
 
 };
 

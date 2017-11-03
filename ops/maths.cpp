@@ -90,6 +90,13 @@ uint32_t x86CPU::Sub32(uint32_t base,uint32_t subt){
     freg.af = (((base-subt) & ~0xf) != 0);
     return mirror;
 }
+uint32_t x86CPU::Sub(uint32_t base,uint32_t subt){
+	if(OperandSize16){
+		return Sub16(base, subt);
+	}else{
+		return Sub32(base, subt);
+	}
+}
 
 uint8_t x86CPU::Add8(uint8_t base,uint8_t adder){
     int8_t result;
@@ -146,6 +153,14 @@ uint32_t x86CPU::Add32(uint32_t base,uint32_t adder){
     return result;
 }
 
+uint32_t x86CPU::Add(uint32_t base,uint32_t adder){
+	if(OperandSize16){
+		return Add16(base, adder);
+	}else{
+		return Add32(base, adder);
+	}
+}
+
 
 
 uint8_t x86CPU::And8(uint8_t base,uint8_t mask){
@@ -188,6 +203,14 @@ uint32_t x86CPU::And32(uint32_t base,uint32_t mask){
         freg.zf=0;
     }
     return base;
+}
+
+uint32_t x86CPU::And(uint32_t base,uint32_t mask){
+	if(OperandSize16){
+		return And16(base, mask);
+	}else{
+		return And32(base, mask);
+	}
 }
 
 //Not affects no flags, so just use ~
@@ -233,6 +256,13 @@ uint32_t x86CPU::Or32(uint32_t base,uint32_t mask){
     }
     return base;
 }
+uint32_t x86CPU::Or(uint32_t base,uint32_t arg){
+	if(OperandSize16){
+		return Or16(base, arg);
+	}else{
+		return Or32(base, arg);
+	}
+}
 
 uint8_t x86CPU::Xor8(uint8_t base,uint8_t mask){
 	freg.of=0;
@@ -273,6 +303,13 @@ uint32_t x86CPU::Xor32(uint32_t base,uint32_t mask){
         freg.zf=0;
     }
     return base;
+}
+uint32_t x86CPU::Xor(uint32_t base,uint32_t arg){
+	if(OperandSize16){
+		return Xor16(base, arg);
+	}else{
+		return Xor32(base, arg);
+	}
 }
 
 uint8_t x86CPU::ShiftLogicalRight8(uint8_t base,uint8_t count){
@@ -342,6 +379,14 @@ uint32_t x86CPU::ShiftLogicalRight32(uint32_t base,uint8_t count){
     }
     freg.of=0;
     return base;
+}
+
+uint32_t x86CPU::ShiftLogicalRight(uint32_t base,uint8_t arg){
+	if(OperandSize16){
+		return ShiftLogicalRight16(base, arg);
+	}else{
+		return ShiftLogicalRight32(base, arg);
+	}
 }
 
 uint8_t x86CPU::ShiftArithmeticRight8(uint8_t base,uint8_t count){
@@ -421,6 +466,14 @@ uint32_t x86CPU::ShiftArithmeticRight32(uint32_t base,uint8_t count){
     return base;
 }
 
+uint32_t x86CPU::ShiftArithmeticRight(uint32_t base,uint8_t arg){
+	if(OperandSize16){
+		return ShiftArithmeticRight16(base, arg);
+	}else{
+		return ShiftArithmeticRight32(base, arg);
+	}
+}
+
 uint8_t x86CPU::ShiftLogicalLeft8(uint8_t base,uint8_t count){
 	count&=0x1F; //only use bottom 5 bits
 	if(count==0){
@@ -488,6 +541,14 @@ uint32_t x86CPU::ShiftLogicalLeft32(uint32_t base,uint8_t count){
     return base;
 }
 
+uint32_t x86CPU::ShiftLogicalLeft(uint32_t base,uint8_t arg){
+	if(OperandSize16){
+		return ShiftLogicalLeft16(base, arg);
+	}else{
+		return ShiftLogicalLeft32(base, arg);
+	}
+}
+
 /**ToDo: Possibly adapt BOCHS source so that we avoid this loop crap...**/
 uint8_t x86CPU::RotateRight8(uint8_t base,uint8_t count){
     count&=0x1F; //only use bottom 5 bits
@@ -524,6 +585,14 @@ uint32_t x86CPU::RotateRight32(uint32_t base,uint8_t count){
     return base;
 }
 
+uint32_t x86CPU::RotateRight(uint32_t base,uint8_t arg){
+	if(OperandSize16){
+		return RotateRight16(base, arg);
+	}else{
+		return RotateRight32(base, arg);
+	}
+}
+
 uint8_t x86CPU::RotateLeft8(uint8_t base,uint8_t count){
     count&=0x1F; //only use bottom 5 bits
 	freg.of=(base&0x80)>>7;
@@ -558,6 +627,14 @@ uint32_t x86CPU::RotateLeft32(uint32_t base,uint8_t count){
     }
     freg.of=freg.of^((base&0x80000000)>>31);
     return base;
+}
+
+uint32_t x86CPU::RotateLeft(uint32_t base,uint8_t arg){
+	if(OperandSize16){
+		return RotateLeft16(base, arg);
+	}else{
+		return RotateLeft32(base, arg);
+	}
 }
 
 uint8_t x86CPU::RotateCarryLeft8(uint8_t base,uint8_t count){
@@ -602,6 +679,14 @@ uint32_t x86CPU::RotateCarryLeft32(uint32_t base,uint8_t count){
     return base;
 }
 
+uint32_t x86CPU::RotateCarryLeft(uint32_t base,uint8_t arg){
+	if(OperandSize16){
+		return RotateCarryLeft16(base, arg);
+	}else{
+		return RotateCarryLeft32(base, arg);
+	}
+}
+
 uint8_t x86CPU::RotateCarryRight8(uint8_t base,uint8_t count){
     count&=0x1F; //only use bottom 5 bits
 	freg.of=(base&0x80)>>7;
@@ -641,6 +726,13 @@ uint32_t x86CPU::RotateCarryRight32(uint32_t base,uint8_t count){
     return base;
 }
 
+uint32_t x86CPU::RotateCarryRight(uint32_t base,uint8_t arg){
+	if(OperandSize16){
+		return RotateCarryRight16(base, arg);
+	}else{
+		return RotateCarryRight32(base, arg);
+	}
+}
 
 
 

@@ -33,14 +33,14 @@ using namespace std;
 
 
 
-void x86CPU::op16_movsb(){
+void x86CPU::op_movsb(){
 	WriteByte(cES,GetAddressReg(DI),ReadByte(DS,GetAddressReg(SI)));
 	SetIndex8();
 }
 
-void x86CPU::op16_movsw(){
+void x86CPU::op_movsw(){
 	WriteWord(cES,GetAddressReg(DI),ReadWord(DS,GetAddressReg(SI)));
-	SetIndex16();
+	SetIndex();
 }
 
 void x86CPU::op32_movsd(){

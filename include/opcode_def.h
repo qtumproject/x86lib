@@ -460,13 +460,17 @@ uint32_t Pop();
 void SetIndex8();
 void SetIndex16();
 void SetIndex32();
+void SetIndex();
 void CalculatePF8(uint8_t val);
 void CalculatePF16(uint16_t val);
 void CalculatePF32(uint32_t val);
+void CalculatePF(uint32_t val);
 void CalculateSF8(uint8_t val);
 void CalculateSF16(uint16_t val);
 void CalculateSF32(uint32_t val);
-void Jmp32_near32(uint32_t off);
+void CalculateSF(uint32_t val);
+void Jmp_near(uint32_t off);
+void Jmp_near32(uint32_t off);
 void Jmp16_near16(uint16_t off);
 void Jmp16_near8(uint8_t off);
 void Int16(uint8_t num);
@@ -475,59 +479,11 @@ void SetSegments(uint8_t segm);
 uint8_t ReadByte(uint8_t segm,uint32_t off);
 uint16_t ReadWord(uint8_t segm,uint32_t off);
 uint32_t ReadDword(uint8_t segm,uint32_t off);
+uint32_t Read(uint8_t segm,uint32_t off);
 uint64_t ReadQword(uint8_t segm,uint32_t off);
 void WriteByte(uint8_t segm,uint32_t off,uint8_t val);
 void WriteWord(uint8_t segm,uint32_t off,uint16_t val);
 void WriteDword(uint8_t segm,uint32_t off,uint32_t val);
+void Write(uint8_t segm,uint32_t off,uint32_t val);
 
 
-
-static inline uint32_t Address(uint32_t a){
-	if(AddressSize16){
-		return a & 0xFFFF;
-	}
-	return a;
-}
-static inline uint32_t Operand(uint32_t val){
-	if(OperandSize16){
-		return val & 0xFFFF;
-	}
-	return val;
-}
-
-static inline uint32_t OperandImm(){
-	if(OperandSize16){
-		eip+=2;
-		return (uint32_t) (*(uint16_t*)&op_cache[1]);
-	}
-	eip+=4;
-	return (*(uint32_t*)&op_cache[1]);
-}
-
-static inline uint32_t OperandDisp(){
-	if(AddressSize16){
-		eip+=2;
-		return (uint32_t) (*(uint16_t*)&op_cache[1]);
-	}
-	eip+=4;
-	return (*(uint32_t*)&op_cache[1]);
-}
-
-static inline void ToOperand(uint32_t *to, uint32_t val){
-	if(OperandSize16){
-		*(uint16_t*)to = val;
-	}else{
-		*to = val;
-	}
-
-}
-static inline void Write(uint32_t addr, uint32_t v){
-	if(AddressSize16){
-		addr &= 0xFFFF;
-	}
-	if(OperandSize16){
-		WriteWord(0, addr, v);
-	}else{
-		WriteDword(0, addr, v);
-	}
-}
