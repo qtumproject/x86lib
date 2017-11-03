@@ -455,10 +455,8 @@ void op32_movzx_r32_rm16();
 
 
 //helpers
-void Push16(uint16_t val);
-uint16_t Pop16();
-void Push32(uint32_t val);
-uint32_t Pop32();
+void Push(uint32_t val);
+uint32_t Pop();
 void SetIndex8();
 void SetIndex16();
 void SetIndex32();
@@ -482,3 +480,54 @@ void WriteByte(uint8_t segm,uint32_t off,uint8_t val);
 void WriteWord(uint8_t segm,uint32_t off,uint16_t val);
 void WriteDword(uint8_t segm,uint32_t off,uint32_t val);
 
+
+
+static inline uint32_t Address(uint32_t a){
+	if(AddressSize16){
+		return a & 0xFFFF;
+	}
+	return a;
+}
+static inline uint32_t Operand(uint32_t val){
+	if(OperandSize16){
+		return val & 0xFFFF;
+	}
+	return val;
+}
+
+static inline uint32_t OperandImm(){
+	if(OperandSize16){
+		eip+=2;
+		return (uint32_t) (*(uint16_t*)&op_cache[1]);
+	}
+	eip+=4;
+	return (*(uint32_t*)&op_cache[1]);
+}
+
+static inline uint32_t OperandDisp(){
+	if(AddressSize16){
+		eip+=2;
+		return (uint32_t) (*(uint16_t*)&op_cache[1]);
+	}
+	eip+=4;
+	return (*(uint32_t*)&op_cache[1]);
+}
+
+static inline void ToOperand(uint32_t *to, uint32_t val){
+	if(OperandSize16){
+		*(uint16_t*)to = val;
+	}else{
+		*to = val;
+	}
+
+}
+static inline void Write(uint32_t addr, uint32_t v){
+	if(AddressSize16){
+		addr &= 0xFFFF;
+	}
+	if(OperandSize16){
+		WriteWord(0, addr, v);
+	}else{
+		WriteDword(0, addr, v);
+	}
+}

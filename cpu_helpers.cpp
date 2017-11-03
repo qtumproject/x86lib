@@ -3,35 +3,24 @@
 
 using namespace x86Lib;
 
-void x86CPU::Push16(uint16_t val){
+void x86CPU::Push(uint32_t val){
     if(Use32BitAddress()) {
         regs32[ESP] -= 4;
         WriteWord(cSS, regs32[ESP], val);
     }else{
-        *regs16[SP] -= 2;
-        WriteWord(cSS, *regs16[SP], val);
+        *regs16[ESP] -= 2;
+        WriteWord(cSS, *regs16[ESP], val);
     }
 }
-uint16_t x86CPU::Pop16(){
+uint32_t x86CPU::Pop(){
     uint16_t register tmp;
     if(Use32BitAddress()) {
         tmp = ReadWord(cSS, regs32[ESP]);
         regs32[ESP] += 4;
     }else{
-        tmp = ReadWord(cSS, *regs16[SP]);
-        *regs16[SP] += 2;
+        tmp = ReadWord(cSS, *regs16[ESP]);
+        *regs16[ESP] += 2;
     }
-    return tmp;
-}
-
-void x86CPU::Push32(uint32_t val){
-    regs32[ESP]-=4;
-    WriteDword(cSS,regs32[ESP],val);
-}
-uint32_t x86CPU::Pop32(){
-    uint32_t register tmp;
-    tmp=ReadDword(cSS,regs32[ESP]);
-    regs32[ESP]+=4;
     return tmp;
 }
 
@@ -146,13 +135,14 @@ void x86CPU::CalculateSF32(uint32_t val){
 }
 
 
-void x86CPU::Jmp32_near32(uint32_t off){
+void x86CPU::Jmp_near(uint32_t off){
     //I thought there would be a good way to do this, but I suppose this works..
     if((off&0x80000000)==0){ //if unsigned
         eip=eip+off;
     }else{
         eip=eip-((uint32_t)-off);
     }
+    eip = Operand(eip);
 }
 
 void x86CPU::Jmp16_near16(uint16_t off){
@@ -162,6 +152,7 @@ void x86CPU::Jmp16_near16(uint16_t off){
     }else{
         eip=eip-((uint16_t)-off);
     }
+    eip = Operand(eip);
 }
 
 void x86CPU::Jmp16_near8(uint8_t off){

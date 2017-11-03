@@ -206,7 +206,7 @@ void x86CPU::op16_lea(){
 void x86CPU::op32_lea(){
     eip++;
     ModRM rm(this);
-    regs32[rm.GetExtra()]=rm.ReadOffset32();
+    regs32[rm.GetExtra()]=Operand(rm.ReadOffset32());
 }
 
 

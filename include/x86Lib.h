@@ -359,29 +359,29 @@ class ModRM{
 	uint16_t GetDisp();
     uint32_t GetDisp32();
     uint32_t GetSIBDisp();
+    uint32_t ReadOffset32(); //This is only used by LEA. It will obtain the offset and not dereference it...
+    uint8_t ReadByte32();
+    uint16_t ReadWord32();
+    uint32_t ReadDword32();
+    void WriteByte32(uint8_t byte);
+    void WriteWord32(uint16_t word);
+    void WriteDword32(uint32_t dword);
 	public:
 
 	ModRM(x86CPU* this_cpu_);
 	~ModRM();
 	//The r suffix means /r, which means for op_specific=1, use general registers
-	uint8_t ReadByter();
-	uint16_t ReadWordr();
+	uint8_t ReadByte();
+	uint16_t ReadWord();
 	uint32_t ReadDword();
-    uint32_t ReadDwordr();
-	void WriteByter(uint8_t byte);
-	void WriteWordr(uint16_t word);
-	void WriteDword(uint32_t dword);
-    void WriteDwordr(uint32_t dword);
-    uint8_t ReadByter32();
-    uint16_t ReadWordr32();
-    uint32_t ReadDwordr32();
-    void WriteByter32(uint8_t byte);
-    void WriteWordr32(uint16_t word);
-    void WriteDwordr32(uint32_t dword);
+	uint32_t Read();
+	void WriteByte(uint8_t byte);
+	void WriteWord(uint16_t word);
+    void WriteDword(uint32_t dword);
+    void Write(uint32_t dword);
 	uint8_t GetLength(); //This returns how many total bytes the modrm block consumes
 	uint8_t GetExtra(); //Get the extra fied from mod_rm
-	uint16_t ReadOffset(); //This is only used by LEA. It will obtain the offset and not dereference it...
-    uint32_t ReadOffset32(); //This is only used by LEA. It will obtain the offset and not dereference it...
+	uint32_t ReadOffset(); //This is only used by LEA. It will obtain the offset and not dereference it...
 
 };
 
@@ -427,6 +427,9 @@ class x86CPU{
     opcode opcodes_32bit_ext[256];
 	opcode *Opcodes; //current opcode mode
     opcode *Opcodes_ext; //current extended opcode mode
+
+    //parsing opcodes
+    opcodeExtended opcodes_32bit_modrm_r
 	
 	/*!
 	\return 0 if no interrupts are pending

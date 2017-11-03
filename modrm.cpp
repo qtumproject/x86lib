@@ -223,9 +223,9 @@ ModRM::~ModRM(){
 }
 
 //The r suffix means /r, which means for op_specific=1, use general registers
-uint8_t ModRM::ReadByter(){
+uint8_t ModRM::ReadByte(){
     if(this_cpu->Use32BitAddress()){
-        return ReadByter32();
+        return ReadByte32();
     }
     use_ss=0;
     op_specific=0;
@@ -241,9 +241,9 @@ uint8_t ModRM::ReadByter(){
     }
 }
 
-uint16_t ModRM::ReadWordr(){
+uint16_t ModRM::ReadWord(){
     if(this_cpu->Use32BitAddress()){
-        return ReadWordr32();
+        return ReadWord32();
     }
     use_ss=0;
     op_specific=0;
@@ -260,12 +260,18 @@ uint16_t ModRM::ReadWordr(){
         }
     }
 }
-uint32_t ModRM::ReadDwordr(){ //make this for consistency. Need to refactor this whole class later..
-    return ReadDword();
+
+uint32_t ModRM::Read(){
+    if(this_cpu->Use32BitOperand()){
+        return ReadDword();
+    }else{
+        return ReadWord();
+    }
 }
+
 uint32_t ModRM::ReadDword(){
     if(this_cpu->Use32BitAddress()){
-        return ReadDwordr32();
+        return ReadDword32();
     }
     use_ss=0;
     op_specific=0;
@@ -282,9 +288,9 @@ uint32_t ModRM::ReadDword(){
     }
 }
 
-void ModRM::WriteByter(uint8_t byte){
+void ModRM::WriteByte(uint8_t byte){
     if(this_cpu->Use32BitAddress()){
-        return WriteByter32(byte);
+        return WriteByte32(byte);
     }
     use_ss=0;
     op_specific=0;
@@ -300,9 +306,9 @@ void ModRM::WriteByter(uint8_t byte){
         }
     }
 }
-void ModRM::WriteWordr(uint16_t word){
+void ModRM::WriteWord(uint16_t word){
     if(this_cpu->Use32BitAddress()){
-        return WriteWordr32(word);
+        return WriteWord32(word);
     }
     use_ss=0;
     op_specific=0;
@@ -318,12 +324,18 @@ void ModRM::WriteWordr(uint16_t word){
         }
     }
 }
-void ModRM::WriteDwordr(uint32_t dword){
-    WriteDword(dword);
+
+void ModRM::Write(uint32_t val){
+    if(this_cpu->Use32BitOperand()){
+        WriteDword(val);
+    }else{
+        WriteWord(val);
+    }
 }
+
 void ModRM::WriteDword(uint32_t dword){
     if(this_cpu->Use32BitAddress()){
-        return WriteDwordr32(dword);
+        return WriteDword32(dword);
     }
     use_ss=0;
     op_specific=0;
@@ -343,7 +355,7 @@ void ModRM::WriteDword(uint32_t dword){
 
 
 //The r suffix means /r, which means for op_specific=1, use general registers
-uint8_t ModRM::ReadByter32(){
+uint8_t ModRM::ReadByte32(){
     use_ss=0;
     op_specific=0;
     uint32_t disp=GetDisp32();
@@ -354,7 +366,7 @@ uint8_t ModRM::ReadByter32(){
     }
 }
 
-uint16_t ModRM::ReadWordr32(){
+uint16_t ModRM::ReadWord32(){
     use_ss=0;
     op_specific=0;
     uint32_t disp=GetDisp32();
@@ -365,7 +377,7 @@ uint16_t ModRM::ReadWordr32(){
         return this_cpu->ReadWord(this_cpu->DS,disp);
     }
 }
-uint32_t ModRM::ReadDwordr32(){
+uint32_t ModRM::ReadDword32(){
     use_ss=0;
     op_specific=0;
     uint32_t disp=GetDisp32();
@@ -376,7 +388,7 @@ uint32_t ModRM::ReadDwordr32(){
     }
 }
 
-void ModRM::WriteByter32(uint8_t byte){
+void ModRM::WriteByte32(uint8_t byte){
     use_ss=0;
     op_specific=0;
     uint32_t disp=GetDisp32();
@@ -386,7 +398,7 @@ void ModRM::WriteByter32(uint8_t byte){
         this_cpu->WriteByte(this_cpu->DS,disp,byte);
     }
 }
-void ModRM::WriteWordr32(uint16_t word){
+void ModRM::WriteWord32(uint16_t word){
     use_ss=0;
     op_specific=0;
     uint32_t disp=GetDisp32();
@@ -396,7 +408,7 @@ void ModRM::WriteWordr32(uint16_t word){
         this_cpu->WriteWord(this_cpu->DS,disp,word);
     }
 }
-void ModRM::WriteDwordr32(uint32_t dword){
+void ModRM::WriteDword32(uint32_t dword){
     use_ss=0;
     op_specific=0;
     uint32_t disp=GetDisp32();
@@ -457,7 +469,10 @@ uint8_t ModRM::GetExtra(){ //Get the extra fied from mod_rm
     return modrm.extra;
 }
 
-uint16_t ModRM::ReadOffset(){ //This is only used by LEA. It will obtain the offset and not dereference it...
+uint32_t ModRM::ReadOffset(){ //This is only used by LEA. It will obtain the offset and not dereference it...
+    if(this_cpu->Use32BitAddress()){
+        return ReadOffset32();
+    }
     use_ss=0;
     op_specific=0;
     uint16_t disp=GetDisp();

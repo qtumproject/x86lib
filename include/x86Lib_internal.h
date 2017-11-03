@@ -41,9 +41,6 @@ class x86CPU;
 
 typedef void (x86Lib::x86CPU::*opcode)();
 
-struct OpcodeData{
-
-}
 
 
 static const uint32_t OPCODE_REAL_16=1;
