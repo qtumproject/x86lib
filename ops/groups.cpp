@@ -32,33 +32,33 @@ namespace x86Lib{
 using namespace std;
 
 
-void x86CPU::op16_group_80(){
+void x86CPU::op_group_80(){
 	eip++;
 	ModRM rm(this);
 	switch(rm.GetExtra()){
 		case 5:
-		op16_sub_rm8_imm8(rm);
+		op_sub_rm8_imm8(rm);
 		break;
 		case 0:
-		op16_add_rm8_imm8(rm);
+		op_add_rm8_imm8(rm);
 		break;
 		case 2:
-		op16_adc_rm8_imm8(rm);
+		op_adc_rm8_imm8(rm);
 		break;
 		case 7:
-		op16_cmp_rm8_imm8(rm);
+		op_cmp_rm8_imm8(rm);
 		break;
 		case 1:
-		op16_or_rm8_imm8(rm);
+		op_or_rm8_imm8(rm);
 		break;
 		case 6:
-		op16_xor_rm8_imm8(rm);
+		op_xor_rm8_imm8(rm);
 		break;
 		case 3:
-		op16_sbb_rm8_imm8(rm);
+		op_sbb_rm8_imm8(rm);
 		break;
 		case 4:
-		op16_and_rm8_imm8(rm);
+		op_and_rm8_imm8(rm);
 		break;
 
 		default:
@@ -75,28 +75,28 @@ void x86CPU::op_group_81(){
 	ModRM rm(this);
 	switch(rm.GetExtra()){
 		case 5:
-		op16_sub_rm16_imm16(rm);
+		op_sub_rmW_immW(rm);
 		break;
 		case 0:
-		op16_add_rm16_imm16(rm);
+		op_add_rmW_immW(rm);
 		break;
 		case 2:
-		op16_adc_rm16_imm16(rm);
+		op_adc_rmW_immW(rm);
 		break;
 		case 7:
-		op16_cmp_rm16_imm16(rm);
+		op_cmp_rmW_immW(rm);
 		break;
 		case 1:
-		op16_or_rm16_imm16(rm);
+		op_or_rmW_immW(rm);
 		break;
 		case 6:
-		op16_xor_rm16_imm16(rm);
+		op_xor_rmW_immW(rm);
 		break;
 		case 3:
-		op16_sbb_rm16_imm16(rm);
+		op_sbb_rmW_immW(rm);
 		break;
 		case 4:
-		op16_and_rm16_imm16(rm);
+		op_and_rmW_immW(rm);
 		break;
 
 		default:
@@ -104,73 +104,36 @@ void x86CPU::op_group_81(){
 		throw CpuInt_excp(UNK_IEXCP);
 		break;
 	}
-	eip+=OperandSize(); //these each have imm16
+	eip+=OperandSize(); //these each have immW
 }
 
-void x86CPU::op32_group_81(){
-    eip++;
-    ModRM rm(this);
-    switch(rm.GetExtra()){
-        case 5:
-            op32_sub_rm32_imm32(rm);
-            break;
-        case 0:
-            op32_add_rm32_imm32(rm);
-            break;
-        case 2:
-            op32_adc_rm32_imm32(rm);
-            break;
-        case 7:
-            op32_cmp_rm32_imm32(rm);
-            break;
-        case 1:
-            op32_or_rm32_imm32(rm);
-            break;
-        case 6:
-            op32_xor_rm32_imm32(rm);
-            break;
-        case 3:
-            op32_sbb_rm32_imm32(rm);
-            break;
-        case 4:
-            op32_and_rm32_imm32(rm);
-            break;
-
-        default:
-            eip--;
-            throw CpuInt_excp(UNK_IEXCP);
-            break;
-    }
-    eip+=4; //these each have imm32
-}
-
-void x86CPU::op16_group_83() {
+void x86CPU::op_group_83() {
     eip++;
     ModRM rm(this);
     switch (rm.GetExtra()) {
         case 0:
-            op16_add_rm16_imm8(rm);
+            op_add_rmW_imm8(rm);
             break;
         case 2:
-            op16_adc_rm16_imm8(rm);
+            op_adc_rmW_imm8(rm);
             break;
         case 5:
-            op16_sub_rm16_imm8(rm);
+            op_sub_rmW_imm8(rm);
             break;
         case 7:
-            op16_cmp_rm16_imm8(rm);
+            op_cmp_rmW_imm8(rm);
             break;
         case 1:
-            op16_or_rm16_imm8(rm);
+            op_or_rmW_imm8(rm);
             break;
         case 6:
-            op16_xor_rm16_imm8(rm);
+            op_xor_rmW_imm8(rm);
             break;
         case 3:
-            op16_sbb_rm16_imm8(rm);
+            op_sbb_rmW_imm8(rm);
             break;
         case 4:
-            op16_and_rm16_imm8(rm);
+            op_and_rmW_imm8(rm);
             break;
 
         default:
@@ -181,49 +144,13 @@ void x86CPU::op16_group_83() {
     eip++;
 }
 
-void x86CPU::op32_group_83() {
-    eip++;
-    ModRM rm(this);
-    switch (rm.GetExtra()) {
-        case 0:
-            op32_add_rm32_imm8(rm);
-            break;
-        case 2:
-            op32_adc_rm32_imm8(rm);
-            break;
-        case 5:
-            op32_sub_rm32_imm8(rm);
-            break;
-        case 7:
-            op32_cmp_rm32_imm8(rm);
-            break;
-        case 1:
-            op32_or_rm32_imm8(rm);
-            break;
-        case 6:
-            op32_xor_rm32_imm8(rm);
-            break;
-        case 3:
-            op32_sbb_rm32_imm8(rm);
-            break;
-        case 4:
-            op32_and_rm32_imm8(rm);
-            break;
 
-        default:
-            eip--;
-            throw CpuInt_excp(UNK_IEXCP);
-            break;
-    }
-    eip++;
-}
-
-void x86CPU::op16_group_8F(){
+void x86CPU::op_group_8F(){
 	eip++;
 	ModRM rm(this);
 	switch(rm.GetExtra()){
 		case 0:
-		op16_pop_m16(rm);
+		op_pop_mW(rm);
 		break;
 
 		default:
@@ -233,46 +160,31 @@ void x86CPU::op16_group_8F(){
 	}
 }
 
-void x86CPU::op32_group_8F(){
-    eip++;
-    ModRM rm(this);
-    switch(rm.GetExtra()){
-        case 0:
-            op32_pop_m32(rm);
-            break;
-
-        default:
-            eip--;
-            throw CpuInt_excp(UNK_IEXCP);
-            break;
-    }
-}
-
-void x86CPU::op16_group_F6(){
+void x86CPU::op_group_F6(){
 	eip++;
 	ModRM rm(this);
 	switch(rm.GetExtra()){
 		case 6:
-		op16_div_rm8(rm);
+		op_div_rm8(rm);
 		break;
 		case 7:
-		op16_idiv_rm8(rm);
+		op_idiv_rm8(rm);
 		break;
 		case 4:
-		op16_mul_rm8(rm);
+		op_mul_rm8(rm);
 		break;
 		case 5:
-		op16_imul_rm8(rm);
+		op_imul_rm8(rm);
 		break;
 		case 3:
-		op16_neg_rm8(rm);
+		op_neg_rm8(rm);
 		break;
 		case 0:
-		op16_test_rm8_imm8(rm);
+		op_test_rm8_imm8(rm);
 		eip++;
 		break;
 		case 2:
-		op16_not_rm8(rm);
+		op_not_rm8(rm);
 		break;
 		
 		default:
@@ -282,31 +194,47 @@ void x86CPU::op16_group_F6(){
 	}
 }
 
-void x86CPU::op16_group_F7(){
+void x86CPU::op_group_F7(){
 	eip++;
 	ModRM rm(this);
 	switch(rm.GetExtra()){
 		case 6:
-		op16_div_rm16(rm);
+		if(OperandSize16){
+			op16_div_rm16(rm);
+		}else{
+			op32_div_rm32(rm);
+		}
 		break;
 		case 7:
-		op16_idiv_rm16(rm);
+		if(OperandSize16){
+			op16_idiv_rm16(rm);
+		}else{
+			op32_idiv_rm32(rm);
+		}
 		break;
 		case 4:
-		op16_mul_rm16(rm);
+		if(OperandSize16){
+			op16_mul_rm16(rm);
+		}else{
+			op32_mul_rm32(rm);
+		}
 		break;
 		case 5:
-		op16_imul_rm16(rm);
+		if(OperandSize16){
+			op16_imul_rm16(rm);
+		}else{
+			op32_imul_rm32(rm);
+		}
 		break;
 		case 3:
-		op16_neg_rm16(rm);
+		op_neg_rmW(rm);
 		break;
 		case 0:
-		op16_test_rm16_imm16(rm);
-		eip+=2;
+		op_test_rmW_immW(rm);
+		eip+=OperandSize();
 		break;
 		case 2:
-		op16_not_rm16(rm);
+		op_not_rmW(rm);
 		break;
 
 		default:
@@ -316,65 +244,31 @@ void x86CPU::op16_group_F7(){
 	}
 }
 
-void x86CPU::op32_group_F7(){
-    eip++;
-    ModRM rm(this);
-    switch(rm.GetExtra()){
-        case 6:
-            op32_div_rm32(rm);
-            break;
-        case 7:
-            op32_idiv_rm32(rm);
-            break;
-        case 4:
-            op32_mul_rm32(rm);
-            break;
-        case 5:
-            op32_imul_rm32(rm);
-            break;
-        case 3:
-            op32_neg_rm32(rm);
-            break;
-        case 0:
-            op32_test_rm32_imm32(rm);
-            eip+=4;
-            break;
-        case 2:
-            op32_not_rm32(rm);
-            break;
 
-        default:
-            eip--;
-            throw CpuInt_excp(UNK_IEXCP);
-            break;
-    }
-}
-
-
-void x86CPU::op16_group_FF(){
+void x86CPU::op_group_FF(){
 	eip++;
 	ModRM rm(this);
 	switch(rm.GetExtra()){
 		case 4:
-		op16_jmp_rm16(rm);
+		op_jmp_rmW(rm);
 		break;
 		case 5:
-		op16_jmp_m16_m16(rm);
+		op_jmp_mF(rm);
 		break;
 		case 6:
-		op16_push_m16(rm);
+		op_push_mW(rm);
 		break;
 		case 0:
-		op16_inc_rm16(rm);
+		op_inc_rmW(rm);
 		break;
 		case 1:
-		op16_dec_rm16(rm);
+		op_dec_rmW(rm);
 		break;
 		case 2:
-		op16_call_rm16(rm);
+		op_call_rmW(rm);
 		break;
 		case 3:
-		op16_call_rm16_rm16(rm);
+		op_call_rmF(rm);
 		break;
 
 		default:
@@ -384,48 +278,15 @@ void x86CPU::op16_group_FF(){
 	}
 }
 
-void x86CPU::op32_group_FF(){
-    eip++;
-    ModRM rm(this);
-    switch(rm.GetExtra()){
-        case 4:
-            op32_jmp_rm32(rm);
-            break;
-        case 5:
-            op16_jmp_m16_m16(rm); //unsupported
-            break;
-        case 6:
-            op32_push_m32(rm);
-            break;
-        case 0:
-            op32_inc_rm32(rm);
-            break;
-        case 1:
-            op32_dec_rm32(rm);
-            break;
-        case 2:
-            op32_call_rm32(rm);
-            break;
-        case 3:
-            op16_call_rm16_rm16(rm); //unsupported
-            break;
-
-        default:
-            eip--;
-            throw CpuInt_excp(UNK_IEXCP);
-            break;
-    }
-}
-
-void x86CPU::op16_group_FE(){
+void x86CPU::op_group_FE(){
 	eip++;
 	ModRM rm(this);
 	switch(rm.GetExtra()){
 		case 0:
-		op16_inc_rm8(rm);
+		op_inc_rm8(rm);
 		break;
 		case 1:
-		op16_dec_rm8(rm);
+		op_dec_rm8(rm);
 		break;
 
 		default:
@@ -435,30 +296,30 @@ void x86CPU::op16_group_FE(){
 	}
 }
 
-void x86CPU::op16_group_D0(){
+void x86CPU::op_group_D0(){
 	eip++;
 	ModRM rm(this);
 	switch(rm.GetExtra()){
 		case 7:
-		op16_sar_rm8_1(rm);
+		op_sar_rm8_1(rm);
 		break;
 		case 4:
-		op16_shl_rm8_1(rm);
+		op_shl_rm8_1(rm);
 		break;
 		case 5:
-		op16_shr_rm8_1(rm);
+		op_shr_rm8_1(rm);
 		break;
 		case 0:
-		op16_rol_rm8_1(rm);
+		op_rol_rm8_1(rm);
 		break;
 		case 1:
-		op16_ror_rm8_1(rm);
+		op_ror_rm8_1(rm);
 		break;
 		case 3:
-		op16_rcr_rm8_1(rm);
+		op_rcr_rm8_1(rm);
 		break;
 		case 2:
-		op16_rcl_rm8_1(rm);
+		op_rcl_rm8_1(rm);
 		break;
 		default:
 		eip--;
@@ -467,98 +328,30 @@ void x86CPU::op16_group_D0(){
 	}
 }
 
-void x86CPU::op16_group_D1(){
+void x86CPU::op_group_D1(){
 	eip++;
 	ModRM rm(this);
 	switch(rm.GetExtra()){
 		case 7:
-		op16_sar_rm16_1(rm);
+		op_sar_rmW_1(rm);
 		break;
 		case 4:
-		op16_shl_rm16_1(rm);
+		op_shl_rmW_1(rm);
 		break;
 		case 5:
-		op16_shr_rm16_1(rm);
+		op_shr_rmW_1(rm);
 		break;
 		case 0:
-		op16_rol_rm16_1(rm);
+		op_rol_rmW_1(rm);
 		break;
 		case 1:
-		op16_ror_rm16_1(rm);
+		op_ror_rmW_1(rm);
 		break;
 		case 3:
-		op16_rcr_rm16_1(rm);
+		op_rcr_rmW_1(rm);
 		break;
 		case 2:
-		op16_rcl_rm16_1(rm);
-		break;
-
-
-		default:
-		eip--;
-		throw CpuInt_excp(UNK_IEXCP);
-		break;
-	}
-}
-
-void x86CPU::op32_group_D1(){
-    eip++;
-    ModRM rm(this);
-    switch(rm.GetExtra()){
-        case 7:
-            op32_sar_rm32_1(rm);
-            break;
-        case 4:
-            op32_shl_rm32_1(rm);
-            break;
-        case 5:
-            op32_shr_rm32_1(rm);
-            break;
-        case 0:
-            op32_rol_rm32_1(rm);
-            break;
-        case 1:
-            op32_ror_rm32_1(rm);
-            break;
-        case 3:
-            op32_rcr_rm32_1(rm);
-            break;
-        case 2:
-            op32_rcl_rm32_1(rm);
-            break;
-
-
-        default:
-            eip--;
-            throw CpuInt_excp(UNK_IEXCP);
-            break;
-    }
-}
-
-void x86CPU::op16_group_D2(){
-	eip++;
-	ModRM rm(this);
-	switch(rm.GetExtra()){
-		case 7:
-		op16_sar_rm8_cl(rm);
-		break;
-		case 4:
-		op16_shl_rm8_cl(rm);
-		break;
-		case 5:
-		op16_shr_rm8_cl(rm);
-		break;
-		case 0:
-		op16_rol_rm8_cl(rm);
-		break;
-		case 1:
-		op16_ror_rm8_cl(rm);
-		break;
-		case 3:
-		op16_rcr_rm8_cl(rm);
-		break;
-		case 2:
-		op16_rcl_rm8_cl(rm);
+		op_rcl_rmW_1(rm);
 		break;
 
 
@@ -569,30 +362,65 @@ void x86CPU::op16_group_D2(){
 	}
 }
 
-void x86CPU::op16_group_D3(){
+
+void x86CPU::op_group_D2(){
 	eip++;
 	ModRM rm(this);
 	switch(rm.GetExtra()){
 		case 7:
-		op16_sar_rm16_cl(rm);
+		op_sar_rm8_cl(rm);
 		break;
 		case 4:
-		op16_shl_rm16_cl(rm);
+		op_shl_rm8_cl(rm);
 		break;
 		case 5:
-		op16_shr_rm16_cl(rm);
+		op_shr_rm8_cl(rm);
 		break;
 		case 0:
-		op16_rol_rm16_cl(rm);
+		op_rol_rm8_cl(rm);
 		break;
 		case 1:
-		op16_ror_rm16_cl(rm);
+		op_ror_rm8_cl(rm);
 		break;
 		case 3:
-		op16_rcr_rm16_cl(rm);
+		op_rcr_rm8_cl(rm);
 		break;
 		case 2:
-		op16_rcl_rm16_cl(rm);
+		op_rcl_rm8_cl(rm);
+		break;
+
+
+		default:
+		eip--;
+		throw CpuInt_excp(UNK_IEXCP);
+		break;
+	}
+}
+
+void x86CPU::op_group_D3(){
+	eip++;
+	ModRM rm(this);
+	switch(rm.GetExtra()){
+		case 7:
+		op_sar_rmW_cl(rm);
+		break;
+		case 4:
+		op_shl_rmW_cl(rm);
+		break;
+		case 5:
+		op_shr_rmW_cl(rm);
+		break;
+		case 0:
+		op_rol_rmW_cl(rm);
+		break;
+		case 1:
+		op_ror_rmW_cl(rm);
+		break;
+		case 3:
+		op_rcr_rmW_cl(rm);
+		break;
+		case 2:
+		op_rcl_rmW_cl(rm);
 		break;
 
 

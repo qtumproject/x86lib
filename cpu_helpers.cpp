@@ -218,7 +218,7 @@ void x86CPU::SetSegments(uint8_t segm){
 
 
 
-uint8_t x86CPU::ReadByte(uint32_t off){
+uint8_t x86CPU::ReadByte(uint8_t segm, uint32_t off){
     Memory->WaitLock(busmaster);
     uint8_t res=0;
     Memory->Read(off,1,&res);
@@ -291,7 +291,7 @@ uint32_t x86CPU::ReadWA(uint8_t segm, uint32_t off){
     return ReadW(segm, off);
 }
 
-uint8_t x86CPU::ReadByteA(uint8_t segm,uint32_t off,uint8_t val){
+uint8_t x86CPU::ReadByteA(uint8_t segm,uint32_t off){
     if(AddressSize16){
         off = off & 0xFFFF;
     }

@@ -504,7 +504,7 @@ class x86CPU{
 	void Stop(){DoStop=true;}
 
     //provided mainly for slightly easier debugging
-    uint8_t ReadByte(uint32_t address){
+    uint8_t ReadMachineByte(uint32_t address){
         uint8_t res;
         Memory->Read(address, 1, &res);
         return res;
