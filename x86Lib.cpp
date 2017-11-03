@@ -316,7 +316,7 @@ void x86CPU::InstallOp(uint8_t num,opcode func, opcode *opcode_table){
 void x86CPU::InitOpcodes(){
 	Opcodes=opcodes_16bit;
 	int i;
-
+/*
     //init all to unknown
     for(i=0;i<256;i++){
         InstallOp(i, &x86CPU::op16_unknown, opcodes_32bit_ext);
@@ -677,7 +677,7 @@ void x86CPU::InitOpcodes(){
     InstallOp(0xB7,&x86CPU::op32_movzx_r32_rm16, opcodes_32bit_ext);
 
 
-
+*/
 
 
 }

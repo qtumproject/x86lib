@@ -61,8 +61,8 @@ testos_CFLAGS=-fdata-sections -ffunction-sections
 default:
 #build the library
 	g++ $(debug_CPPFLAGS) -c x86Lib.cpp -o objs/x86Lib.o
-	g++ $(debug_CPPFLAGS) -c ops/ect.cpp -o objs/ops/ect.o
 	g++ $(debug_CPPFLAGS) -c ops/maths.cpp -o objs/ops/maths.o
+	g++ $(debug_CPPFLAGS) -c ops/ect.cpp -o objs/ops/ect.o
 	g++ $(debug_CPPFLAGS) -c ops/flow.cpp -o objs/ops/flow.o
 	g++ $(debug_CPPFLAGS) -c ops/strings.cpp -o objs/ops/strings.o
 	g++ $(debug_CPPFLAGS) -c ops/flags.cpp -o objs/ops/flags.o

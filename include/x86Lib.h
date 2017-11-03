@@ -374,11 +374,11 @@ class ModRM{
 	uint8_t ReadByte();
 	uint16_t ReadWord();
 	uint32_t ReadDword();
-	uint32_t Read();
+	uint32_t ReadW();
 	void WriteByte(uint8_t byte);
 	void WriteWord(uint16_t word);
     void WriteDword(uint32_t dword);
-    void Write(uint32_t dword);
+    void WriteW(uint32_t dword);
 	uint8_t GetLength(); //This returns how many total bytes the modrm block consumes
 	uint8_t GetExtra(); //Get the extra fied from mod_rm
 	uint32_t ReadOffset(); //This is only used by LEA. It will obtain the offset and not dereference it...
