@@ -156,7 +156,7 @@ void x86CPU::CalculateSF32(uint32_t val){
     if((val&0x80000000)==0){freg.sf=0;}else{freg.sf=1;}
 }
 
-void x86CPU::Jmp_near(uint32_t off){
+void x86CPU::Jmp_nearW(uint32_t off){
     if(OperandSize16){
         Jmp_near16(off);
     }else{

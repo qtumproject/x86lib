@@ -39,10 +39,10 @@ void x86CPU::op_jmp_rel8(){
 	eip--;
 }
 
-void x86CPU::op_jmp_rel32(){
+void x86CPU::op_jmp_relW(){
 	//+ operand to move past immediate, and +1 to move past current opcode
     eip+=OperandSize() + 1; //get to first byte of next opcode so jmp works right
-    Jmp_near(*(uint32_t*)&op_cache[1]);
+    Jmp_nearW(*(uint32_t*)&op_cache[1]);
     eip--;
 }
 
@@ -58,7 +58,7 @@ void x86CPU::op_jmp_immF(){ //far jmp
 }
 
 void x86CPU::op_jmp_rmW(ModRM &rm){
-    eip=rm.Read(); //absolute address...
+    eip=rm.ReadW(); //absolute address...
     eip--;
 }
 
@@ -86,7 +86,7 @@ void x86CPU::op_jcxzW_rel8(){
 
 
 
-void x86CPU::op16_call_relW(){
+void x86CPU::op_call_relW(){
 	//increment eip to move beyond relW and then +1 to increment past current opcode byte
 	eip+=(OperandSize16 ? 2 : 4) + 1;
 	Push(eip);
@@ -146,7 +146,7 @@ void x86CPU::op_into(){
 }
 void x86CPU::op_call_rmW(ModRM &rm){ //call
 	Push(eip+rm.GetLength()+1);
-	eip=rm.Read();
+	eip=rm.ReadW();
 	eip--; //eip will be incremented in Cycle
 }
 

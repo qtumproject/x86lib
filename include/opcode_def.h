@@ -155,9 +155,8 @@ void op_pop_ss(); //Tested, pass #1;
 void op_pop_ds(); //Tested, pass #1;
 void op_mov_rW_rmW(); //Tested, pass #1;
 void op_mov_rmW_rW(); //Tested, pass #1;
-void op_call_rel16(); //Tested, pass #1;
+void op_call_relW(); //Tested, pass #1;
 void op_retn(); //Tested, pass #1;
-void op_loop_rel8(); //Tested, pass #1;
 void op_pre_cs_override(); //Tested, pass #1;
 void op_pre_ds_override(); //Tested, pass #1;
 void op_pre_es_override(); //Tested, pass #1;
@@ -173,7 +172,7 @@ void op_sti(); //Tested, pass #1;
 void op16_rep(); //Tested, pass #1;(only rep, not conditionals)
 void op_out_imm8_al(); //Tested, pass #1;
 void op_out_imm8_axW(); //Tested, pass #1;
-void op_call_immW_immW(); //Tested, pass #1;
+void op_call_immF(); //Tested, pass #1;
 void op_retf(); //Tested, pass #1;
 void op_int_imm8(); //Tested, pass #1;
 void op_iret(); //Tested, pass #1;
@@ -208,8 +207,8 @@ void op_cmp_rW_rmW();
 void op_cmp_al_imm8(); //Tested, pass #1;
 void op_cmp_axW_immW(); //Tested, pass #1;
 void op_group_83(); //Tested, pass #1;
-void op_jmp_rel16(); //Tested, pass #1
-void op_jmp_immW_immW(); //Tested, pass #1
+void op_jmp_relW(); //Tested, pass #1
+void op_jmp_immF(); //Tested, pass #1
 void op_group_FF();
 void op_push_imm8();
 void op_group_8F();
@@ -243,7 +242,7 @@ void op_or_axW_immW();
 void op_escape();
 void op_cmpsb(); //Tested, pass #1, full
 void op_cmpsw(); //tested, pass #1, full
-void op_jcxz_rel8();
+void op_jcxzW_rel8();
 void op_adc_al_imm8();
 void op_adc_axW_immW();
 void op_adc_rm8_r8();
@@ -252,8 +251,7 @@ void op_adc_r8_rm8();
 void op_adc_rW_rmW();
 void op_lahf();
 void op_sahf();
-void op_loope_rel8();
-void op_loopne_rel8();
+void op_loopcc_rel8();
 void op_lds();
 void op_les();
 void op_lea();
@@ -309,7 +307,6 @@ void op32_mov_r32_imm32();
 void op32_push_imm32();
 void op32_mov_rm32_r32();
 void op32_mov_r32_rm32();
-void op32_call_rel32();
 void op32_retn();
 void op32_loop_rel8();
 void op32_sub_eaxW_imm32();
@@ -335,7 +332,6 @@ void op32_add_rm32_r32();
 void op32_cmp_rm32_r32();
 void op32_cmp_r32_rm32();
 void op32_cmp_eax_imm32();
-void op32_jmp_rel32();
 void op32_push_imm8();
 void op32_cwq();
 void op32_and_rm32_r32();
@@ -383,7 +379,7 @@ void op_sub_rmW_imm8(ModRM&);
 void op_add_rmW_imm8(ModRM&);
 void op_cmp_rmW_imm8(ModRM&); //Tested, pass #1
 void op_jmp_rmW(ModRM&); //Tested, pass #1
-void op_jmp_m16_m16(ModRM&); //Tested, pass #1
+void op_jmp_mF(ModRM&); //Tested, pass #1
 void op_push_m16(ModRM&);
 void op_pop_m16(ModRM&);
 void op_inc_rm8(ModRM&);
@@ -450,7 +446,7 @@ void op_rcr_rmW_1(ModRM &rm);
 void op_not_rm8(ModRM &rm);
 void op_not_rmW(ModRM &rm);
 void op_call_rmW(ModRM &rm);
-void op_call_rmW_rmW(ModRM &rm);
+void op_call_rmF(ModRM &rm);
 
 //32bit groups
 void op32_add_rm32_imm8(ModRM &rm);
@@ -514,10 +510,10 @@ void CalculateSF8(uint8_t val);
 void CalculateSF16(uint16_t val);
 void CalculateSF32(uint32_t val);
 void CalculateSF(uint32_t val);
-void Jmp_near(uint32_t off);
+void Jmp_nearW(uint32_t off);
 void Jmp_near32(uint32_t off);
-void Jmp16_nearW(uint16_t off);
-void Jmp16_near8(uint8_t off);
+void Jmp_near16(uint16_t off);
+void Jmp_near8(uint8_t off);
 void Int16(uint8_t num);
 void ResetSegments();
 void SetSegments(uint8_t segm);
