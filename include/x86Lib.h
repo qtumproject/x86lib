@@ -498,13 +498,6 @@ class x86CPU{
         return !AddressSize16;
     }
 
-    uint32_t GetAddressReg(int reg){ //EDX and DX has the same value, so doesn't actually matter
-        if(Use32BitAddress()){
-            return regs32[reg];
-        }else{
-            return (uint32_t)*regs16[reg];
-        }
-    }
     void ReadMemory(uint32_t address, uint32_t size, void* buffer);
     void WriteMemory(uint32_t address, uint32_t size, void* buffer);
 

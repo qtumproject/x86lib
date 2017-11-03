@@ -53,7 +53,7 @@ op16 - 16bit only opcode
 op32 - 32bit only opcode (useful for when 16bit and 32bit functions are drastically different)
 
 For opcodes with fixed arguments that take a fixed universal word operand, it uses W instead of the typical 'd' or 'w' suffix.
-For example, cbw and cbd are separate instructions but both handled by op_cbW()
+For example, movsw and movsd are separate instructions but both handled by op_movsW()
 
 Opcodes with registers in the name can have W after them to indicate that they operate on either the 32bit or 16bit register
 
@@ -161,7 +161,7 @@ void op_pre_cs_override(); //Tested, pass #1;
 void op_pre_ds_override(); //Tested, pass #1;
 void op_pre_es_override(); //Tested, pass #1;
 void op_pre_ss_override(); //Tested, pass #1;
-void op_movsw(); //Tested, pass #1;
+void op_movsW(); //Tested, pass #1;
 void op_movsb(); //Tested, pass #1;
 void op_clc();
 void op_cld(); //Tested, pass #1;
@@ -241,7 +241,7 @@ void op_or_al_imm8();
 void op_or_axW_immW();
 void op_escape();
 void op_cmpsb(); //Tested, pass #1, full
-void op_cmpsw(); //tested, pass #1, full
+void op_cmpsW(); //tested, pass #1, full
 void op_jcxzW_rel8();
 void op_adc_al_imm8();
 void op_adc_axW_immW();
@@ -280,11 +280,11 @@ void op_group_D3();
 void op_group_D0();
 void op_group_D1();
 void op_lodsb();
-void op_lodsw();
+void op_lodsW();
 void op_scasb();
-void op_scasw();
+void op_scasW();
 void op_stosb();
-void op_stosw();
+void op_stosW();
 void op_wait();
 void op_xlatb();
 
