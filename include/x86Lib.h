@@ -551,6 +551,14 @@ class x86CPU{
 		eip+=4;
 		return (*(uint32_t*)&op_cache[1]);
 	}
+	inline uint32_t ImmA(){
+		if(AddressSize16){
+			eip+=2;
+			return (uint32_t) (*(uint16_t*)&op_cache[1]);
+		}
+		eip+=4;
+		return (*(uint32_t*)&op_cache[1]);
+	}
 
 	inline uint32_t DispW(){
 		if(AddressSize16){
@@ -571,6 +579,13 @@ class x86CPU{
 	}
 	inline uint32_t Reg(int which){
 		if(OperandSize16){
+			return *regs16[which];
+		}else{
+			return regs32[which];
+		}
+	}
+	inline uint32_t RegA(int which){
+		if(AddressSize16){
 			return *regs16[which];
 		}else{
 			return regs32[which];

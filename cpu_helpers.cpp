@@ -291,4 +291,17 @@ uint32_t x86CPU::ReadWA(uint8_t segm, uint32_t off){
     return ReadW(segm, off);
 }
 
+uint8_t x86CPU::ReadByteA(uint8_t segm,uint32_t off,uint8_t val){
+    if(AddressSize16){
+        off = off & 0xFFFF;
+    }
+    return ReadByte(segm, off);
+}
+
+void x86CPU::WriteByteA(uint8_t segm, uint32_t off, uint8_t val){
+    if(AddressSize16){
+        off = off & 0xFFFF;
+    }
+    WriteByte(segm, off, val);
+}
 

@@ -178,14 +178,14 @@ void op_add_rm8_r8();
 void op_add_rmW_rW();
 void op_add_r8_rm8();
 void op_add_rW_rmW();
-void op_mov_al_off8();
-void op_mov_axW_off16();
+void op_mov_al_m8();
+void op_mov_axW_mW();
 void op_mov_rm8_r8();
 void op_mov_r8_rm8();
-void op_mov_off8_al(); //Tested, pass #1;
-void op_mov_off16_axW(); //Tested, pass #1;
+void op_mov_m8_al(); //Tested, pass #1;
+void op_mov_mW_axW(); //Tested, pass #1;
 void op_mov_m8_imm8(); //Tested, pass #1;
-void op_mov_m16_immW();  //Tested, pass #1;//currently have 85 instructions or prefixes implemented(actually more, not counting group instructions)
+void op_mov_mW_immW();  //Tested, pass #1;//currently have 85 instructions or prefixes implemented(actually more, not counting group instructions)
 void op_cmp_rm8_r8();
 void op_cmp_rmW_rW();
 void op_cmp_r8_rm8();
@@ -354,6 +354,9 @@ void op_jcc_immW();
 void op32_jcc_imm32();
 
 
+void op_movzx_r32_rmW();
+
+
 /**Group Include Functions(not direct opcodes)**/
 void op_sub_rm8_imm8(ModRM&); //group 0x80 /5
 void op_sub_rmW_immW(ModRM&);
@@ -366,8 +369,8 @@ void op_add_rmW_imm8(ModRM&);
 void op_cmp_rmW_imm8(ModRM&); //Tested, pass #1
 void op_jmp_rmW(ModRM&); //Tested, pass #1
 void op_jmp_mF(ModRM&); //Tested, pass #1
-void op_push_m16(ModRM&);
-void op_pop_m16(ModRM&);
+void op_push_mW(ModRM&);
+void op_pop_mW(ModRM&);
 void op_inc_rm8(ModRM&);
 void op_inc_rmW(ModRM&);
 void op_dec_rm8(ModRM&);
@@ -504,13 +507,17 @@ void Int16(uint8_t num);
 void ResetSegments();
 void SetSegments(uint8_t segm);
 uint8_t ReadByte(uint8_t segm,uint32_t off);
+uint8_t ReadByteA(uint8_t segm,uint32_t off);
 uint16_t ReadWord(uint8_t segm,uint32_t off);
 uint32_t ReadDword(uint8_t segm,uint32_t off);
 uint32_t ReadW(uint8_t segm,uint32_t off);
+uint32_t ReadWA(uint8_t segm,uint32_t off);
 uint64_t ReadQword(uint8_t segm,uint32_t off);
 void WriteByte(uint8_t segm,uint32_t off,uint8_t val);
+void WriteByteA(uint8_t segm,uint32_t off,uint8_t val);
 void WriteWord(uint8_t segm,uint32_t off,uint16_t val);
 void WriteDword(uint8_t segm,uint32_t off,uint32_t val);
 void WriteW(uint8_t segm,uint32_t off,uint32_t val);
+void WriteWA(uint8_t segm,uint32_t off,uint32_t val);
 
 
