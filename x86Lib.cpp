@@ -315,7 +315,6 @@ void x86CPU::InstallOp(uint8_t num,opcode func, opcode *opcode_table){
 
 void x86CPU::InitOpcodes(){
 	Opcodes=opcodes_16bit;
-	int i;
 /*
     //init all to unknown
     for(i=0;i<256;i++){

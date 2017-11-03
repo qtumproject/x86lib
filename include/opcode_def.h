@@ -58,6 +58,7 @@ For example, movsw and movsd are separate instructions but both handled by op_mo
 Opcodes with registers in the name can have W after them to indicate that they operate on either the 32bit or 16bit register
 
 Sizes should be specified explicitly. It should never be like `op_inc_rm`, it should be `op_inc_rmW` 
+**/
 
 /**This file contains the opcode function definitions and prototypes for x86CPU**/
 
