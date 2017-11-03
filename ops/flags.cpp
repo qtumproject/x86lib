@@ -83,7 +83,7 @@ void x86CPU::op_jcc_relW(){
     int cc = op_cache[0]-0x80;
     eip+=OperandSize() + 1; //1 to move past current opcode
     if(jcc(cc, freg)){
-        Jmp_near(*(uint32_t*)&op_cache[1]);
+        Jmp_nearW(*(uint32_t*)&op_cache[1]);
     }
     eip--;
 }
