@@ -90,7 +90,7 @@ uint32_t x86CPU::Sub32(uint32_t base,uint32_t subt){
     freg.af = (((base-subt) & ~0xf) != 0);
     return mirror;
 }
-uint32_t x86CPU::Sub(uint32_t base,uint32_t subt){
+uint32_t x86CPU::SubW(uint32_t base,uint32_t subt){
 	if(OperandSize16){
 		return Sub16(base, subt);
 	}else{
@@ -153,7 +153,7 @@ uint32_t x86CPU::Add32(uint32_t base,uint32_t adder){
     return result;
 }
 
-uint32_t x86CPU::Add(uint32_t base,uint32_t adder){
+uint32_t x86CPU::AddW(uint32_t base,uint32_t adder){
 	if(OperandSize16){
 		return Add16(base, adder);
 	}else{
@@ -205,7 +205,7 @@ uint32_t x86CPU::And32(uint32_t base,uint32_t mask){
     return base;
 }
 
-uint32_t x86CPU::And(uint32_t base,uint32_t mask){
+uint32_t x86CPU::AndW(uint32_t base,uint32_t mask){
 	if(OperandSize16){
 		return And16(base, mask);
 	}else{
@@ -256,7 +256,7 @@ uint32_t x86CPU::Or32(uint32_t base,uint32_t mask){
     }
     return base;
 }
-uint32_t x86CPU::Or(uint32_t base,uint32_t arg){
+uint32_t x86CPU::OrW(uint32_t base,uint32_t arg){
 	if(OperandSize16){
 		return Or16(base, arg);
 	}else{
@@ -304,7 +304,7 @@ uint32_t x86CPU::Xor32(uint32_t base,uint32_t mask){
     }
     return base;
 }
-uint32_t x86CPU::Xor(uint32_t base,uint32_t arg){
+uint32_t x86CPU::XorW(uint32_t base,uint32_t arg){
 	if(OperandSize16){
 		return Xor16(base, arg);
 	}else{
@@ -381,7 +381,7 @@ uint32_t x86CPU::ShiftLogicalRight32(uint32_t base,uint8_t count){
     return base;
 }
 
-uint32_t x86CPU::ShiftLogicalRight(uint32_t base,uint8_t arg){
+uint32_t x86CPU::ShiftLogicalRightW(uint32_t base,uint8_t arg){
 	if(OperandSize16){
 		return ShiftLogicalRight16(base, arg);
 	}else{
@@ -466,7 +466,7 @@ uint32_t x86CPU::ShiftArithmeticRight32(uint32_t base,uint8_t count){
     return base;
 }
 
-uint32_t x86CPU::ShiftArithmeticRight(uint32_t base,uint8_t arg){
+uint32_t x86CPU::ShiftArithmeticRightW(uint32_t base,uint8_t arg){
 	if(OperandSize16){
 		return ShiftArithmeticRight16(base, arg);
 	}else{
@@ -541,7 +541,7 @@ uint32_t x86CPU::ShiftLogicalLeft32(uint32_t base,uint8_t count){
     return base;
 }
 
-uint32_t x86CPU::ShiftLogicalLeft(uint32_t base,uint8_t arg){
+uint32_t x86CPU::ShiftLogicalLeftW(uint32_t base,uint8_t arg){
 	if(OperandSize16){
 		return ShiftLogicalLeft16(base, arg);
 	}else{
@@ -585,7 +585,7 @@ uint32_t x86CPU::RotateRight32(uint32_t base,uint8_t count){
     return base;
 }
 
-uint32_t x86CPU::RotateRight(uint32_t base,uint8_t arg){
+uint32_t x86CPU::RotateRightW(uint32_t base,uint8_t arg){
 	if(OperandSize16){
 		return RotateRight16(base, arg);
 	}else{
@@ -629,7 +629,7 @@ uint32_t x86CPU::RotateLeft32(uint32_t base,uint8_t count){
     return base;
 }
 
-uint32_t x86CPU::RotateLeft(uint32_t base,uint8_t arg){
+uint32_t x86CPU::RotateLeftW(uint32_t base,uint8_t arg){
 	if(OperandSize16){
 		return RotateLeft16(base, arg);
 	}else{
@@ -679,7 +679,7 @@ uint32_t x86CPU::RotateCarryLeft32(uint32_t base,uint8_t count){
     return base;
 }
 
-uint32_t x86CPU::RotateCarryLeft(uint32_t base,uint8_t arg){
+uint32_t x86CPU::RotateCarryLeftW(uint32_t base,uint8_t arg){
 	if(OperandSize16){
 		return RotateCarryLeft16(base, arg);
 	}else{
@@ -726,7 +726,7 @@ uint32_t x86CPU::RotateCarryRight32(uint32_t base,uint8_t count){
     return base;
 }
 
-uint32_t x86CPU::RotateCarryRight(uint32_t base,uint8_t arg){
+uint32_t x86CPU::RotateCarryRightW(uint32_t base,uint8_t arg){
 	if(OperandSize16){
 		return RotateCarryRight16(base, arg);
 	}else{

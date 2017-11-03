@@ -71,64 +71,57 @@ static bool jcc(int condition, volatile FLAGS &f){
     }
 }
 
-void x86CPU::op_jcc_imm8(){
+void x86CPU::op_jcc_rel8(){
     int cc = op_cache[0]-0x70;
-    eip++;
-    if(jcc(cc, freg)){
-        Jmp16_near8(op_cache[1]);
-    }
-}
-
-void x86CPU::op16_jcc_imm16(){
-    int cc = op_cache[0]-0x80;
     eip+=2;
     if(jcc(cc, freg)){
-        Jmp16_near16(*(uint16_t*)&op_cache[1]);
+        Jmp_near8(op_cache[1]);
     }
 }
 
-void x86CPU::op32_jcc_imm32(){
+void x86CPU::op_jcc_relW(){
     int cc = op_cache[0]-0x80;
-    eip+=2;
+    eip+=OperandSize() + 1; //1 to move past current opcode
     if(jcc(cc, freg)){
-        Jmp32_near32(*(uint32_t*)&op_cache[1]);
+        Jmp_near(*(uint32_t*)&op_cache[1]);
     }
+    eip--;
 }
 
 
-void x86CPU::op16_clc(){
+void x86CPU::op_clc(){
 	freg.cf=0;
 }
 
-void x86CPU::op16_cld(){
+void x86CPU::op_cld(){
 	freg.df=0;
 }
 
-void x86CPU::op16_cli(){
+void x86CPU::op_cli(){
 	freg._if=0;
 }
 
-void x86CPU::op16_stc(){
+void x86CPU::op_stc(){
 	freg.cf=1;
 }
 
-void x86CPU::op16_std(){
+void x86CPU::op_std(){
 	freg.df=1;
 }
 
-void x86CPU::op16_sti(){
+void x86CPU::op_sti(){
 	freg._if=1;
 }
 
 
-void x86CPU::op16_cmc(){
+void x86CPU::op_cmc(){
     freg.cf=freg.cf^1;
 }
 
-void x86CPU::op16_lahf(){
+void x86CPU::op_lahf(){
 	*regs8[AL]=*(uint8_t*)&freg;
 }
-void x86CPU::op16_sahf(){
+void x86CPU::op_sahf(){
 	*(uint8_t*)&freg=*regs8[AL];
 }
 

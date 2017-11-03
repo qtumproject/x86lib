@@ -36,12 +36,12 @@ using namespace std;
 
 
 
-void x86CPU::op16_mov_r8_imm8(){ //0xB0+r
+void x86CPU::op_mov_r8_imm8(){ //0xB0+r
 	*regs8[op_cache[0]-0xB0]=op_cache[1];
 	eip++;
 }
 
-void x86CPU::op16_mov_r16_imm16(){ //0xB8+r
+void x86CPU::op_mov_rW_immW(){ //0xB8+r
 	*regs16[op_cache[0]-0xB8]=*(uint16_t*)&op_cache[1];
 	eip+=2;
 }

@@ -28,45 +28,89 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 This file is part of the x86Lib project.
 **/
 
+
+/*Opcode naming key:
+
+sizes:
+W    - Universal word (32bit by default, but can be overridden to 16bits by operand size prefix 0x66)
+E    - Universal Extended Word (64bit by default, but can be overridden to 32bits by operand size prefix 0x66)
+F    - Universal "far" word (48bit by default, can be overridden to 32bit by operand size prefix)
+A    - Universal address (32bit by default, but can be overridden to 16bits by address size prefix 0x67)
+
+
+argument types:
+imm  - immediate followed by size in bits, or W for universal word
+m    - immediate memory address followed by size in bits of data stored there. Always uses universal address for actual address size
+rel  - immediate relative jump target followed by size in bits
+rm   - Mod R/M byte, followed by size in bits or W for universal word (note: rm8 means 8 bit data size, not address)
+r    - Direct register
+sr   - segment register
+
+opcode types:
+
+op   - universal opcode
+op16 - 16bit only opcode
+op32 - 32bit only opcode (useful for when 16bit and 32bit functions are drastically different)
+
+For opcodes with fixed arguments that take a fixed universal word operand, it uses W instead of the typical 'd' or 'w' suffix.
+For example, cbw and cbd are separate instructions but both handled by op_cbW()
+
+Opcodes with registers in the name can have W after them to indicate that they operate on either the 32bit or 16bit register
+
+Sizes should be specified explicitly. It should never be like `op_inc_rm`, it should be `op_inc_rmW` 
+
 /**This file contains the opcode function definitions and prototypes for x86CPU**/
 
 /**NOTE! this is included INSIDE of a class, so this file is somewhat limited...**/
 uint8_t Add8(uint8_t,uint8_t);
 uint16_t Add16(uint16_t,uint16_t);
 uint32_t Add32(uint32_t,uint32_t);
+uint32_t AddW(uint32_t,uint32_t);
 uint8_t Sub8(uint8_t,uint8_t);
 uint16_t Sub16(uint16_t,uint16_t);
 uint32_t Sub32(uint32_t,uint32_t);
+uint32_t SubW(uint32_t,uint32_t);
 uint8_t And8(uint8_t,uint8_t);
 uint16_t And16(uint16_t,uint16_t);
 uint32_t And32(uint32_t,uint32_t);
+uint32_t AndW(uint32_t,uint32_t);
 uint8_t Or8(uint8_t,uint8_t);
 uint16_t Or16(uint16_t,uint16_t);
 uint32_t Or32(uint32_t,uint32_t);
+uint32_t OrW(uint32_t,uint32_t);
 uint8_t Xor8(uint8_t,uint8_t);
 uint16_t Xor16(uint16_t,uint16_t);
 uint32_t Xor32(uint32_t,uint32_t);
+uint32_t XorW(uint32_t,uint32_t);
 uint8_t ShiftLogicalRight8(uint8_t,uint8_t);
 uint16_t ShiftLogicalRight16(uint16_t,uint8_t);
 uint32_t ShiftLogicalRight32(uint32_t,uint8_t);
+uint32_t ShiftLogicalRightW(uint32_t,uint8_t);
 uint8_t ShiftArithmeticRight8(uint8_t,uint8_t);
 uint16_t ShiftArithmeticRight16(uint16_t,uint8_t);
 uint32_t ShiftArithmeticRight32(uint32_t,uint8_t);
+uint32_t ShiftArithmeticRightW(uint32_t,uint8_t);
 uint8_t ShiftLogicalLeft8(uint8_t,uint8_t);
 uint16_t ShiftLogicalLeft16(uint16_t,uint8_t);
 uint32_t ShiftLogicalLeft32(uint32_t,uint8_t);
+uint32_t ShiftLogicalLeftW(uint32_t,uint8_t);
 uint8_t RotateRight8(uint8_t,uint8_t);
 uint16_t RotateRight16(uint16_t,uint8_t);
 uint32_t RotateRight32(uint32_t,uint8_t);
+uint32_t RotateRightW(uint32_t,uint8_t);
 uint8_t RotateLeft8(uint8_t,uint8_t);
 uint16_t RotateLeft16(uint16_t,uint8_t);
 uint32_t RotateLeft32(uint32_t,uint8_t);
+uint32_t RotateLeftW(uint32_t,uint8_t);
 uint8_t RotateCarryRight8(uint8_t,uint8_t);
 uint16_t RotateCarryRight16(uint16_t,uint8_t);
 uint32_t RotateCarryRight32(uint32_t,uint8_t);
+uint32_t RotateCarryRightW(uint32_t,uint8_t);
 uint8_t RotateCarryLeft8(uint8_t,uint8_t);
 uint16_t RotateCarryLeft16(uint16_t,uint8_t);
 uint32_t RotateCarryLeft32(uint32_t,uint8_t);
+uint32_t RotateCarryLeftW(uint32_t,uint8_t);
+
 
 
 void InstallOp(uint8_t num,opcode op,opcode *table=NULL);
@@ -479,11 +523,11 @@ void SetSegments(uint8_t segm);
 uint8_t ReadByte(uint8_t segm,uint32_t off);
 uint16_t ReadWord(uint8_t segm,uint32_t off);
 uint32_t ReadDword(uint8_t segm,uint32_t off);
-uint32_t Read(uint8_t segm,uint32_t off);
+uint32_t ReadW(uint8_t segm,uint32_t off);
 uint64_t ReadQword(uint8_t segm,uint32_t off);
 void WriteByte(uint8_t segm,uint32_t off,uint8_t val);
 void WriteWord(uint8_t segm,uint32_t off,uint16_t val);
 void WriteDword(uint8_t segm,uint32_t off,uint32_t val);
-void Write(uint8_t segm,uint32_t off,uint32_t val);
+void WriteW(uint8_t segm,uint32_t off,uint32_t val);
 
 

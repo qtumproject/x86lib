@@ -158,7 +158,7 @@ void x86CPU::CalculateSF32(uint32_t val){
 
 void x86CPU::Jmp_near(uint32_t off){
     if(OperandSize16){
-        Jmp16_near16(off);
+        Jmp_near16(off);
     }else{
         Jmp_near32(off);
     }
@@ -171,28 +171,27 @@ void x86CPU::Jmp_near32(uint32_t off){
     }else{
         eip=eip-((uint32_t)-off);
     }
-    eip = Operand(eip);
+    eip = W(eip);
 }
 
-void x86CPU::Jmp16_near16(uint16_t off){
+void x86CPU::Jmp_near16(uint16_t off){
     //I thought there would be a good way to do this, but I suppose this works..
     if((off&0x8000)==0){ //if unsigned
         eip=eip+off;
     }else{
         eip=eip-((uint16_t)-off);
     }
-    eip = Operand(eip);
+    eip = W(eip);
 }
 
-void x86CPU::Jmp16_near8(uint8_t off){
+void x86CPU::Jmp_near8(uint8_t off){
     //I thought there would be a good way to do this, but I suppose this works..
     if((off&0x80)==0){ //if unsigned
         eip=eip+off;
     }else{
         eip=eip-((uint8_t)-off);
     }
-    eip = Operand(eip);
-    //eip++;
+    eip = W(eip);
 }
 
 void x86CPU::Int16(uint8_t num){
@@ -262,7 +261,7 @@ void x86CPU::WriteDword(uint8_t segm,uint32_t off,uint32_t val){
     Memory->Write(off,4,&val);
 }
 
-void x86CPU::Write(uint8_t segm, uint32_t off, uint32_t val){
+void x86CPU::WriteW(uint8_t segm, uint32_t off, uint32_t val){
     if(AddressSize16){
         off = off & 0xFFFF;
     }
@@ -273,7 +272,7 @@ void x86CPU::Write(uint8_t segm, uint32_t off, uint32_t val){
     }
 }
 
-uint32_t x86CPU::Read(uint8_t segm, uint32_t off){
+uint32_t x86CPU::ReadW(uint8_t segm, uint32_t off){
     if(AddressSize16){
         off = off & 0xFFFF;
     }

@@ -261,7 +261,7 @@ uint16_t ModRM::ReadWord(){
     }
 }
 
-uint32_t ModRM::Read(){
+uint32_t ModRM::ReadW(){
     if(this_cpu->Use32BitOperand()){
         return ReadDword();
     }else{
@@ -325,7 +325,7 @@ void ModRM::WriteWord(uint16_t word){
     }
 }
 
-void ModRM::Write(uint32_t val){
+void ModRM::WriteW(uint32_t val){
     if(this_cpu->Use32BitOperand()){
         WriteDword(val);
     }else{

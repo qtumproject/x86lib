@@ -537,20 +537,20 @@ class x86CPU{
 	#include <opcode_def.h>
 	#endif
 
-	inline uint32_t Address(uint32_t a){
+	inline uint32_t A(uint32_t a){
 		if(AddressSize16){
 			return a & 0xFFFF;
 		}
 		return a;
 	}
-	inline uint32_t Operand(uint32_t val){
+	inline uint32_t W(uint32_t val){
 		if(OperandSize16){
 			return val & 0xFFFF;
 		}
 		return val;
 	}
 
-	inline uint32_t OperandImm(){
+	inline uint32_t ImmW(){
 		if(OperandSize16){
 			eip+=2;
 			return (uint32_t) (*(uint16_t*)&op_cache[1]);
@@ -559,7 +559,7 @@ class x86CPU{
 		return (*(uint32_t*)&op_cache[1]);
 	}
 
-	inline uint32_t OperandDisp(){
+	inline uint32_t DispW(){
 		if(AddressSize16){
 			eip+=2;
 			return (uint32_t) (*(uint16_t*)&op_cache[1]);
@@ -576,15 +576,22 @@ class x86CPU{
 		}
 
 	}
-	inline void Write(uint32_t addr, uint32_t v){
-		if(AddressSize16){
-			addr &= 0xFFFF;
-		}
+	inline uint32_t Reg(int which){
 		if(OperandSize16){
-			WriteWord(0, addr, v);
+			return *regs16[which];
 		}else{
-			WriteDword(0, addr, v);
+			return regs32[which];
 		}
+	}
+	inline void WriteReg(int which, uint32_t val){
+		if(OperandSize16){
+			*regs16[which] = val;
+		}else{
+			regs32[which] = val;
+		}
+	}
+	inline int OperandSize(){
+		return OperandSize16 ? 2 : 4;
 	}
 
 };
