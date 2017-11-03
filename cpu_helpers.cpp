@@ -262,9 +262,6 @@ void x86CPU::WriteDword(uint8_t segm,uint32_t off,uint32_t val){
 }
 
 void x86CPU::WriteW(uint8_t segm, uint32_t off, uint32_t val){
-    if(AddressSize16){
-        off = off & 0xFFFF;
-    }
     if(OperandSize16){
         WriteWord(segm, off, val);
     }else{
@@ -273,14 +270,25 @@ void x86CPU::WriteW(uint8_t segm, uint32_t off, uint32_t val){
 }
 
 uint32_t x86CPU::ReadW(uint8_t segm, uint32_t off){
-    if(AddressSize16){
-        off = off & 0xFFFF;
-    }
     if(OperandSize16){
         return ReadWord(segm, off);
     }else{
         return ReadDword(segm, off);
     }
+}
+
+void x86CPU::WriteWA(uint8_t segm, uint32_t off, uint32_t val){
+    if(AddressSize16){
+        off = off & 0xFFFF;
+    }
+    WriteW(segm, off, val);
+}
+
+uint32_t x86CPU::ReadWA(uint8_t segm, uint32_t off){
+    if(AddressSize16){
+        off = off & 0xFFFF;
+    }
+    return ReadW(segm, off);
 }
 
 

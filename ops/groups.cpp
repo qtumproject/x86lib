@@ -70,7 +70,7 @@ void x86CPU::op16_group_80(){
 
 }
 
-void x86CPU::op16_group_81(){
+void x86CPU::op_group_81(){
 	eip++;
 	ModRM rm(this);
 	switch(rm.GetExtra()){
@@ -104,7 +104,7 @@ void x86CPU::op16_group_81(){
 		throw CpuInt_excp(UNK_IEXCP);
 		break;
 	}
-	eip+=2; //these each have imm16
+	eip+=OperandSize(); //these each have imm16
 }
 
 void x86CPU::op32_group_81(){

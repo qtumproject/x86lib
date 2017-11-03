@@ -42,8 +42,8 @@ void x86CPU::op_mov_r8_imm8(){ //0xB0+r
 }
 
 void x86CPU::op_mov_rW_immW(){ //0xB8+r
-	*regs16[op_cache[0]-0xB8]=*(uint16_t*)&op_cache[1];
-	eip+=2;
+    WriteReg(op_cache[0]-0xB8) = W(*(uint32_t)&op_cache[1])
+	eip+=OperandSize();
 }
 
 void x86CPU::op32_mov_r32_imm32(){ //0xB8+r
@@ -53,7 +53,7 @@ void x86CPU::op32_mov_r32_imm32(){ //0xB8+r
 
 void x86CPU::op16_mov_sr_rm16(){ //0x8E
     eip++;
-    ModRM16 rm16(this);
+    ModRM rm16(this);
     //need ModRM for parsing, but otherwise it's a no-op
 }
 
