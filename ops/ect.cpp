@@ -33,17 +33,17 @@ This file is part of the x86Lib project.
 
 namespace x86Lib{
 
-void x86CPU::op16_nop(){ //0x90
+void x86CPU::op_nop(){ //0x90
 	//do nothing
 }
 
-void x86CPU::op16_hlt(){ //0xF4
+void x86CPU::op_hlt(){ //0xF4
 	if(freg._if==0){
 		throw CpuPanic_excp("HLT With IF=0; Nothing to do",CLIHLT_EXCP);
 	}
 }
 
-void x86CPU::op16_unknown(){
+void x86CPU::op_unknown(){
     std::ostringstream oss;
     oss << "Unknown opcode: 0x" << std::hex << (int)op_cache[0];
     throw CpuPanic_excp(oss.str(), UNK_IEXCP);
@@ -53,19 +53,19 @@ void x86CPU::op16_unknown(){
 
 
 //Segment overrides...
-void x86CPU::op16_pre_es_override(){ //0x26
+void x86CPU::op_pre_es_override(){ //0x26
 	//nop
 }
 
-void x86CPU::op16_pre_ds_override(){ //0x3E
+void x86CPU::op_pre_ds_override(){ //0x3E
 	//nop
 }
 
-void x86CPU::op16_pre_ss_override(){ //0x36
+void x86CPU::op_pre_ss_override(){ //0x36
 	//nop
 }
 
-void x86CPU::op16_pre_cs_override(){ //0x2E
+void x86CPU::op_pre_cs_override(){ //0x2E
 	//nop
 }
 
@@ -169,7 +169,7 @@ void x86CPU::op32_rep(){ //repe and repne..(different opcodes, but I make them p
     }
 }
 
-void x86CPU::op16_lock(){ //0xF0 prefix
+void x86CPU::op_lock(){ //0xF0 prefix
 	#ifndef X86_MULTITHREADING
 	if(IsLocked()==1){
 		eip--;
@@ -186,7 +186,7 @@ void x86CPU::op16_lock(){ //0xF0 prefix
 
 
 
-void x86CPU::op16_cbw(){
+void x86CPU::op_cbw(){
 	if((*regs8[AL]&0x80)==0){
 		*regs8[AH]=0;
 	}else{
@@ -196,7 +196,7 @@ void x86CPU::op16_cbw(){
 
 
 
-void x86CPU::op16_cwd(){
+void x86CPU::op_cwd(){
 	if(*regs16[AX]>=0x8000){
 		*regs16[DX]=0xFFFF;
 	}else{
@@ -211,13 +211,13 @@ void x86CPU::op32_cwq(){
     }
 }
 
-void x86CPU::op16_escape(){
+void x86CPU::op_escape(){
 	/**This is for FPU escape opcodes
 	this uses 0xD8 to 0xDF
 	**/
 	throw CpuInt_excp(UNDEV_IEXCP); //throw unknown device exception
 }
-void x86CPU::op16_wait(){
+void x86CPU::op_wait(){
 	/**Does nothing...**/
 	throw CpuInt_excp(UNDEV_IEXCP);
 }
@@ -229,7 +229,7 @@ void x86CPU::op16_wait(){
 /**salc -0xD6- this is will set al on carry -no arguments
 log:  if cf=0 then al=0 else al=FF
 **/
-void x86CPU::op16_salc(){ //set al on carry
+void x86CPU::op_salc(){ //set al on carry
     if(freg.cf==0){*regs8[AL]=0;
     }else{*regs8[AL]=0xFF;
     }

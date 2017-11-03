@@ -170,7 +170,7 @@ void op_cli(); //Tested, pass #1;
 void op_stc();
 void op_std(); //Tested, pass #1;
 void op_sti(); //Tested, pass #1;
-void op_rep(); //Tested, pass #1;(only rep, not conditionals)
+void op16_rep(); //Tested, pass #1;(only rep, not conditionals)
 void op_out_imm8_al(); //Tested, pass #1;
 void op_out_imm8_axW(); //Tested, pass #1;
 void op_call_immW_immW(); //Tested, pass #1;
