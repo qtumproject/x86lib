@@ -301,6 +301,8 @@ void x86CPU::InstallOp(uint8_t num,opcode func, opcode *opcode_table){
     }
 }
 
+#define op(n, f) InstallOp(n, &x86CPU::f)
+
 void x86CPU::InitOpcodes(){
 	Opcodes=opcodes_hosted;
 
@@ -309,6 +311,115 @@ void x86CPU::InitOpcodes(){
         InstallOp(i, &x86CPU::op_unknown, opcodes_hosted);
     }
 
+    op(0x00, op_add_rm8_r8);
+    op(0x01, op_add_rmW_rW);
+    op(0x02, op_add_r8_rm8);
+    op(0x03, op_add_rW_rmW);
+    op(0x04, op_add_al_imm8);
+    op(0x05, op_add_axW_immW);
+    op(0x06, op_push_es);
+    op(0x07, op_pop_es);
+    op(0x08, op_or_rm8_r8);
+    op(0x09, op_or_rmW_rW);
+    op(0x0A, op_or_r8_rm8);
+    op(0x0B, op_or_rW_rmW);
+    op(0x0C, op_or_al_imm8);
+    op(0x0D, op_or_axW_immW);
+    op(0x0E, op_push_cs);
+    //0x0F reserved for 2 byte opcodes
+    op(0x10, op_adc_rm8_r8);
+    op(0x11, op_adc_rmW_rW);
+    op(0x12, op_adc_r8_rm8);
+    op(0x13, op_adc_rW_rmW);
+    op(0x14, op_adc_al_imm8);
+    op(0x15, op_adc_axW_immW);
+    op(0x16, op_push_ss);
+    op(0x17, op_pop_ss);
+    op(0x18, op_sbb_rm8_r8);
+    op(0x19, op_sbb_rmW_rW);
+    op(0x1A, op_sbb_r8_rm8);
+    op(0x1B, op_sbb_rW_rmW);
+    op(0x1C, op_sbb_al_imm8);
+    op(0x1D, op_sbb_axW_immW);
+    op(0x1E, op_push_ds);
+    op(0x1F, op_pop_ds);
+    op(0x20, op_and_rm8_r8);
+    op(0x21, op_and_rmW_rW);
+    op(0x22, op_and_r8_rm8);
+    op(0x23, op_and_rW_rmW);
+    op(0x24, op_and_al_imm8);
+    op(0x25, op_and_axW_immW);
+    op(0x26, op_pre_es_override);
+    op(0x27, op_daa);
+    op(0x28, op_sub_rm8_r8);
+    op(0x29, op_sub_rmW_rW);
+    op(0x2A, op_sub_r8_rm8);
+    op(0x2B, op_sub_rW_rmW);
+    op(0x2C, op_sub_al_imm8);
+    op(0x2D, op_sub_axW_immW);
+    op(0x2E, op_pre_cs_override);
+    op(0x2F, op_das);
+    op(0x30, op_xor_rm8_r8);
+    op(0x31, op_xor_rmW_rW);
+    op(0x32, op_xor_r8_rm8);
+    op(0x33, op_xor_rW_rmW);
+    op(0x34, op_xor_al_imm8);
+    op(0x35, op_xor_axW_immW);
+    op(0x36, op_pre_ss_override);
+    op(0x37, op_aaa);
+    op(0x38, op_cmp_rm8_r8);
+    op(0x39, op_cmp_rmW_rW);
+    op(0x3A, op_cmp_r8_rm8);
+    op(0x3B, op_cmp_rW_rmW);
+    op(0x3C, op_cmp_al_imm8);
+    op(0x3D, op_cmp_axW_immW);
+    op(0x3E, op_pre_ds_override);
+    op(0x3F, op_aas);
+    for(int i=0;i<8;i++){
+    	op(0x40+i, op_inc_rW);
+    	op(0x48+i, op_dec_rW);
+    	op(0x50+i, op_push_rW);
+    	op(0x58+i, op_pop_rW);
+    }
+    op(0x60, op_pushaW); //186
+    op(0x61, op_popaW); //186
+    op(0x62, op_bound_rW_mW); //186
+    op(0x63, op_arpl_rmW_rW); //286 (priv?)
+    op(0x64, op_pre_fs_override); //386
+    op(0x65, op_pre_gs_override); //386
+    //66 is SSE2 escape. 67 is UD
+    op(0x68, op_push_immW);
+    op(0x69, op_imul_rW_rmW_immW); //186 (note: uses /r for rW)
+    op(0x6A, op_push_imm8);
+    op(0x6B, op_imul_rW_rmW_imm8); //186 (note: uses /r for rW, imm8 is sign extended)
+    op(0x6C, op_insb_m8_dx); //186
+    op(0x6D, op_insW_mW_dx); //186
+    op(0x6E, op_outsb_dx_m8); //186
+    op(0x6F, op_outsW_dx_mW); //186
+    for(int i=0;i<16;i++){
+    	op(0x70+i, op_jcc_rel8);
+    }
+    op(0x80, op_group_80);
+    op(0x81, op_group_81);
+    op(0x82, op_group_82);
+    op(0x83, op_group_83); // /1, /4, and /6 is 386
+    op(0x84, op_test_rm8_r8);
+    op(0x85, op_test_rmW_rW);
+    op(0x86, op_xchg_r8_rm8);
+    op(0x87, op_xchg_rW_rmW);
+    op(0x88, op_mov_rm8_r8);
+    op(0x89, op_mov_rmW_rW);
+    op(0x8A, op_mov_r8_rm8);
+    op(0x8B, op_mov_rW_rmW);
+    op(0x8C, op_mov_rm16_sr);
+    op(0x8D, op_lea);
+    op(0x8E, op_mov_sr_rm16);
+    op(0x8F, op_pop_rmW);
+    for(int i=0;i<8;i++){
+    	op(0x90+i, op_xchg_rW_axW);
+    }
+
+/*
 	for(int i=0;i<=7;i++){
 		InstallOp(0xB0+i,&x86CPU::op_mov_r8_imm8);
 		InstallOp(0x58+i,&x86CPU::op_pop_rW);
@@ -477,7 +588,7 @@ void x86CPU::InitOpcodes(){
         InstallOp(0x70+i, &x86CPU::op_jcc_rel8, opcodes_hosted);
         InstallOp(0x80+i, &x86CPU::op_jcc_relW, opcodes_hosted_ext);
     }
-
+*/
     //two byte extended opcodes (new as of i286)
     InstallOp(0xB6,&x86CPU::op_movzx_rW_rm8, opcodes_hosted_ext);
     InstallOp(0xB7,&x86CPU::op_movzx_r32_rmW, opcodes_hosted_ext);
