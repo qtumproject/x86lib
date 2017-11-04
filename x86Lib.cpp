@@ -76,8 +76,8 @@ void x86CPU::Reset(){
 	busmaster=0;
 	//assumes pmem and ports are still the same...
 	InitOpcodes();
-    Opcodes = opcodes_32bit; //for smart contracts, don't use this as a full VM, just straight to 32bit mode
-    Opcodes_ext = opcodes_32bit_ext;
+    Opcodes = opcodes_hosted; //for smart contracts, don't use this as a full VM, just straight to 32bit mode
+    Opcodes_ext = opcodes_hosted_ext;
 	uint32_t i;
 	for(i=0;i<8;i++){
 		regs32[i]=0;
@@ -117,13 +117,7 @@ void x86CPU::SaveState(x86SaveData *save){
 	save->seg_route[cFS]=FS;
 	save->seg_route[cGS]=GS;
 	save->cpu_level=cpu_level;
-	if(Opcodes == opcodes_16bit) {
-        save->opcode_mode = OPCODE_REAL_16;
-    }else if(Opcodes == opcodes_32bit){
-        save->opcode_mode = OPCODE_HOSTED_32;
-	}else{
-		throw Default_excp(__FILE__,__FUNCTION__,__LINE__);
-	}
+    save->opcode_mode = OPCODE_HOSTED_32;
 }
 
 void x86CPU::LoadState(x86SaveData &load){
@@ -144,13 +138,7 @@ void x86CPU::LoadState(x86SaveData &load){
 	SS=load.seg_route[cSS];
 	GS=load.seg_route[cGS];
 	FS=load.seg_route[cFS];
-	if(load.opcode_mode==OPCODE_REAL_16) {
-        Opcodes = opcodes_16bit;
-    }else if(load.opcode_mode == OPCODE_HOSTED_32){
-        Opcodes = opcodes_32bit;
-	}else{
-		throw Default_excp(__FILE__,__FUNCTION__,__LINE__);
-	}
+    Opcodes = opcodes_hosted;
 }
 
 
@@ -314,369 +302,188 @@ void x86CPU::InstallOp(uint8_t num,opcode func, opcode *opcode_table){
 }
 
 void x86CPU::InitOpcodes(){
-	Opcodes=opcodes_16bit;
-/*
+	Opcodes=opcodes_hosted;
+
     //init all to unknown
-    for(i=0;i<256;i++){
-        InstallOp(i, &x86CPU::op16_unknown, opcodes_32bit_ext);
-        InstallOp(i, &x86CPU::op16_unknown, opcodes_32bit);
-        InstallOp(i, &x86CPU::op16_unknown, opcodes_16bit_ext);
-        InstallOp(i, &x86CPU::op16_unknown, opcodes_16bit);
+    for(int i=0;i<256;i++){
+        InstallOp(i, &x86CPU::op_unknown, opcodes_hosted);
     }
 
-	for(i=0;i<=7;i++){
-		InstallOp(0xB0+i,&x86CPU::op16_mov_r8_imm8);
-		InstallOp(0x58+i,&x86CPU::op16_pop_r16);
-		InstallOp(0x50+i,&x86CPU::op16_push_r16);
-		InstallOp(0x40+i,&x86CPU::op16_inc_r16);
-		InstallOp(0x48+i,&x86CPU::op16_dec_r16);
-		InstallOp(0xD8+i,&x86CPU::op16_escape);
-		InstallOp(0x90+i,&x86CPU::op16_xchg_ax_r16);
-		InstallOp(0xB8+i,&x86CPU::op16_mov_r16_imm16);
+	for(int i=0;i<=7;i++){
+		InstallOp(0xB0+i,&x86CPU::op_mov_r8_imm8);
+		InstallOp(0x58+i,&x86CPU::op_pop_rW);
+		InstallOp(0x50+i,&x86CPU::op_push_rW);
+		InstallOp(0x40+i,&x86CPU::op_inc_rW);
+		InstallOp(0x48+i,&x86CPU::op_dec_rW);
+		InstallOp(0xD8+i,&x86CPU::op_escape);
+		InstallOp(0x90+i,&x86CPU::op_xchg_axW_rW);
+		InstallOp(0xB8+i,&x86CPU::op_mov_rW_immW);
 	}
-	InstallOp(0xF4,&x86CPU::op16_hlt);
-	InstallOp(0x90,&x86CPU::op16_nop);
-	InstallOp(0xEB,&x86CPU::op16_jmp_rel8);
-	InstallOp(0x2C,&x86CPU::op16_sub_al_imm8);
-	InstallOp(0x2D,&x86CPU::op16_sub_ax_imm16);
-	InstallOp(0x8E,&x86CPU::op16_mov_sr_rm16);
-	InstallOp(0x8C,&x86CPU::op16_mov_rm16_sr);
-	InstallOp(0x68,&x86CPU::op16_push_imm16);
-	InstallOp(0x07,&x86CPU::op16_pop_es);
-	InstallOp(0x17,&x86CPU::op16_pop_ss);
-	InstallOp(0x1F,&x86CPU::op16_pop_ds);
-	InstallOp(0x06,&x86CPU::op16_push_es);
-	InstallOp(0x0E,&x86CPU::op16_push_cs);
-	InstallOp(0x16,&x86CPU::op16_push_ss);
-	InstallOp(0x1E,&x86CPU::op16_push_ds);
-	InstallOp(0x89,&x86CPU::op16_mov_rm16_r16);
-	InstallOp(0x8B,&x86CPU::op16_mov_r16_rm16);
-	InstallOp(0xE8,&x86CPU::op16_call_rel16);
-	InstallOp(0xC3,&x86CPU::op16_retn);
-	InstallOp(0xE2,&x86CPU::op16_loop_rel8);
-	InstallOp(0x26,&x86CPU::op16_pre_es_override);
-	InstallOp(0x3E,&x86CPU::op16_pre_ds_override);
-	InstallOp(0x36,&x86CPU::op16_pre_ss_override);
-	InstallOp(0x2E,&x86CPU::op16_pre_cs_override);
-	InstallOp(0xA5,&x86CPU::op16_movsw);
-	InstallOp(0xA4,&x86CPU::op16_movsb);
-	InstallOp(0xF8,&x86CPU::op16_clc);
-	InstallOp(0xFC,&x86CPU::op16_cld);
-	InstallOp(0xFA,&x86CPU::op16_cli);
-	InstallOp(0xF9,&x86CPU::op16_stc);
-	InstallOp(0xFD,&x86CPU::op16_std);
-	InstallOp(0xFB,&x86CPU::op16_sti);
-	InstallOp(0xF2,&x86CPU::op16_rep);
-	InstallOp(0xF3,&x86CPU::op16_rep); //different, but handled by the same function...
-	InstallOp(0xE6,&x86CPU::op16_out_imm8_al);
-	InstallOp(0xE7,&x86CPU::op16_out_imm8_ax);
-	InstallOp(0x9A,&x86CPU::op16_call_imm16_imm16);
-	InstallOp(0xCB,&x86CPU::op16_retf); 
+	InstallOp(0xF4,&x86CPU::op_hlt);
+	InstallOp(0x90,&x86CPU::op_nop);
+	InstallOp(0xEB,&x86CPU::op_jmp_rel8);
+	InstallOp(0x2C,&x86CPU::op_sub_al_imm8);
+	InstallOp(0x2D,&x86CPU::op_sub_axW_immW);
+	InstallOp(0x8E,&x86CPU::op_mov_sr_rm16);
+	InstallOp(0x8C,&x86CPU::op_mov_rm16_sr);
+	InstallOp(0x68,&x86CPU::op_push_immW);
+	InstallOp(0x07,&x86CPU::op_pop_es);
+	InstallOp(0x17,&x86CPU::op_pop_ss);
+	InstallOp(0x1F,&x86CPU::op_pop_ds);
+	InstallOp(0x06,&x86CPU::op_push_es);
+	InstallOp(0x0E,&x86CPU::op_push_cs);
+	InstallOp(0x16,&x86CPU::op_push_ss);
+	InstallOp(0x1E,&x86CPU::op_push_ds);
+	InstallOp(0x89,&x86CPU::op_mov_rmW_rW);
+	InstallOp(0x8B,&x86CPU::op_mov_rW_rmW);
+	InstallOp(0xE8,&x86CPU::op_call_relW);
+	InstallOp(0xC3,&x86CPU::op_retn);
+	InstallOp(0xE2,&x86CPU::op_loopcc_rel8);
+	InstallOp(0x26,&x86CPU::op_pre_es_override);
+	InstallOp(0x3E,&x86CPU::op_pre_ds_override);
+	InstallOp(0x36,&x86CPU::op_pre_ss_override);
+	InstallOp(0x2E,&x86CPU::op_pre_cs_override);
+	InstallOp(0xA5,&x86CPU::op_movsW);
+	InstallOp(0xA4,&x86CPU::op_movsb);
+	InstallOp(0xF8,&x86CPU::op_clc);
+	InstallOp(0xFC,&x86CPU::op_cld);
+	InstallOp(0xFA,&x86CPU::op_cli);
+	InstallOp(0xF9,&x86CPU::op_stc);
+	InstallOp(0xFD,&x86CPU::op_std);
+	InstallOp(0xFB,&x86CPU::op_sti);
+	InstallOp(0xF2,&x86CPU::op_rep);
+	InstallOp(0xF3,&x86CPU::op_rep); //different, but handled by the same function...
+	InstallOp(0xE6,&x86CPU::op_out_imm8_al);
+	InstallOp(0xE7,&x86CPU::op_out_imm8_axW);
+	InstallOp(0x9A,&x86CPU::op_call_immF);
+	InstallOp(0xCB,&x86CPU::op_retf); 
 	//can't override these opcodes
-	//InstallOp(0xCD,&x86CPU::op16_int_imm8);
-	//InstallOp(0xCF,&x86CPU::op16_iret);
-	//InstallOp(0xCC,&x86CPU::op16_int3);
-	//InstallOp(0xCE,&x86CPU::op16_into);
-	InstallOp(0xE4,&x86CPU::op16_in_al_imm8);
-	InstallOp(0xE5,&x86CPU::op16_in_ax_imm8);
-	InstallOp(0x04,&x86CPU::op16_add_al_imm8);
-	InstallOp(0x05,&x86CPU::op16_add_ax_imm16);
-	InstallOp(0x28,&x86CPU::op16_sub_rm8_r8);
-	InstallOp(0x80,&x86CPU::op16_group_80);
-	InstallOp(0x29,&x86CPU::op16_sub_rm16_r16);
-	InstallOp(0x2A,&x86CPU::op16_sub_r8_rm8);
-	InstallOp(0x2B,&x86CPU::op16_sub_r16_rm16);
-	InstallOp(0x81,&x86CPU::op16_group_81);
-	InstallOp(0x00,&x86CPU::op16_add_rm8_r8);
-	InstallOp(0x01,&x86CPU::op16_add_rm16_r16);
-	InstallOp(0x02,&x86CPU::op16_add_r8_rm8);
-	InstallOp(0x03,&x86CPU::op16_add_r16_rm16);
-	InstallOp(0xA0,&x86CPU::op16_mov_al_off8);
-	InstallOp(0xA1,&x86CPU::op16_mov_ax_off16);
-	InstallOp(0x88,&x86CPU::op16_mov_rm8_r8);
-	InstallOp(0x8A,&x86CPU::op16_mov_r8_rm8);
-	InstallOp(0xA2,&x86CPU::op16_mov_off8_al);
-	InstallOp(0xA3,&x86CPU::op16_mov_off16_ax);
-	InstallOp(0xC6,&x86CPU::op16_mov_m8_imm8);
-	InstallOp(0xC7,&x86CPU::op16_mov_m16_imm16);
-	InstallOp(0x38,&x86CPU::op16_cmp_rm8_r8);
-	InstallOp(0x39,&x86CPU::op16_cmp_rm16_r16);
-	InstallOp(0x3A,&x86CPU::op16_cmp_r8_rm8);
-	InstallOp(0x3B,&x86CPU::op16_cmp_r16_rm16);
-	InstallOp(0x3C,&x86CPU::op16_cmp_al_imm8);
-	InstallOp(0x3D,&x86CPU::op16_cmp_ax_imm16); 
-	InstallOp(0x83,&x86CPU::op16_group_83);
-	InstallOp(0xFF,&x86CPU::op16_group_FF);
-	InstallOp(0xE9,&x86CPU::op16_jmp_rel16);
-	InstallOp(0xEA,&x86CPU::op16_jmp_imm16_imm16);
-	InstallOp(0x6A,&x86CPU::op16_push_imm8);
-	InstallOp(0x8F,&x86CPU::op16_group_8F);
-	InstallOp(0xD6,&x86CPU::op16_salc);
-	InstallOp(0xF5,&x86CPU::op16_cmc);
-	InstallOp(0x98,&x86CPU::op16_cbw);
-	InstallOp(0x37,&x86CPU::op16_aaa);
-	InstallOp(0x27,&x86CPU::op16_daa);
-	InstallOp(0x2F,&x86CPU::op16_das);
-	InstallOp(0x3F,&x86CPU::op16_aas);
-	InstallOp(0xD5,&x86CPU::op16_aad);
-	InstallOp(0xD4,&x86CPU::op16_aam);
-	InstallOp(0xFE,&x86CPU::op16_group_FE);
-	InstallOp(0xF6,&x86CPU::op16_group_F6);
-	InstallOp(0xF7,&x86CPU::op16_group_F7);
-	InstallOp(0x99,&x86CPU::op16_cwd);
-	InstallOp(0x20,&x86CPU::op16_and_rm8_r8);
-	InstallOp(0x21,&x86CPU::op16_and_rm16_r16);
-	InstallOp(0x22,&x86CPU::op16_and_r8_rm8);
-	InstallOp(0x23,&x86CPU::op16_and_r16_rm16);
-	InstallOp(0x24,&x86CPU::op16_and_al_imm8);
-	InstallOp(0x25,&x86CPU::op16_and_ax_imm16);
-	InstallOp(0x08,&x86CPU::op16_or_rm8_r8);
-	InstallOp(0x09,&x86CPU::op16_or_rm16_r16);
-	InstallOp(0x0A,&x86CPU::op16_or_r8_rm8);
-	InstallOp(0x0B,&x86CPU::op16_or_r16_rm16);
-	InstallOp(0x0C,&x86CPU::op16_or_al_imm8);
-	InstallOp(0x0D,&x86CPU::op16_or_ax_imm16);
-	InstallOp(0xA6,&x86CPU::op16_cmpsb);
-	InstallOp(0xA7,&x86CPU::op16_cmpsw);
-	InstallOp(0xE3,&x86CPU::op16_jcxz_rel8);
-	InstallOp(0x14,&x86CPU::op16_adc_al_imm8);
-	InstallOp(0x15,&x86CPU::op16_adc_ax_imm16);
-	InstallOp(0x10,&x86CPU::op16_adc_rm8_r8);
-	InstallOp(0x11,&x86CPU::op16_adc_rm16_r16);
-	InstallOp(0x12,&x86CPU::op16_adc_r8_rm8);
-	InstallOp(0x13,&x86CPU::op16_adc_r16_rm16);
-	InstallOp(0x9E,&x86CPU::op16_sahf);
-	InstallOp(0x9F,&x86CPU::op16_lahf);
-	InstallOp(0xE1,&x86CPU::op16_loope_rel8);
-	InstallOp(0xE0,&x86CPU::op16_loopne_rel8);
-	InstallOp(0xC5,&x86CPU::op16_lds);
-	InstallOp(0xC4,&x86CPU::op16_les);
-	InstallOp(0x8D,&x86CPU::op16_lea);
-	InstallOp(0xF0,&x86CPU::op16_lock);
-	InstallOp(0x30,&x86CPU::op16_xor_rm8_r8);
-	InstallOp(0x31,&x86CPU::op16_xor_rm16_r16);
-	InstallOp(0x32,&x86CPU::op16_xor_r8_rm8);
-	InstallOp(0x33,&x86CPU::op16_xor_r16_rm16);
-	InstallOp(0x34,&x86CPU::op16_xor_al_imm8);
-	InstallOp(0x35,&x86CPU::op16_xor_ax_imm16);
-	InstallOp(0x1C,&x86CPU::op16_sbb_al_imm8);
-	InstallOp(0x1D,&x86CPU::op16_sbb_ax_imm16);
-	InstallOp(0x19,&x86CPU::op16_sbb_rm16_r16);
-	InstallOp(0x1A,&x86CPU::op16_sbb_r8_rm8);
-	InstallOp(0x1B,&x86CPU::op16_sbb_r16_rm16);
-	InstallOp(0x18,&x86CPU::op16_sub_rm8_r8);
-	InstallOp(0x84,&x86CPU::op16_test_rm8_r8);
-	InstallOp(0x85,&x86CPU::op16_test_rm16_r16);
-	InstallOp(0xA8,&x86CPU::op16_test_al_imm8);
-	InstallOp(0xA9,&x86CPU::op16_test_ax_imm16);
-	InstallOp(0x86,&x86CPU::op16_xchg_rm8_r8);
-	InstallOp(0x87,&x86CPU::op16_xchg_rm16_r16);
-	InstallOp(0xD2,&x86CPU::op16_group_D2);
-	InstallOp(0xD3,&x86CPU::op16_group_D3);
-	InstallOp(0xD0,&x86CPU::op16_group_D0);
-	InstallOp(0xD1,&x86CPU::op16_group_D1);
-	InstallOp(0xAC,&x86CPU::op16_lodsb);
-	InstallOp(0xAD,&x86CPU::op16_lodsw);
-	InstallOp(0xAE,&x86CPU::op16_scasb);
-	InstallOp(0xAF,&x86CPU::op16_scasw);
-	InstallOp(0x9B,&x86CPU::op16_wait);
-	InstallOp(0xD7,&x86CPU::op16_xlatb);
-	InstallOp(0xEC,&x86CPU::op16_in_al_dx);
-	InstallOp(0xED,&x86CPU::op16_in_ax_dx);
-	InstallOp(0xEE,&x86CPU::op16_out_dx_al);
-	InstallOp(0xEF,&x86CPU::op16_out_dx_ax);
-	InstallOp(0xAA,&x86CPU::op16_stosb);
-	InstallOp(0xAB,&x86CPU::op16_stosw);
-
-    Opcodes=opcodes_32bit;
-    for(i=0;i<256;i++){
-        InstallOp(i,&x86CPU::op16_unknown);
-    }
-    InstallOp(0x66, &x86CPU::op32_size16);
-    for(i=0;i<=7;i++){
-        InstallOp(0xB0+i,&x86CPU::op16_mov_r8_imm8);
-        InstallOp(0x58+i,&x86CPU::op32_pop_r32);
-        InstallOp(0x50+i,&x86CPU::op32_push_r32);
-        InstallOp(0x90+i,&x86CPU::op32_xchg_eax_r32);
-        InstallOp(0x40+i,&x86CPU::op32_inc_r32);
-        InstallOp(0x48+i,&x86CPU::op32_dec_r32);
-        InstallOp(0xD8+i,&x86CPU::op16_escape);
-        InstallOp(0xB8+i,&x86CPU::op32_mov_r32_imm32);
-    }
-    //unchanged opcodes from 16bit:
-    InstallOp(0xE6,&x86CPU::op16_out_imm8_al);
-    InstallOp(0xF4,&x86CPU::op16_hlt);
-    InstallOp(0x90,&x86CPU::op16_nop);
-    InstallOp(0xEB,&x86CPU::op16_jmp_rel8);
-    InstallOp(0x2C,&x86CPU::op16_sub_al_imm8);
-    InstallOp(0xF8,&x86CPU::op16_clc); //technically for 32bit, some of these should have protection, but doesn't matter for smart contracts
-    InstallOp(0xFC,&x86CPU::op16_cld);
-    InstallOp(0xFA,&x86CPU::op16_cli);
-    InstallOp(0xF9,&x86CPU::op16_stc);
-    InstallOp(0xFD,&x86CPU::op16_std);
-    InstallOp(0xFB,&x86CPU::op16_sti);
-    InstallOp(0xE4,&x86CPU::op16_in_al_imm8);
-    InstallOp(0xF0,&x86CPU::op16_lock);
-    InstallOp(0x9B,&x86CPU::op16_wait);
-    InstallOp(0xEC,&x86CPU::op16_in_al_dx);
-    InstallOp(0xEE,&x86CPU::op16_out_dx_al);
-    InstallOp(0x04,&x86CPU::op16_add_al_imm8);
-    InstallOp(0x28,&x86CPU::op16_sub_rm8_r8);
-    InstallOp(0x2A,&x86CPU::op16_sub_r8_rm8);
-    InstallOp(0x00,&x86CPU::op16_add_rm8_r8);
-    InstallOp(0x02,&x86CPU::op16_add_r8_rm8);
-    InstallOp(0x88,&x86CPU::op16_mov_rm8_r8);
-    InstallOp(0x8A,&x86CPU::op16_mov_r8_rm8);
-    InstallOp(0x38,&x86CPU::op16_cmp_rm8_r8);
-    InstallOp(0x3A,&x86CPU::op16_cmp_r8_rm8);
-    InstallOp(0x20,&x86CPU::op16_and_rm8_r8);
-    InstallOp(0x22,&x86CPU::op16_and_r8_rm8);
-    InstallOp(0x08,&x86CPU::op16_or_rm8_r8);
-    InstallOp(0x0A,&x86CPU::op16_or_r8_rm8);
-    InstallOp(0x0C,&x86CPU::op16_or_al_imm8);
-    InstallOp(0x14,&x86CPU::op16_adc_al_imm8);
-    InstallOp(0x10,&x86CPU::op16_adc_rm8_r8);
-    InstallOp(0x12,&x86CPU::op16_adc_r8_rm8);
-    InstallOp(0x18,&x86CPU::op16_sub_rm8_r8);
-    InstallOp(0x30,&x86CPU::op16_xor_rm8_r8);
-    InstallOp(0x32,&x86CPU::op16_xor_r8_rm8);
-    InstallOp(0x34,&x86CPU::op16_xor_al_imm8);
-    InstallOp(0x1C,&x86CPU::op16_sbb_al_imm8);
-    InstallOp(0x1A,&x86CPU::op16_sbb_r8_rm8);
-    InstallOp(0x84,&x86CPU::op16_test_rm8_r8);
-    InstallOp(0x86,&x86CPU::op16_xchg_rm8_r8);
-    InstallOp(0x98,&x86CPU::op16_cbw);
-    InstallOp(0x37,&x86CPU::op16_aaa);
-    InstallOp(0x27,&x86CPU::op16_daa);
-    InstallOp(0x2F,&x86CPU::op16_das);
-    InstallOp(0x3F,&x86CPU::op16_aas);
-    InstallOp(0xD5,&x86CPU::op16_aad);
-    InstallOp(0xD4,&x86CPU::op16_aam);
-    InstallOp(0x80,&x86CPU::op16_group_80);
-    InstallOp(0xD0,&x86CPU::op16_group_D0);
-    InstallOp(0xD2,&x86CPU::op16_group_D2);
-    InstallOp(0xD6,&x86CPU::op16_salc);
-    InstallOp(0xF5,&x86CPU::op16_cmc);
-	InstallOp(0x9E,&x86CPU::op16_sahf);
-	InstallOp(0x9F,&x86CPU::op16_lahf);
-    InstallOp(0xA8,&x86CPU::op16_test_al_imm8);
-    InstallOp(0xAC,&x86CPU::op16_lodsb);
-    InstallOp(0xAE,&x86CPU::op16_scasb);
-    InstallOp(0xD7,&x86CPU::op16_xlatb);
-    InstallOp(0xAA,&x86CPU::op16_stosb);
-    InstallOp(0xA0,&x86CPU::op16_mov_al_off8);
-    InstallOp(0xA2,&x86CPU::op16_mov_off8_al);
-    InstallOp(0xC6,&x86CPU::op16_mov_m8_imm8);
-    InstallOp(0x3C,&x86CPU::op16_cmp_al_imm8);
-    InstallOp(0x24,&x86CPU::op16_and_al_imm8);
-    InstallOp(0xA6,&x86CPU::op16_cmpsb);
-    InstallOp(0xA4,&x86CPU::op16_movsb);
-    InstallOp(0xFE,&x86CPU::op16_group_FE);
-    InstallOp(0xF6,&x86CPU::op16_group_F6);
-
-    //unsupported opcodes
-    InstallOp(0x8E,&x86CPU::op16_mov_sr_rm16);
-    InstallOp(0x8C,&x86CPU::op16_mov_rm16_sr);
-    InstallOp(0x07,&x86CPU::op16_pop_es);
-    InstallOp(0x17,&x86CPU::op16_pop_ss);
-    InstallOp(0x1F,&x86CPU::op16_pop_ds);
-    InstallOp(0x06,&x86CPU::op16_push_es);
-    InstallOp(0x0E,&x86CPU::op16_push_cs);
-    InstallOp(0x16,&x86CPU::op16_push_ss);
-    InstallOp(0x1E,&x86CPU::op16_push_ds);
-    InstallOp(0x26,&x86CPU::op16_pre_es_override); //supported, but are effectively no-ops
-    InstallOp(0x3E,&x86CPU::op16_pre_ds_override);
-    InstallOp(0x36,&x86CPU::op16_pre_ss_override);
-    InstallOp(0x2E,&x86CPU::op16_pre_cs_override);
-    InstallOp(0x9A,&x86CPU::op16_call_imm16_imm16);
-    InstallOp(0xCB,&x86CPU::op16_retf);
-    InstallOp(0xCD,&x86CPU::op16_int_imm8);
-    InstallOp(0xCF,&x86CPU::op16_iret);
-    InstallOp(0xCC,&x86CPU::op16_int3);
-    InstallOp(0xCE,&x86CPU::op16_into);
-    InstallOp(0xC5,&x86CPU::op16_lds);
-    InstallOp(0xC4,&x86CPU::op16_les);
-    InstallOp(0xEA,&x86CPU::op16_jmp_imm16_imm16);
-
-
-    //changed opcodes to 32bit:
-    InstallOp(0x68,&x86CPU::op32_push_imm32);
-    InstallOp(0x89,&x86CPU::op32_mov_rm32_r32);
-    InstallOp(0x8B,&x86CPU::op32_mov_r32_rm32);
-    InstallOp(0xE8,&x86CPU::op32_call_rel32);
-    InstallOp(0xC3,&x86CPU::op32_retn);
-    InstallOp(0xE2,&x86CPU::op32_loop_rel8);
-    InstallOp(0x2D,&x86CPU::op32_sub_eax_imm32);
-    InstallOp(0xE7,&x86CPU::op32_out_imm8_eax);
-    InstallOp(0xE5,&x86CPU::op32_in_eax_imm8);
-    InstallOp(0xED,&x86CPU::op32_in_eax_dx);
-    InstallOp(0xEF,&x86CPU::op32_out_dx_eax);
-    InstallOp(0xA5,&x86CPU::op32_movsd);
-    InstallOp(0xF2,&x86CPU::op32_rep);
-    InstallOp(0xF3,&x86CPU::op32_rep); //different, but handled by the same function...
-    InstallOp(0x05,&x86CPU::op32_add_eax_imm32);
-    InstallOp(0xC7,&x86CPU::op32_mov_m32_imm32);
-    InstallOp(0x03,&x86CPU::op32_add_r32_rm32);
-    InstallOp(0x83,&x86CPU::op32_group_83);
-    InstallOp(0xAD,&x86CPU::op32_lodsd);
-    InstallOp(0xAF,&x86CPU::op32_scasd);
-    InstallOp(0xAB,&x86CPU::op32_stosd);
-    InstallOp(0x29,&x86CPU::op32_sub_rm32_r32);
-    InstallOp(0x2B,&x86CPU::op32_sub_r32_rm32);
-    InstallOp(0x81,&x86CPU::op32_group_81);
-    InstallOp(0xA1,&x86CPU::op32_mov_eax_off32);
-    InstallOp(0xA3,&x86CPU::op32_mov_off32_eax);
-    InstallOp(0x01,&x86CPU::op32_add_rm32_r32);
-    InstallOp(0x39,&x86CPU::op32_cmp_rm32_r32);
-    InstallOp(0x3B,&x86CPU::op32_cmp_r32_rm32);
-    InstallOp(0x3D,&x86CPU::op32_cmp_eax_imm32);
-    InstallOp(0xE9,&x86CPU::op32_jmp_rel32);
-    InstallOp(0x6A,&x86CPU::op32_push_imm8);
-    InstallOp(0x99,&x86CPU::op32_cwq);
-    InstallOp(0x21,&x86CPU::op32_and_rm32_r32);
-    InstallOp(0x23,&x86CPU::op32_and_r32_rm32);
-    InstallOp(0x25,&x86CPU::op32_and_eax_imm32);
-    InstallOp(0x09,&x86CPU::op32_or_rm32_r32);
-    InstallOp(0x0B,&x86CPU::op32_or_r32_rm32);
-    InstallOp(0x0D,&x86CPU::op32_or_eax_imm32);
-    InstallOp(0xA7,&x86CPU::op32_cmpsd);
-    InstallOp(0xE3,&x86CPU::op32_jcxz_rel8);
-    InstallOp(0x15,&x86CPU::op32_adc_eax_imm32);
-    InstallOp(0x11,&x86CPU::op32_adc_rm32_r32);
-    InstallOp(0x13,&x86CPU::op32_adc_r32_rm32);
-    InstallOp(0xE1,&x86CPU::op32_loope_rel8);
-    InstallOp(0xE0,&x86CPU::op32_loopne_rel8);
-    InstallOp(0x8D,&x86CPU::op32_lea);
-    InstallOp(0x31,&x86CPU::op32_xor_rm32_r32);
-    InstallOp(0x33,&x86CPU::op32_xor_r32_rm32);
-    InstallOp(0x35,&x86CPU::op32_xor_eax_imm32);
-    InstallOp(0x1D,&x86CPU::op32_sbb_eax_imm32);
-    InstallOp(0x19,&x86CPU::op32_sbb_rm32_r32);
-    InstallOp(0x1B,&x86CPU::op32_sbb_r32_rm32);
-    InstallOp(0x85,&x86CPU::op32_test_rm32_r32);
-    InstallOp(0xA9,&x86CPU::op32_test_eax_imm32);
-    InstallOp(0x87,&x86CPU::op32_xchg_rm32_r32);
-    InstallOp(0xFF,&x86CPU::op32_group_FF);
-    InstallOp(0x8F,&x86CPU::op32_group_8F);
-
-    InstallOp(0xD1,&x86CPU::op32_group_D1);
-    InstallOp(0xF7,&x86CPU::op32_group_F7);
-
+	//InstallOp(0xCD,&x86CPU::op_int_imm8);
+	//InstallOp(0xCF,&x86CPU::op_iret);
+	//InstallOp(0xCC,&x86CPU::op_int3);
+	//InstallOp(0xCE,&x86CPU::op_into);
+	InstallOp(0xE4,&x86CPU::op_in_al_imm8);
+	InstallOp(0xE5,&x86CPU::op_in_axW_imm8);
+	InstallOp(0x04,&x86CPU::op_add_al_imm8);
+	InstallOp(0x05,&x86CPU::op_add_axW_immW);
+	InstallOp(0x28,&x86CPU::op_sub_rm8_r8);
+	InstallOp(0x80,&x86CPU::op_group_80);
+	InstallOp(0x29,&x86CPU::op_sub_rmW_rW);
+	InstallOp(0x2A,&x86CPU::op_sub_r8_rm8);
+	InstallOp(0x2B,&x86CPU::op_sub_rW_rmW);
+	InstallOp(0x81,&x86CPU::op_group_81);
+	InstallOp(0x00,&x86CPU::op_add_rm8_r8);
+	InstallOp(0x01,&x86CPU::op_add_rmW_rW);
+	InstallOp(0x02,&x86CPU::op_add_r8_rm8);
+	InstallOp(0x03,&x86CPU::op_add_rW_rmW);
+	InstallOp(0xA0,&x86CPU::op_mov_al_m8);
+	InstallOp(0xA1,&x86CPU::op_mov_axW_mW);
+	InstallOp(0x88,&x86CPU::op_mov_rm8_r8);
+	InstallOp(0x8A,&x86CPU::op_mov_r8_rm8);
+	InstallOp(0xA2,&x86CPU::op_mov_m8_al);
+	InstallOp(0xA3,&x86CPU::op_mov_mW_axW);
+	InstallOp(0xC6,&x86CPU::op_mov_m8_imm8);
+	InstallOp(0xC7,&x86CPU::op_mov_mW_immW);
+	InstallOp(0x38,&x86CPU::op_cmp_rm8_r8);
+	InstallOp(0x39,&x86CPU::op_cmp_rmW_rW);
+	InstallOp(0x3A,&x86CPU::op_cmp_r8_rm8);
+	InstallOp(0x3B,&x86CPU::op_cmp_rW_rmW);
+	InstallOp(0x3C,&x86CPU::op_cmp_al_imm8);
+	InstallOp(0x3D,&x86CPU::op_cmp_axW_immW); 
+	InstallOp(0x83,&x86CPU::op_group_83);
+	InstallOp(0xFF,&x86CPU::op_group_FF);
+	InstallOp(0xE9,&x86CPU::op_jmp_relW);
+	InstallOp(0xEA,&x86CPU::op_jmp_immF);
+	InstallOp(0x6A,&x86CPU::op_push_imm8);
+	InstallOp(0x8F,&x86CPU::op_group_8F);
+	InstallOp(0xD6,&x86CPU::op_salc);
+	InstallOp(0xF5,&x86CPU::op_cmc);
+	InstallOp(0x98,&x86CPU::op_cbw);
+	InstallOp(0x37,&x86CPU::op_aaa);
+	InstallOp(0x27,&x86CPU::op_daa);
+	InstallOp(0x2F,&x86CPU::op_das);
+	InstallOp(0x3F,&x86CPU::op_aas);
+	InstallOp(0xD5,&x86CPU::op_aad_imm8);
+	InstallOp(0xD4,&x86CPU::op_aam_imm8);
+	InstallOp(0xFE,&x86CPU::op_group_FE);
+	InstallOp(0xF6,&x86CPU::op_group_F6);
+	InstallOp(0xF7,&x86CPU::op_group_F7);
+	InstallOp(0x99,&x86CPU::op_cwE);
+	InstallOp(0x20,&x86CPU::op_and_rm8_r8);
+	InstallOp(0x21,&x86CPU::op_and_rmW_rW);
+	InstallOp(0x22,&x86CPU::op_and_r8_rm8);
+	InstallOp(0x23,&x86CPU::op_and_rW_rmW);
+	InstallOp(0x24,&x86CPU::op_and_al_imm8);
+	InstallOp(0x25,&x86CPU::op_and_axW_immW);
+	InstallOp(0x08,&x86CPU::op_or_rm8_r8);
+	InstallOp(0x09,&x86CPU::op_or_rmW_rW);
+	InstallOp(0x0A,&x86CPU::op_or_r8_rm8);
+	InstallOp(0x0B,&x86CPU::op_or_rW_rmW);
+	InstallOp(0x0C,&x86CPU::op_or_al_imm8);
+	InstallOp(0x0D,&x86CPU::op_or_axW_immW);
+	InstallOp(0xA6,&x86CPU::op_cmpsb);
+	InstallOp(0xA7,&x86CPU::op_cmpsW);
+	InstallOp(0xE3,&x86CPU::op_jcxzW_rel8);
+	InstallOp(0x14,&x86CPU::op_adc_al_imm8);
+	InstallOp(0x15,&x86CPU::op_adc_axW_immW);
+	InstallOp(0x10,&x86CPU::op_adc_rm8_r8);
+	InstallOp(0x11,&x86CPU::op_adc_rmW_rW);
+	InstallOp(0x12,&x86CPU::op_adc_r8_rm8);
+	InstallOp(0x13,&x86CPU::op_adc_rW_rmW);
+	InstallOp(0x9E,&x86CPU::op_sahf);
+	InstallOp(0x9F,&x86CPU::op_lahf);
+	InstallOp(0xE1,&x86CPU::op_loopcc_rel8);
+	InstallOp(0xE0,&x86CPU::op_loopcc_rel8);
+	InstallOp(0xC5,&x86CPU::op_lds);
+	InstallOp(0xC4,&x86CPU::op_les);
+	InstallOp(0x8D,&x86CPU::op_lea);
+	InstallOp(0xF0,&x86CPU::op_lock);
+	InstallOp(0x30,&x86CPU::op_xor_rm8_r8);
+	InstallOp(0x31,&x86CPU::op_xor_rmW_rW);
+	InstallOp(0x32,&x86CPU::op_xor_r8_rm8);
+	InstallOp(0x33,&x86CPU::op_xor_rW_rmW);
+	InstallOp(0x34,&x86CPU::op_xor_al_imm8);
+	InstallOp(0x35,&x86CPU::op_xor_axW_immW);
+	InstallOp(0x1C,&x86CPU::op_sbb_al_imm8);
+	InstallOp(0x1D,&x86CPU::op_sbb_axW_immW);
+	InstallOp(0x19,&x86CPU::op_sbb_rmW_rW);
+	InstallOp(0x1A,&x86CPU::op_sbb_r8_rm8);
+	InstallOp(0x1B,&x86CPU::op_sbb_rW_rmW);
+	InstallOp(0x18,&x86CPU::op_sub_rm8_r8);
+	InstallOp(0x84,&x86CPU::op_test_rm8_r8);
+	InstallOp(0x85,&x86CPU::op_test_rmW_rW);
+	InstallOp(0xA8,&x86CPU::op_test_al_imm8);
+	InstallOp(0xA9,&x86CPU::op_test_axW_immW);
+	InstallOp(0x86,&x86CPU::op_xchg_rm8_r8);
+	InstallOp(0x87,&x86CPU::op_xchg_rmW_rW);
+	InstallOp(0xD2,&x86CPU::op_group_D2);
+	InstallOp(0xD3,&x86CPU::op_group_D3);
+	InstallOp(0xD0,&x86CPU::op_group_D0);
+	InstallOp(0xD1,&x86CPU::op_group_D1);
+	InstallOp(0xAC,&x86CPU::op_lodsb);
+	InstallOp(0xAD,&x86CPU::op_lodsW);
+	InstallOp(0xAE,&x86CPU::op_scasb);
+	InstallOp(0xAF,&x86CPU::op_scasW);
+	InstallOp(0x9B,&x86CPU::op_wait);
+	InstallOp(0xD7,&x86CPU::op_xlatb);
+	InstallOp(0xEC,&x86CPU::op_in_al_dx);
+	InstallOp(0xED,&x86CPU::op_in_axW_dx);
+	InstallOp(0xEE,&x86CPU::op_out_dx_al);
+	InstallOp(0xEF,&x86CPU::op_out_dx_axW);
+	InstallOp(0xAA,&x86CPU::op_stosb);
+	InstallOp(0xAB,&x86CPU::op_stosW);
 
     for(int i=0;i<16;i++){
-        InstallOp(0x70+i, &x86CPU::op_jcc_imm8, opcodes_16bit);
-        InstallOp(0x70+i, &x86CPU::op_jcc_imm8, opcodes_32bit);
-        InstallOp(0x80+i, &x86CPU::op16_jcc_imm16, opcodes_16bit_ext);
-        InstallOp(0x80+i, &x86CPU::op32_jcc_imm32, opcodes_32bit_ext);
+        InstallOp(0x70+i, &x86CPU::op_jcc_rel8, opcodes_hosted);
+        InstallOp(0x80+i, &x86CPU::op_jcc_relW, opcodes_hosted_ext);
     }
 
-    //two byte opcodes (new as of i286)
-    InstallOp(0xB6,&x86CPU::op16_movzx_r16_rm8, opcodes_16bit_ext);
-    InstallOp(0xB6,&x86CPU::op32_movzx_r32_rm8, opcodes_32bit_ext);
-    InstallOp(0xB7,&x86CPU::op32_movzx_r32_rm16, opcodes_32bit_ext);
+    //two byte extended opcodes (new as of i286)
+    InstallOp(0xB6,&x86CPU::op_movzx_rW_rm8, opcodes_hosted_ext);
+    InstallOp(0xB7,&x86CPU::op_movzx_r32_rmW, opcodes_hosted_ext);
 
 
-*/
+
 
 
 }

@@ -213,7 +213,7 @@ void op_dec_rW();
 void op_group_FE();
 void op_group_F6();
 void op_group_F7();
-void op_cwd();
+void op_cwE();
 void op_and_rm8_r8();
 void op_and_rmW_rW();
 void op_and_r8_rm8();
@@ -281,81 +281,12 @@ void op_out_dx_al();
 void op_out_dx_axW();
 
 
-//32bit
+void op_address_override();
+void op_operand_override();
 
-void op32_size16();
 
-void op32_pop_r32();
-void op32_push_r32();
-void op32_inc_r32();
-void op32_xchg_eaxW_r32();
-void op32_dec_r32();
-void op32_mov_r32_imm32();
-void op32_push_imm32();
-void op32_mov_rm32_r32();
-void op32_mov_r32_rm32();
-void op32_retn();
-void op32_loop_rel8();
-void op32_sub_eaxW_imm32();
-void op32_out_imm8_eaxW();
-void op32_in_eaxW_imm8();
-void op32_in_eaxW_dx();
-void op32_out_dx_eaxW();
-void op32_movsd();
+void op_rep();
 void op32_rep();
-void op32_add_eaxW_imm32();
-void op32_mov_m32_imm32();
-void op32_add_r32_rm32();
-void op32_group_83();
-void op32_lodsd();
-void op32_scasd();
-void op32_stosd();
-void op32_sub_rm32_r32();
-void op32_sub_r32_rm32();
-void op32_group_81();
-void op32_mov_eaxW_off32();
-void op32_mov_off32_eax();
-void op32_add_rm32_r32();
-void op32_cmp_rm32_r32();
-void op32_cmp_r32_rm32();
-void op32_cmp_eax_imm32();
-void op32_push_imm8();
-void op32_cwq();
-void op32_and_rm32_r32();
-void op32_and_r32_rm32();
-void op32_and_eax_imm32();
-void op32_or_rm32_r32();
-void op32_or_r32_rm32();
-void op32_or_eax_imm32();
-void op32_cmpsd();
-void op32_jcxz_rel8();
-void op32_adc_eax_imm32();
-void op32_adc_rm32_r32();
-void op32_adc_r32_rm32();
-void op32_loope_rel8();
-void op32_loopne_rel8();
-void op32_lea();
-void op32_xor_rm32_r32();
-void op32_xor_r32_rm32();
-void op32_xor_eax_imm32();
-void op32_sbb_eax_imm32();
-void op32_sbb_rm32_r32();
-void op32_sbb_r32_rm32();
-void op32_test_rm32_r32();
-void op32_test_eax_imm32();
-void op32_xchg_rm32_r32();
-void op32_group_FF();
-void op32_group_8F();
-void op32_group_D1();
-void op32_group_F7();
-
-
-void op_jcc_imm8();
-void op_jcc_immW();
-void op32_jcc_imm32();
-
-
-void op_movzx_r32_rmW();
 
 
 /**Group Include Functions(not direct opcodes)**/
@@ -438,51 +369,14 @@ void op_not_rmW(ModRM &rm);
 void op_call_rmW(ModRM &rm);
 void op_call_rmF(ModRM &rm);
 
-//32bit groups
-void op32_add_rm32_imm8(ModRM &rm);
-void op32_adc_rm32_imm8(ModRM &rm);
-void op32_and_rm32_imm8(ModRM &rm);
-void op32_or_rm32_imm8(ModRM &rm);
-void op32_xor_rm32_imm8(ModRM &rm);
-void op32_test_rm32_imm8(ModRM &rm);
-void op32_sbb_rm32_imm8(ModRM &rm);
-void op32_cmp_rm32_imm8(ModRM &rm);
-void op32_sub_rm32_imm8(ModRM &rm);
-void op32_cmp_rm32_imm32(ModRM &rm);
-void op32_add_rm32_imm32(ModRM &rm);
-void op32_adc_rm32_imm32(ModRM &rm);
-void op32_and_rm32_imm32(ModRM &rm);
-void op32_or_rm32_imm32(ModRM &rm);
-void op32_xor_rm32_imm32(ModRM &rm);
-void op32_test_rm32_imm32(ModRM &rm);
-void op32_sub_rm32_imm32(ModRM &rm);
-void op32_sbb_rm32_imm32(ModRM &rm);
-void op32_jmp_rm32(ModRM &rm);
-void op32_push_m32(ModRM &rm);
-void op32_inc_rm32(ModRM &rm);
-void op32_dec_rm32(ModRM &rm);
-void op32_call_rm32(ModRM &rm);
-void op32_pop_m32(ModRM &rm);
-void op32_sar_rm32_1(ModRM &rm);
-void op32_shl_rm32_1(ModRM &rm);
-void op32_shr_rm32_1(ModRM &rm);
-void op32_rol_rm32_1(ModRM &rm);
-void op32_ror_rm32_1(ModRM &rm);
-void op32_rcr_rm32_1(ModRM &rm);
-void op32_rcl_rm32_1(ModRM &rm);
-void op32_div_rm32(ModRM &rm);
-void op32_idiv_rm32(ModRM &rm);
 void op32_mul_rm32(ModRM &rm);
 void op32_imul_rm32(ModRM &rm);
-void op32_neg_rm32(ModRM &rm);
-void op32_not_rm32(ModRM &rm);
-
-
+void op32_div_rm32(ModRM &rm);
+void op32_idiv_rm32(ModRM &rm);
 
 //2-byte opcodes
 void op_movzx_rW_rm8();
-void op32_movzx_r32_rm8();
-void op32_movzx_r32_rmW();
+void op_movzx_r32_rmW();
 
 
 //helpers

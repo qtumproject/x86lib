@@ -69,6 +69,14 @@ void x86CPU::op_pre_cs_override(){ //0x2E
 	//nop
 }
 
+void x86CPU::op_rep(){
+	if(AddressSize16){ //why address size and not operand size? Makes no sense to me, but that's what the manual says
+		op16_rep();
+	}else{
+		op32_rep();
+	}
+}
+
 void x86CPU::op16_rep(){ //repe and repne..(different opcodes, but I make them possible to use the same function)
 	//use a string_compares variable...
 	if(*regs16[CX]==0){ //for this, not executing the instruction is almost as expensive...
@@ -196,19 +204,20 @@ void x86CPU::op_cbw(){
 
 
 
-void x86CPU::op_cwd(){
-	if(*regs16[AX]>=0x8000){
-		*regs16[DX]=0xFFFF;
+void x86CPU::op_cwE(){
+	if(OperandSize16){
+		if(*regs16[AX]>=0x8000){
+			*regs16[DX]=0xFFFF;
+		}else{
+			*regs16[DX]=0;
+		}
 	}else{
-		*regs16[DX]=0;
+	    if(regs32[EAX]>=0x80000000){
+	        regs32[EDX]=0xFFFFFFFF;
+	    }else{
+	        regs32[EDX]=0;
+	    }
 	}
-}
-void x86CPU::op32_cwq(){
-    if(regs32[EAX]>=0x80000000){
-        regs32[EDX]=0xFFFFFFFF;
-    }else{
-        regs32[EDX]=0;
-    }
 }
 
 void x86CPU::op_escape(){
@@ -237,7 +246,7 @@ void x86CPU::op_salc(){ //set al on carry
 }
 
 //operand size override to 16bit
-void x86CPU::op32_size16(){
+void x86CPU::op_operand_override(){
     eip++; //increment past override byte
     OperandSize16 = true;
     *(uint64_t*)&op_cache=ReadQword(cCS,eip);
@@ -245,13 +254,28 @@ void x86CPU::op32_size16(){
         //two byte opcode
         eip++;
         *(uint64_t*)&op_cache=ReadQword(cCS,eip);
-        (this->*opcodes_16bit_ext[op_cache[0]])();
+        (this->*opcodes_hosted_ext[op_cache[0]])();
     }else {
-        (this->*opcodes_16bit[op_cache[0]])();
+        (this->*opcodes_hosted[op_cache[0]])();
     }
     OperandSize16 = false;
 }
 
+//operand size override to 16bit
+void x86CPU::op_address_override(){
+    eip++; //increment past override byte
+    OperandSize16 = true;
+    *(uint64_t*)&op_cache=ReadQword(cCS,eip);
+    if(op_cache[0] == 0x0F){
+        //two byte opcode
+        eip++;
+        *(uint64_t*)&op_cache=ReadQword(cCS,eip);
+        (this->*opcodes_hosted_ext[op_cache[0]])();
+    }else {
+        (this->*opcodes_hosted[op_cache[0]])();
+    }
+    OperandSize16 = false;
+}
 
 
 

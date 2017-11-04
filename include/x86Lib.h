@@ -421,11 +421,9 @@ class x86CPU{
 	/*! This should be put in the main loop, as this is what makes the CPU work.
 	*/
 	void Cycle();
-	opcode opcodes_16bit[256];
-    opcode opcodes_32bit[256];
+	opcode opcodes_hosted[256];
     //2 byte opcodes beginning with 0x0F
-    opcode opcodes_16bit_ext[256];
-    opcode opcodes_32bit_ext[256];
+    opcode opcodes_hosted_ext[256];
 	opcode *Opcodes; //current opcode mode
     opcode *Opcodes_ext; //current extended opcode mode
 
