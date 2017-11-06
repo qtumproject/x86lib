@@ -40,6 +40,7 @@ class x86CPU;
 
 
 typedef void (x86Lib::x86CPU::*opcode)();
+typedef void (x86Lib::x86CPU::*groupOpcode)(ModRM &rm);
 
 
 
