@@ -415,9 +415,112 @@ void x86CPU::InitOpcodes(){
     op(0x8D, op_lea);
     op(0x8E, op_mov_sr_rm16);
     op(0x8F, op_pop_rmW);
-    for(int i=0;i<8;i++){
+    op(0x90, op_nop); //nop is xchg_ax_ax
+    for(int i=1;i<8;i++){
     	op(0x90+i, op_xchg_rW_axW);
     }
+    op(0x98, op_cbW); //cbw/cwde
+    op(0x99, op_cwE); //cwd/cdq
+    op(0x9A, op_call_immF);
+    op(0x9B, op_wait);
+    op(0x9C, op_pushf);
+    op(0x9D, op_popf);
+    op(0x9E, op_sahf);
+    op(0x9F, op_lahf);
+    op(0xA0, op_mov_al_m8);
+    op(0xA1, op_mov_axW_mW);
+    op(0xA2, op_mov_m8_al);
+    op(0xA3, op_mov_mW_axW);
+    op(0xA4, op_movsb);
+    op(0xA5, op_movsW);
+    op(0xA6, op_cmpsb);
+    op(0xA7, op_cmpsW);
+    op(0xA8, op_test_al_imm8);
+    op(0xA9, op_test_axW_immW);
+    op(0xAA, op_stosb);
+    op(0xAB, op_stosW);
+    op(0xAC, op_lodsb);
+    op(0xAD, op_lodsW);
+    op(0xAE, op_scasb);
+    op(0xAF, op_scasW);
+    for(int i=0;i<8;i++){
+    	op(0xB0+i, op_mov_r8_imm8);
+    	op(0xB8+i, op_mov_rW_immW);
+    }
+    op(0xC0, op_group_C0); //186
+    // C0 group: _rm8_imm8; rol, ror, rcl, rcr, shl/sal, shr, sal/shl(?), sar
+    op(0xC1, op_group_C1); //186
+    // C1 group: _rmW_imm8; rol, ror, rcl, rcr, shl/sal, shr, sal/shl, sar
+    op(0xC2, op_retn_immW); //???
+    op(0xC3, op_retn);
+    op(0xC4, op_les);
+    op(0xC5, op_lds);
+    op(0xC6, op_mov_rm8_imm8);
+    op(0xC7, op_mov_rmW_immW);
+    op(0xC8, op_enter); //186
+    op(0xC9, op_leave); //186
+    op(0xCA, op_retf_immW); //???
+    op(0xCB, op_retf);
+    op(0xCC, op_int3);
+    op(0xCD, op_int_imm8);
+    op(0xCE, op_into);
+    op(0xCF, op_iret);
+    op(0xD0, op_group_D0);
+    // D0 group: _rm8_1; rol, ror, rcl, rcr, shl/sal, shr, sal/shl, sar
+    op(0xD1, op_group_D1);
+    // D1 group: _rmW_1; rol, ror, rcl, rcr, shl/sal, shr, sal/shl, sar
+    op(0xD2, op_group_D2);
+    // D2 group: _rm8_cl; rol, ror, rcl, rcr, shl/sal, shr, sal/shl, sar
+    op(0xD3, op_group_D3);
+    // D3 group: _rmW_cl; rol, ror, rcl, rcr, shl/sal, shr, sal/shl, sar
+    op(0xD4, op_aam_imm8); //also known as AMX (AAM without 0x0A argument is undocumented)
+    op(0xD5, op_aad_imm8); //also known as ADX (AAD without 0x0A argument is undocumented)
+    op(0xD6, op_salc); //undocumented
+    op(0xD7, op_xlatb);
+    //op(0xD8, opfpu_group_D8); //FPU only
+    // D8 group: _st_m32; fadd, fmul, fcom, fcomp, fsub, fsubr, fdiv, fdivr
+    //op(0xD9, opfpu_group_D9);
+    // D9 group: many many FPU-only opcodes
+    //op(0xDA, opfpu_group_DA);
+    //op(0xDB, opfpu_group_DB);
+    //op(0xDC, opfpu_group_DC);
+    //op(0xDD, opfpu_group_DD);
+    //op(0xDE, opfpu_group_DE);
+    //op(0xDF, opfpu_group_DF);
+
+    op(0xE0, op_loopcc_rel8); //loopnz
+    op(0xE1, op_loopcc_rel8); //loopz
+    op(0xE2, op_loopcc_rel8); //loop
+    op(0xE3, op_jcxzW_rel8);
+    op(0xE4, op_in_al_imm8);
+    op(0xE5, op_in_axW_imm8);
+    op(0xE6, op_out_imm8_al);
+    op(0xE7, op_out_imm8_axW);
+    op(0xE8, op_call_relW);
+    op(0xE9, op_jmp_relW);
+    op(0xEA, op_jmp_immF);
+    op(0xEB, op_jmp_rel8);
+    op(0xEC, op_in_al_dx);
+    op(0xED, op_in_axW_dx);
+    op(0xEE, op_out_dx_al);
+    op(0xEF, op_out_dx_axW);
+    op(0xF0, op_lock);
+    op(0xF1, op_int1); //ICEBP -- 386
+    op(0xF2, op_rep); //repnz
+    op(0xF3, op_rep); //repz
+    op(0xF4, op_hlt);
+    op(0xF5, op_cmc);
+    op(0xF6, op_group_F6);
+    op(0xF7, op_group_F7);
+    op(0xF8, op_clc);
+    op(0xF9, op_stc);
+    op(0xFA, op_cli);
+    op(0xFB, op_sti);
+    op(0xFC, op_cld);
+    op(0xFD, op_std);
+    op(0xFE, op_group_FE);
+    op(0xFF, op_group_FF);
+
 
 /*
 	for(int i=0;i<=7;i++){
