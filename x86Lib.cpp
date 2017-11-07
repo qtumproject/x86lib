@@ -421,6 +421,8 @@ void x86CPU::InitOpcodes(){
     //op(0x64, op_pre_fs_override); //386
     //op(0x65, op_pre_gs_override); //386
     //66 is SSE2 escape. 67 is UD
+    op(0x66, op_operand_override);
+    op(0x67, op_address_override);
     op(0x68, op_push_immW);
    // op(0x69, op_imul_rW_rmW_immW); //186 (note: uses /r for rW)
     op(0x6A, op_push_imm8);

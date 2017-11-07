@@ -152,13 +152,13 @@ void WritePort(uint16_t port,uint32_t val){
 		cout << (char) val << flush;
 		break;
 		case 1: //print value of byte
-		cout << hex << (int)(uint8_t)val;
+		cout << hex << (int)(uint8_t)val << flush;
 		break;
 		case 2: //print value of word
-		cout << hex << (int)(uint16_t)val;
+		cout << hex << (int)(uint16_t)val << flush;
 		break;
 		case 3: //print value of dword
-		cout << hex << (int)(uint32_t)val;
+		cout << hex << (int)(uint32_t)val << flush;
 		break;
 		case 4: //cause an interrupt
 		int_cause=1;
@@ -216,6 +216,8 @@ void port_write(x86CPU *thiscpu,uint16_t port,int size,void *buffer){
 		val=*(uint8_t*)buffer;
 	}else if(size==2){
 		val=(uint16_t)*(uint16_t*)buffer;
+	}else if(size == 4){
+		val=(uint32_t)*(uint32_t*)buffer;
 	}else{
 		throw;
 	}
@@ -251,7 +253,7 @@ int main(int argc, char* argv[]){
 		cout << "./x86test program.bin [-singlestep]" << endl;
 		return 1;
 	}
-	if(argc > 3){
+	if(argc > 2){
 		if(strcmp(argv[2], "-singlestep") == 0){
 			singleStep = true;
 		}
@@ -276,7 +278,7 @@ int main(int argc, char* argv[]){
 	
 	for(;;){
 		try{
-			if(singleStep){
+			if(!singleStep){
 				cpu->Exec(1000);
 				if(int_cause){
 					int_cause=false;
