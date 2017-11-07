@@ -123,6 +123,17 @@ void x86CPU::op_retf(){
 	seg[cCS]=0; //Pop16();
 }
 
+void x86CPU::op_retf_imm16(){
+    op_retf();
+    //surprisingly this is not subject to operand-size differences
+    regs32[ESP]+=*(uint16_t*)&op_cache[1];
+}
+void x86CPU::op_retn_imm16(){
+    op_retn();
+    //surprisingly this is not subject to operand-size differences
+    regs32[ESP]+=*(uint16_t*)&op_cache[1];
+}
+
 void x86CPU::op_int_imm8(){
 	eip++;
 	Int16(op_cache[1]);
@@ -139,6 +150,10 @@ void x86CPU::op_int3(){
 	Int16(3);
 }
 
+void x86CPU::op_int1(){
+    Int16(1);
+}
+
 void x86CPU::op_into(){
 	if(freg.of==1){
 		Int16(4);
@@ -150,7 +165,7 @@ void x86CPU::op_call_rmW(ModRM &rm){ //call
 	eip--; //eip will be incremented in Cycle
 }
 
-void x86CPU::op_call_rmF(ModRM &rm){ //far call
+void x86CPU::op_call_mF(ModRM &rm){ //far call
     Push(0); //seg[cCS]);
 	Push(eip+rm.GetLength()+1);
 	*(uint32_t*)&op_cache=ReadDword(DS,rm.ReadDword()); //last 2 bytes (byte 5 and 6) is segment in 32bit mode, but is not used so ignore

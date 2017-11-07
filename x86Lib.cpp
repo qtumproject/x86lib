@@ -302,16 +302,19 @@ void x86CPU::InstallOp(uint8_t num,opcode func, opcode *opcode_table){
 }
 
 
-groupOpcode opcodes_hosted_ext_group[256][8];
 void x86CPU::op_ext_group(){
 	eip++;
 	ModRM rm(this);
-	opcodes_hosted_ext_group[op_cache[0]][rm.GetExtra()](rm);
+	(this->*opcodes_hosted_ext_group[op_cache[0]][rm.GetExtra()])(rm);
+}
+
+void x86CPU::op_na(){
+    throw new CpuInt_excp(13); //opcode unsupported so throw a GPF
 }
 
 //NOTE: This can only be used for group opcodes in the 0x0F extended opcodes set
 void x86CPU::InstallExtGroupOp(uint8_t opcode, uint8_t r_op, groupOpcode func){
-	Opcodes_ext[opcode] = op_ext_group;
+	Opcodes_ext[opcode] = &x86CPU::op_ext_group;
 	opcodes_hosted_ext_group[opcode][r_op] = func;
 }
 
@@ -398,32 +401,32 @@ void x86CPU::InitOpcodes(){
     	op(0x50+i, op_push_rW);
     	op(0x58+i, op_pop_rW);
     }
-    op(0x60, op_pushaW); //186
-    op(0x61, op_popaW); //186
-    op(0x62, op_bound_rW_mW); //186
-    op(0x63, op_arpl_rmW_rW); //286 (priv?)
-    op(0x64, op_pre_fs_override); //386
-    op(0x65, op_pre_gs_override); //386
+    //op(0x60, op_pushaW); //186
+    //op(0x61, op_popaW); //186
+    //op(0x62, op_bound_rW_mW); //186
+    //op(0x63, op_arpl_rmW_rW); //286 (priv?)
+    //op(0x64, op_pre_fs_override); //386
+    //op(0x65, op_pre_gs_override); //386
     //66 is SSE2 escape. 67 is UD
     op(0x68, op_push_immW);
-    op(0x69, op_imul_rW_rmW_immW); //186 (note: uses /r for rW)
+   // op(0x69, op_imul_rW_rmW_immW); //186 (note: uses /r for rW)
     op(0x6A, op_push_imm8);
-    op(0x6B, op_imul_rW_rmW_imm8); //186 (note: uses /r for rW, imm8 is sign extended)
-    op(0x6C, op_insb_m8_dx); //186
-    op(0x6D, op_insW_mW_dx); //186
-    op(0x6E, op_outsb_dx_m8); //186
-    op(0x6F, op_outsW_dx_mW); //186
+   // op(0x6B, op_imul_rW_rmW_imm8); //186 (note: uses /r for rW, imm8 is sign extended)
+    //op(0x6C, op_insb_m8_dx); //186
+    //op(0x6D, op_insW_mW_dx); //186
+    //op(0x6E, op_outsb_dx_m8); //186
+    //op(0x6F, op_outsW_dx_mW); //186
     for(int i=0;i<16;i++){
     	op(0x70+i, op_jcc_rel8);
     }
     op(0x80, op_group_80);
     op(0x81, op_group_81);
-    op(0x82, op_group_82);
+    //op(0x82, op_group_82);
     op(0x83, op_group_83); // /1, /4, and /6 is 386
     op(0x84, op_test_rm8_r8);
     op(0x85, op_test_rmW_rW);
-    op(0x86, op_xchg_r8_rm8);
-    op(0x87, op_xchg_rW_rmW);
+    op(0x86, op_xchg_rm8_r8);
+    op(0x87, op_xchg_rmW_rW);
     op(0x88, op_mov_rm8_r8);
     op(0x89, op_mov_rmW_rW);
     op(0x8A, op_mov_r8_rm8);
@@ -431,17 +434,17 @@ void x86CPU::InitOpcodes(){
     op(0x8C, op_mov_rm16_sr);
     op(0x8D, op_lea);
     op(0x8E, op_mov_sr_rm16);
-    op(0x8F, op_pop_rmW);
+    op(0x8F, op_group_8F); //pop_rmW is only opcode included here
     op(0x90, op_nop); //nop is xchg_ax_ax
     for(int i=1;i<8;i++){
-    	op(0x90+i, op_xchg_rW_axW);
+    	op(0x90+i, op_xchg_axW_rW);
     }
     op(0x98, op_cbW); //cbw/cwde
     op(0x99, op_cwE); //cwd/cdq
     op(0x9A, op_call_immF);
     op(0x9B, op_wait);
-    op(0x9C, op_pushf);
-    op(0x9D, op_popf);
+    //op(0x9C, op_pushf);
+    //op(0x9D, op_popf);
     op(0x9E, op_sahf);
     op(0x9F, op_lahf);
     op(0xA0, op_mov_al_m8);
@@ -464,19 +467,19 @@ void x86CPU::InitOpcodes(){
     	op(0xB0+i, op_mov_r8_imm8);
     	op(0xB8+i, op_mov_rW_immW);
     }
-    op(0xC0, op_group_C0); //186
+    //op(0xC0, op_group_C0); //186
     // C0 group: _rm8_imm8; rol, ror, rcl, rcr, shl/sal, shr, sal/shl(?), sar
-    op(0xC1, op_group_C1); //186
+    //op(0xC1, op_group_C1); //186
     // C1 group: _rmW_imm8; rol, ror, rcl, rcr, shl/sal, shr, sal/shl, sar
-    op(0xC2, op_retn_immW); //???
+    op(0xC2, op_retn_imm16); //???
     op(0xC3, op_retn);
     op(0xC4, op_les);
     op(0xC5, op_lds);
     op(0xC6, op_mov_rm8_imm8);
     op(0xC7, op_mov_rmW_immW);
-    op(0xC8, op_enter); //186
-    op(0xC9, op_leave); //186
-    op(0xCA, op_retf_immW); //???
+    //op(0xC8, op_enter); //186
+    //op(0xC9, op_leave); //186
+    op(0xCA, op_retf_imm16); //???
     op(0xCB, op_retf);
     op(0xCC, op_int3);
     op(0xCD, op_int_imm8);
@@ -540,6 +543,7 @@ void x86CPU::InitOpcodes(){
 
 
     //note: All 0x0F "extended" opcodes begin at 286+, so compatibility will only be noted if above 286 level
+/* commenting all these out for now
 
     opxg(0x00, 0, op_naG); //sldt
     opxg(0x00, 1, op_naG); //str
@@ -565,6 +569,7 @@ void x86CPU::InitOpcodes(){
     //follows is a long set of NOP opcodes. These are used by compilers for optimization and alignment purposes I guess?
     //https://stackoverflow.com/questions/4798356/amd64-nopw-assembly-instruction
     //https://reverseengineering.stackexchange.com/questions/11971/nop-with-argument-in-x86-64
+
 
     //opcodes 0-4 are P4+ opcodes
     for(int i=4;i<8;i++){
@@ -633,7 +638,7 @@ void x86CPU::InitOpcodes(){
 
    
 
-
+*/
 
 
 

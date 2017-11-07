@@ -68,6 +68,12 @@ void x86CPU::op_pre_ss_override(){ //0x36
 void x86CPU::op_pre_cs_override(){ //0x2E
 	//nop
 }
+void x86CPU::op_pre_fs_override(){ //0x2E
+    //nop
+}
+void x86CPU::op_pre_gs_override(){ //0x2E
+    //nop
+}
 
 void x86CPU::op_rep(){
 	if(AddressSize16){ //why address size and not operand size? Makes no sense to me, but that's what the manual says
@@ -194,12 +200,12 @@ void x86CPU::op_lock(){ //0xF0 prefix
 
 
 
-void x86CPU::op_cbw(){
-	if((*regs8[AL]&0x80)==0){
-		*regs8[AH]=0;
-	}else{
-		*regs8[AH]=0xFF;
-	}
+void x86CPU::op_cbW(){
+    if(OperandSize16){
+        *regs16[AX] = SignExtend8to16(*regs8[AL]);
+    }else{
+        regs32[EAX] = SignExtend16to32(*regs16[AL]);
+    }
 }
 
 

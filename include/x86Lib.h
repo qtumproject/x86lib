@@ -328,7 +328,10 @@ typedef struct{
 
 namespace x86Lib{
 
+class ModRM;
+
 typedef void (x86Lib::x86CPU::*opcode)();
+typedef void (x86Lib::x86CPU::*groupOpcode)(ModRM &rm);
 typedef struct{
      unsigned char rm:3;
      unsigned char extra:3;
@@ -426,6 +429,7 @@ class x86CPU{
     opcode opcodes_hosted_ext[256];
 	opcode *Opcodes; //current opcode mode
     opcode *Opcodes_ext; //current extended opcode mode
+    groupOpcode opcodes_hosted_ext_group[256][8];
 
 	/*!
 	\return 0 if no interrupts are pending

@@ -805,7 +805,11 @@ void x86CPU::op_sbb_r8_rm8(){
 	ModRM rm8(this);
 	*regs8[rm8.GetExtra()]=Sub8(*regs8[rm8.GetExtra()],rm8.ReadByte()-freg.cf);
 }
-
+void x86CPU::op_sbb_rm8_r8(){
+    eip++;
+    ModRM rm8(this);
+    rm8.WriteByte(Sub8(rm8.ReadByte(), *regs8[rm8.GetExtra()] - freg.cf));
+}
 void x86CPU::op_sbb_rW_rmW(){
 	eip++;
 	ModRM rm(this);

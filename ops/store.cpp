@@ -97,7 +97,7 @@ void x86CPU::op_mov_mW_axW(){
     WriteWA(DS, ImmA(), Reg(AX));
 }
 
-void x86CPU::op_mov_m8_imm8(){
+void x86CPU::op_mov_rm8_imm8(){
 	eip++;
 	ModRM rm(this);
 	
@@ -106,7 +106,7 @@ void x86CPU::op_mov_m8_imm8(){
 	eip++;
 }
 
-void x86CPU::op_mov_mW_immW(){
+void x86CPU::op_mov_rmW_immW(){
     eip++;
     ModRM rm(this);
     rm.WriteW(ReadW(cCS,eip+rm.GetLength()));
@@ -133,7 +133,7 @@ void x86CPU::op_push_imm8(){
 	eip++;
 	Push(op_cache[1]);
 }
-void x86CPU::op_push_mW(ModRM &rm){
+void x86CPU::op_push_rmW(ModRM &rm){
 	Push(rm.ReadW());
 }
 
@@ -161,7 +161,7 @@ void x86CPU::op_push_ss(){
     Push(0);
 }
 
-void x86CPU::op_pop_mW(ModRM &rm){
+void x86CPU::op_pop_rmW(ModRM &rm){
 	rm.WriteW(Pop());
 }
 

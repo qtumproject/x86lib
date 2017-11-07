@@ -150,7 +150,7 @@ void x86CPU::op_group_8F(){
 	ModRM rm(this);
 	switch(rm.GetExtra()){
 		case 0:
-		op_pop_mW(rm);
+		op_pop_rmW(rm);
 		break;
 
 		default:
@@ -256,7 +256,7 @@ void x86CPU::op_group_FF(){
 		op_jmp_mF(rm);
 		break;
 		case 6:
-		op_push_mW(rm);
+		op_push_rmW(rm);
 		break;
 		case 0:
 		op_inc_rmW(rm);
@@ -268,7 +268,7 @@ void x86CPU::op_group_FF(){
 		op_call_rmW(rm);
 		break;
 		case 3:
-		op_call_rmF(rm);
+		op_call_mF(rm);
 		break;
 
 		default:

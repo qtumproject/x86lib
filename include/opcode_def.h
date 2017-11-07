@@ -116,7 +116,9 @@ uint32_t RotateCarryLeftW(uint32_t,uint8_t);
 
 void InstallOp(uint8_t num,opcode op,opcode *table=NULL);
 void InitOpcodes();
+void InstallExtGroupOp(uint8_t opcode, uint8_t r_op, groupOpcode func);
 
+void op_ext_group();
 
 void op_unknown();
 void op_mov_r8_imm8(); //Tested, pass #1;
@@ -185,8 +187,8 @@ void op_mov_rm8_r8();
 void op_mov_r8_rm8();
 void op_mov_m8_al(); //Tested, pass #1;
 void op_mov_mW_axW(); //Tested, pass #1;
-void op_mov_m8_imm8(); //Tested, pass #1;
-void op_mov_mW_immW();  //Tested, pass #1;//currently have 85 instructions or prefixes implemented(actually more, not counting group instructions)
+void op_mov_rm8_imm8(); //Tested, pass #1;
+void op_mov_rmW_immW();  //Tested, pass #1;//currently have 85 instructions or prefixes implemented(actually more, not counting group instructions)
 void op_cmp_rm8_r8();
 void op_cmp_rmW_rW();
 void op_cmp_r8_rm8();
@@ -201,7 +203,7 @@ void op_push_imm8();
 void op_group_8F();
 void op_salc(); //Undocumented -- Set AL on Carry
 void op_cmc();
-void op_cbw();
+void op_cbW();
 void op_aaa();
 void op_daa();
 void op_das();
@@ -288,6 +290,14 @@ void op_operand_override();
 void op_rep();
 void op32_rep();
 
+void op_na();
+
+void op_retf_imm16();
+void op_retn_imm16();
+void op_int1();
+void op_pre_gs_override();
+void op_pre_fs_override();
+
 
 /**Group Include Functions(not direct opcodes)**/
 void op_sub_rm8_imm8(ModRM&); //group 0x80 /5
@@ -301,8 +311,8 @@ void op_add_rmW_imm8(ModRM&);
 void op_cmp_rmW_imm8(ModRM&); //Tested, pass #1
 void op_jmp_rmW(ModRM&); //Tested, pass #1
 void op_jmp_mF(ModRM&); //Tested, pass #1
-void op_push_mW(ModRM&);
-void op_pop_mW(ModRM&);
+void op_push_rmW(ModRM&);
+void op_pop_rmW(ModRM&);
 void op_inc_rm8(ModRM&);
 void op_inc_rmW(ModRM&);
 void op_dec_rm8(ModRM&);
@@ -367,7 +377,7 @@ void op_rcr_rmW_1(ModRM &rm);
 void op_not_rm8(ModRM &rm);
 void op_not_rmW(ModRM &rm);
 void op_call_rmW(ModRM &rm);
-void op_call_rmF(ModRM &rm);
+void op_call_mF(ModRM &rm);
 
 void op32_mul_rm32(ModRM &rm);
 void op32_imul_rm32(ModRM &rm);
