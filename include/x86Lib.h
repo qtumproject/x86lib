@@ -432,7 +432,9 @@ class x86CPU{
     groupOpcode opcodes_hosted_ext_group[256][8];
     std::string opcodes_hosted_str[256];
     std::string opcodes_hosted_ext_str[256];
-    std::string lastOpcode;
+    std::string opcodes_hosted_ext_group_str[256][8];
+    std::string lastOpcodeStr;
+    uint32_t lastOpcode;
 
 	/*!
 	\return 0 if no interrupts are pending
@@ -442,7 +444,10 @@ class x86CPU{
 	MemorySystem *Memory;
 	PortSystem *Ports;
 
-    std::string GetLastOpcode(){
+    std::string GetLastOpcodeName(){
+        return lastOpcodeStr;
+    }
+    uint32_t GetLastOpcode(){
         return lastOpcode;
     }
 

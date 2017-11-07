@@ -121,6 +121,7 @@ void InstallExtGroupOp(uint8_t opcode, uint8_t r_op, groupOpcode func);
 void op_ext_group();
 
 void op_unknown();
+void op_unknownG(ModRM &rm);
 void op_mov_r8_imm8(); //Tested, pass #1;
 void op_hlt(); //Tested, pass #1;
 void op_nop(); //Tested, pass #1;

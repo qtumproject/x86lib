@@ -280,12 +280,14 @@ void x86CPU::Cycle(){
         eip++;
         *(uint64_t*)&op_cache=ReadQword(cCS,eip);
         #ifdef QTUM_DEBUG
-        lastOpcode = opcodes_hosted_ext_str[op_cache[0]];
+        lastOpcode = (0x0F << 8) || op_cache[0];
+        lastOpcodeStr = opcodes_hosted_ext_str[op_cache[0]];
         #endif
         (this->*Opcodes_ext[op_cache[0]])(); //if in 32-bit mode, then go to 16-bit opcode
     }else {
         #ifdef QTUM_DEBUG
-        lastOpcode = opcodes_hosted_str[op_cache[0]];
+        lastOpcode = op_cache[0];
+        lastOpcodeStr = opcodes_hosted_str[op_cache[0]];
         #endif
         //operate on the this class with the opcode functions in this class
         (this->*Opcodes[op_cache[0]])();
@@ -320,21 +322,26 @@ void x86CPU::op_na(){
 
 //NOTE: This can only be used for group opcodes in the 0x0F extended opcodes set
 void x86CPU::InstallExtGroupOp(uint8_t opcode, uint8_t r_op, groupOpcode func){
-	Opcodes_ext[opcode] = &x86CPU::op_ext_group;
+	opcodes_hosted_ext[opcode] = &x86CPU::op_ext_group;
 	opcodes_hosted_ext_group[opcode][r_op] = func;
 }
 
 #define STRINGIFY(x) #x
 #define op(n, f) InstallOp(n, &x86CPU::f); opcodes_hosted_str[n]=STRINGIFY(f)
 #define opx(n, f) InstallOp(n, &x86CPU::f, opcodes_hosted_ext); opcodes_hosted_ext_str[n]=STRINGIFY(f)
-#define opxg(n, i, f) InstallExtGroupOp(n, i, &x86CPU::f)
+#define opxg(n, i, f) InstallExtGroupOp(n, i, &x86CPU::f); opcodes_hosted_ext_group_str[n][i]=STRINGIFY(f)
 
 void x86CPU::InitOpcodes(){
 	Opcodes=opcodes_hosted;
+    Opcodes_ext=opcodes_hosted_ext;
 
     //init all to unknown
     for(int i=0;i<256;i++){
-        InstallOp(i, &x86CPU::op_unknown, opcodes_hosted);
+        op(i, op_unknown);
+        for(int j=0;j<8;j++){
+            opxg(i, j, op_unknownG);
+        }
+        opx(i, op_unknown);
     }
 
     op(0x00, op_add_rm8_r8);

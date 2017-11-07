@@ -284,7 +284,7 @@ int main(int argc, char* argv[]){
 				}
 			}else{
 				cpu->Exec(1);
-				cout <<"OPCODE: " << cpu->GetLastOpcode() << endl;
+				cout <<"OPCODE: " << cpu->GetLastOpcodeName() << "; hex: 0x" << hex << cpu->GetLastOpcode() << endl;
 				cpu->DumpState(cout);
 				cout << "-------------------------------" << endl;
 				if(int_cause){
@@ -297,6 +297,7 @@ int main(int argc, char* argv[]){
 			cout << "CPU Panic!" <<endl;
 			cout << "Message: " << err.desc << endl;
 			cout << "Code: 0x" << hex << err.code << endl;
+			cout <<"OPCODE: " << cpu->GetLastOpcodeName() << "; hex: 0x" << hex << cpu->GetLastOpcode() << endl;
 			cpu->DumpState(cout);
 			cout << endl;
 			return 1;

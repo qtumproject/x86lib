@@ -48,6 +48,11 @@ void x86CPU::op_unknown(){
     oss << "Unknown opcode: 0x" << std::hex << (int)op_cache[0];
     throw CpuPanic_excp(oss.str(), UNK_IEXCP);
 }
+void x86CPU::op_unknownG(ModRM &rm){
+    std::ostringstream oss;
+    oss << "Unknown opcode: 0x" << std::hex << (int)op_cache[0];
+    throw CpuPanic_excp(oss.str(), UNK_IEXCP);
+}
 
 
 
@@ -68,10 +73,10 @@ void x86CPU::op_pre_ss_override(){ //0x36
 void x86CPU::op_pre_cs_override(){ //0x2E
 	//nop
 }
-void x86CPU::op_pre_fs_override(){ //0x2E
+void x86CPU::op_pre_fs_override(){ //0x64
     //nop
 }
-void x86CPU::op_pre_gs_override(){ //0x2E
+void x86CPU::op_pre_gs_override(){ //0x65
     //nop
 }
 
