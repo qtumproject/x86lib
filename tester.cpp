@@ -244,12 +244,19 @@ void each_opcode(x86CPU *thiscpu){
 	}
 }
 
+bool singleStep=false;
 
 int main(int argc, char* argv[]){
-	if(argc != 2){
-		cout << "./x86test program.bin" << endl;
+	if(argc < 2){
+		cout << "./x86test program.bin [-singlestep]" << endl;
 		return 1;
 	}
+	if(argc > 3){
+		if(strcmp(argv[2], "-singlestep") == 0){
+			singleStep = true;
+		}
+	}
+
 	init_memory(argv[1]);
 	PortSystem Ports;
 	ROMemory coderom;
@@ -269,10 +276,21 @@ int main(int argc, char* argv[]){
 	
 	for(;;){
 		try{
-			cpu->Exec(1000);
-			if(int_cause){
-				int_cause=false;
-				cpu->Int(int_cause_number);
+			if(singleStep){
+				cpu->Exec(1000);
+				if(int_cause){
+					int_cause=false;
+					cpu->Int(int_cause_number);
+				}
+			}else{
+				cpu->Exec(1);
+				cout <<"OPCODE: " << cpu->GetLastOpcode() << endl;
+				cpu->DumpState(cout);
+				cout << "-------------------------------" << endl;
+				if(int_cause){
+					int_cause=false;
+					cpu->Int(int_cause_number);
+				}
 			}
 		}
 		catch(CpuPanic_excp err){

@@ -40,6 +40,7 @@ mov ebx, [0x100000]
 mov eax, ebx
 
 out 0xF0, ax
+cli
 hlt
 
 ;add 10 bytes of padding for reasons

@@ -430,6 +430,9 @@ class x86CPU{
 	opcode *Opcodes; //current opcode mode
     opcode *Opcodes_ext; //current extended opcode mode
     groupOpcode opcodes_hosted_ext_group[256][8];
+    std::string opcodes_hosted_str[256];
+    std::string opcodes_hosted_ext_str[256];
+    std::string lastOpcode;
 
 	/*!
 	\return 0 if no interrupts are pending
@@ -438,6 +441,11 @@ class x86CPU{
 	public:
 	MemorySystem *Memory;
 	PortSystem *Ports;
+
+    std::string GetLastOpcode(){
+        return lastOpcode;
+    }
+
 	/*!
 	\param cpu_level The CPU level to use(default argument is default level)
 	\param flags special flags to control CPU (currently, there is none)
