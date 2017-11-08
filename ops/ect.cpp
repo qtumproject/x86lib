@@ -106,10 +106,6 @@ void x86CPU::op_rep(){ //repe and repne..(different opcodes, but I make them pos
         case 0xA7:
         case 0xAE:
         case 0xAF:
-        case 0xA6:
-        case 0xA7:
-        case 0xAE:
-        case 0xAF:
         break;
         default:
         eip++;
@@ -123,7 +119,7 @@ void x86CPU::op_rep(){ //repe and repne..(different opcodes, but I make them pos
     }else{
         uint32_t repEIP = eip;
         eip++; //now at actual opcode (or prefix)
-        (this->*Opcodes[opbyte]();
+        (this->*Opcodes[opbyte])();
         if(AddressSize16){
             *regs16[CX]--;
         }else{
@@ -221,7 +217,6 @@ void x86CPU::op_salc(){ //set al on carry
 void x86CPU::op_operand_override(){
     eip++; //increment past override byte
     OperandSize16 = true;
-    *(uint64_t*)&op_cache=ReadQword(cCS,eip);
     opbyte = ReadCode8(0);
     (this->*opcodes_hosted[opbyte])();
     OperandSize16 = false;
@@ -231,7 +226,6 @@ void x86CPU::op_operand_override(){
 void x86CPU::op_address_override(){
     eip++; //increment past override byte
     AddressSize16 = true;
-    *(uint64_t*)&op_cache=ReadQword(cCS,eip);
     opbyte = ReadCode8(0);
     (this->*opcodes_hosted[opbyte])();
     AddressSize16 = false;
