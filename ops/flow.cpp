@@ -34,26 +34,24 @@ using namespace std;
 
 
 void x86CPU::op_jmp_rel8(){
+    uint8_t rel = ReadCode8(1);
 	eip+=2; //1 for current opcode and 1 for rel8 byte
-	Jmp_near8(op_cache[1]);
+	Jmp_near8(rel);
 	eip--;
 }
 
 void x86CPU::op_jmp_relW(){
+    uint32_t rel = ReadCodeW(1);
 	//+ operand to move past immediate, and +1 to move past current opcode
     eip+=OperandSize() + 1; //get to first byte of next opcode so jmp works right
-    Jmp_nearW(*(uint32_t*)&op_cache[1]);
+    Jmp_nearW(rel);
     eip--;
 }
 
 void x86CPU::op_jmp_immF(){ //far jmp
-    *(uint32_t*)&op_cache=ReadDword(cCS,eip+1);
+    uint32_t rel = ReadCodeW(1);
 	seg[cCS]=0; //*(uint16_t*)&op_cache[2]; //I always forget that they are reversed...
-	if(OperandSize16){
-		eip=*(uint16_t*)&op_cache[0];
-	}else{
-		eip=*(uint32_t*)&op_cache[0];
-	}
+	eip = rel;
 	eip--; //eip will be incremented in Cycle
 }
 
@@ -63,24 +61,20 @@ void x86CPU::op_jmp_rmW(ModRM &rm){
 }
 
 void x86CPU::op_jmp_mF(ModRM &rm){
-    *(uint32_t*)&op_cache=rm.ReadDword(); //last 2 bytes (bytes 5 and 6) are segment, but they are unused so ignore
 	seg[cCS]=0; //*(uint16_t*)&op_cache[2];
-	if(OperandSize16){
-		eip=*(uint16_t*)&op_cache[0];
-	}else{
-		eip=*(uint32_t*)&op_cache[0];
-	}
+	eip = ReadWA(DS, rm.ReadA());
 	eip--;
 }
 
 
 
 void x86CPU::op_jcxzW_rel8(){
-	eip++; //correct?
+    uint8_t rel = ReadCode8(1);
+	eip+=2; //relative jump should happen at the beginning of the next opcode
 	if(Reg(ECX)==0){
-		Jmp_near8(op_cache[1]);
-		eip--; //counteract increment in Cycle()
+		Jmp_near8(rel);
 	}
+    eip--; //counteract increment in Cycle()
 }
 
 
@@ -101,10 +95,11 @@ void x86CPU::op_retn(){
 void x86CPU::op_loopcc_rel8(){ //handles loop, loopne, and loope
 	//loopne is 0xE0, loope is 0xE1, loop is 0xE2
     WriteReg(ECX, Reg(ECX)-1);
-    eip++;
+    uint8_t rel = ReadCode8(1);
+    eip+=2;
     if((Reg(ECX)!=0) &&
-     		(op_cache[0] == 0xE2 || (freg.zf==(op_cache[0] & 0x1)))){
-        Jmp_near8(op_cache[1]);
+     		(opbyte == 0xE2 || (freg.zf==(opbyte & 0x1)))){
+        Jmp_near8(rel);
     }
 }
 
@@ -114,8 +109,7 @@ void x86CPU::op_call_immF() { //far call
     //1 to move beyond current opcode, then + operand for EIP, and + 2 for segment
 	Push(eip + OperandSize() + 2 + 1);
 	seg[cCS]=0; //*(uint16_t*)&op_cache[2]; //I always forget that they are reversed...
-	eip=*(uint16_t*)&op_cache[1];
-	eip = W(eip);
+	eip=ReadCodeW(1);
 	eip--; //eip will be incremented in Cycle
 }
 void x86CPU::op_retf(){
@@ -124,19 +118,21 @@ void x86CPU::op_retf(){
 }
 
 void x86CPU::op_retf_imm16(){
+    uint16_t imm = ReadCode16(1);
     op_retf();
     //surprisingly this is not subject to operand-size differences
-    regs32[ESP]+=*(uint16_t*)&op_cache[1];
+    regs32[ESP]+=imm;
 }
 void x86CPU::op_retn_imm16(){
+    uint16_t imm = ReadCode16(1);
     op_retn();
     //surprisingly this is not subject to operand-size differences
-    regs32[ESP]+=*(uint16_t*)&op_cache[1];
+    regs32[ESP]+=imm;
 }
 
 void x86CPU::op_int_imm8(){
 	eip++;
-	Int16(op_cache[1]);
+	Int16(ReadCode8(0));
 }
 
 void x86CPU::op_iret(){
@@ -167,14 +163,10 @@ void x86CPU::op_call_rmW(ModRM &rm){ //call
 
 void x86CPU::op_call_mF(ModRM &rm){ //far call
     Push(0); //seg[cCS]);
-	Push(eip+rm.GetLength()+1);
-	*(uint32_t*)&op_cache=ReadDword(DS,rm.ReadDword()); //last 2 bytes (byte 5 and 6) is segment in 32bit mode, but is not used so ignore
+	Push(eip + rm.GetLength()+1);
+	uint32_t m = ReadWA(DS,rm.ReadA()); //last 2 bytes (byte 5 and 6) is segment in 32bit mode, but is not used so ignore
 	seg[cCS]=0; //*(uint16_t*)&op_cache[2]; //I always forget that they are reversed...
-	if(OperandSize16){
-		eip=*(uint16_t*)&op_cache[0];
-	}else{
-		eip=*(uint32_t*)&op_cache[0];
-	}
+	eip=W(m);
 	eip--; //eip will be incremented in Cycle
 
 }

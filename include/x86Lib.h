@@ -378,6 +378,7 @@ class ModRM{
 	uint16_t ReadWord();
 	uint32_t ReadDword();
 	uint32_t ReadW();
+    uint32_t ReadA(); //should be used for addresses
 	void WriteByte(uint8_t byte);
 	void WriteWord(uint16_t word);
     void WriteDword(uint32_t dword);

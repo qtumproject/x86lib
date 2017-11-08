@@ -282,6 +282,14 @@ uint32_t ModRM::ReadW(){
     }
 }
 
+uint32_t ModRM::ReadA(){
+    if(this_cpu->Use32BitAddress()){
+        return ReadDword();
+    }else{
+        return ReadWord();
+    }
+}
+
 uint32_t ModRM::ReadDword(){
     if(this_cpu->Use32BitAddress()){
         return ReadDword32();
