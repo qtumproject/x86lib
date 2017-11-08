@@ -45,7 +45,7 @@ size_t size_memory;
 void init_memory(char* fileToLoad){
 	size_memory=0xFF000;
 	ptr_memory=new uint8_t[size_memory];
-	memset(ptr_memory,0x66,size_memory); //initialize it all to 0x66, an invalid opcode
+	memset(ptr_memory,0xFF,size_memory); //initialize it all to 0x66, an invalid opcode
 	ifstream file(fileToLoad, ios::binary);
 	if(!file){
 		cout << "file " << fileToLoad << " does not exist" << endl;
@@ -77,7 +77,7 @@ class ROMemory : public MemoryDevice{
 		if(address + count > fileLength){
 			throw new Mem_excp(address);
 		}
-		memcpy(buffer,&ptr_memory[address],count);
+		memcpy(buffer,&ptr[address],count);
 	}
 	virtual void Write(uint32_t address,int count,void *buffer){
 		throw new Mem_excp(address);
@@ -87,19 +87,22 @@ class ROMemory : public MemoryDevice{
 class RAMemory : public MemoryDevice{
 	uint8_t *ptr;
 	uint32_t size;
+	string id;
 	public:
-	RAMemory(uint32_t size_){
-		ptr = new uint8_t[size];
+	RAMemory(uint32_t size_, string id_){
 		size = size_;
+		id = id_;
+		ptr = (uint8_t*) malloc(size);
+		memset(ptr, 0, size);
 	}
 	~RAMemory(){
 		free(ptr);
 	}
 	virtual void Read(uint32_t address,int count,void *buffer){
-		memcpy(buffer,&ptr_memory[address],count);
+		memcpy(buffer,&ptr[address],count);
 	}
 	virtual void Write(uint32_t address,int count,void *buffer){
-		memcpy(&ptr_memory[address],buffer,count);
+		memcpy(&ptr[address],buffer,count);
 	}
 };
 
@@ -128,20 +131,23 @@ public:
 };
 
 MemorySystem Memory;
+RAMemory *scratchMem;
 
 volatile bool int_cause;
 volatile uint8_t int_cause_number=33;
 
 void DumpMemory(){
+	cout << "dumping memory!" << endl;
 	uint32_t i;
 	FILE *fh;
 	fh=fopen("mem_dump.bin","w");
 	uint8_t *tmp = new uint8_t[0x100000];
-	Memory.Read(0x100000, 0x100000 - 1, tmp);
+	Memory.Read(0x100000, 0x100000, tmp);
 	for(i=0;i<=0x100000;i++){
 		fputc(tmp[i],fh);
 	}
 	fclose(fh);
+	delete tmp;
 }
 
 void WritePort(uint16_t port,uint32_t val){
@@ -262,8 +268,9 @@ int main(int argc, char* argv[]){
 	init_memory(argv[1]);
 	PortSystem Ports;
 	ROMemory coderom;
-	RAMemory config(0x1000);
-	RAMemory scratch(0x100000);
+	RAMemory config(0x1000, "config");
+	RAMemory scratch(0x100000, "scratch");
+	scratchMem = &scratch;
 	
 	Memory.Add(0, 0xFFF, &config);
 	Memory.Add(0x1000, 0xFFFFF, &coderom);

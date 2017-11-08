@@ -79,7 +79,7 @@ void MemorySystem::Remove(MemoryDevice *memdev)
 }
 void MemorySystem::Read(uint32_t address,int size,void *b)
 {
-	uint32_t* buffer=(uint32_t*)b;
+	uint8_t* buffer=(uint8_t*)b;
 	DeviceRange_t device;
 	
 	if(size == 0)
@@ -106,7 +106,6 @@ void MemorySystem::Read(uint32_t address,int size,void *b)
 				buffer += device.high - address + 1; //bug?
 				
 				address += device.high - address + 1;
-				
 				Read( address, size+1 , buffer );
 			}
 			else
@@ -125,7 +124,7 @@ void MemorySystem::Read(uint32_t address,int size,void *b)
 
 void MemorySystem::Write(uint32_t address,int size,void *b)
 {
-	uint32_t *buffer=(uint32_t*)b;
+	uint8_t *buffer=(uint8_t*)b;
 	DeviceRange_t device;
 		
 	if( size==0 )

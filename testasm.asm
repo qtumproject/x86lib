@@ -34,10 +34,12 @@ start:
 mov eax, 0 
 add eax, 1
 inc eax
-
-mov [0x100000], eax
-mov ebx, [0x100000]
+mov eax, 0x12345678 
+mov dword [0x100000], eax
+mov ebx, dword [0x100000]
 mov eax, ebx
+
+out 0xF3, al ;dump memory API call
 
 out 0xF0, ax
 cli

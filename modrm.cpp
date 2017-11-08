@@ -249,7 +249,6 @@ uint16_t ModRM::ReadWord(){
     op_specific=0;
     uint16_t disp=GetDisp();
     if(op_specific==1){
-        //cout << "h" << endl;
         return *this_cpu->regs16[modrm.rm];
     }else{
 

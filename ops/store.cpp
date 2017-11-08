@@ -62,7 +62,7 @@ void x86CPU::op_mov_rm16_sr(){ //0x8C
 void x86CPU::op_mov_rW_rmW(){
 	eip++;
 	ModRM rm(this);
-	WriteReg(Reg(rm.GetExtra()), rm.ReadW());
+	WriteReg(rm.GetExtra(), rm.ReadW());
 }
 
 void x86CPU::op_mov_rmW_rW(){
