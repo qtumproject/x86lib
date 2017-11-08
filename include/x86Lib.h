@@ -400,7 +400,7 @@ class x86CPU{
 	volatile uint16_t seg[7];
 	volatile uint32_t eip;
 	volatile FLAGS freg;
-	volatile uint8_t op_cache[8];
+	volatile uint8_t op_cacheX[8];
     //These variables should be used instead of cES etc when the segment register can not be overridden
 	volatile uint8_t ES;
 	volatile uint8_t CS;
@@ -538,6 +538,8 @@ class x86CPU{
         regs32[reg] = val;
     }
     std::vector<uint32_t> wherebeen;
+    void x86CPU::Read(void* buffer, uint32_t off, size_t count);
+    void x86CPU::Write(uint32_t off, void* buffer, size_t count);
 
     /*End public interface*/
 	#ifdef X86LIB_BUILD
@@ -561,37 +563,29 @@ class x86CPU{
 	inline uint32_t ImmW(){
 		if(OperandSize16){
 			eip+=2;
-			return (uint32_t) (*(uint16_t*)&op_cache[1]);
+			return (uint32_t) OpCache16(1);
 		}
 		eip+=4;
-		return (*(uint32_t*)&op_cache[1]);
+		return OpCache32(1);
 	}
 	inline uint32_t ImmA(){
 		if(AddressSize16){
 			eip+=2;
-			return (uint32_t) (*(uint16_t*)&op_cache[1]);
+			return (uint32_t) OpCache16(1);
 		}
 		eip+=4;
-		return (*(uint32_t*)&op_cache[1]);
+		return OpCache32(1);
 	}
 
 	inline uint32_t DispW(){
 		if(AddressSize16){
 			eip+=2;
-			return (uint32_t) (*(uint16_t*)&op_cache[1]);
+			return (uint32_t) OpCache16(1);
 		}
 		eip+=4;
-		return (*(uint32_t*)&op_cache[1]);
+		return OpCache32(1);
 	}
 
-	inline void ToOperand(uint32_t *to, uint32_t val){
-		if(OperandSize16){
-			*(uint16_t*)to = val;
-		}else{
-			*to = val;
-		}
-
-	}
 	inline uint32_t Reg(int which){
 		if(OperandSize16){
 			return *regs16[which];

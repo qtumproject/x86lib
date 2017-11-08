@@ -426,4 +426,7 @@ void WriteDword(uint8_t segm,uint32_t off,uint32_t val);
 void WriteW(uint8_t segm,uint32_t off,uint32_t val);
 void WriteWA(uint8_t segm,uint32_t off,uint32_t val);
 
+uint32_t x86CPU::OpCache32(int index);
+uint16_t x86CPU::OpCache16(int index);
+uint8_t x86CPU::OpCache8(int index);
 

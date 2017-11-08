@@ -75,17 +75,17 @@ uint16_t ModRM::GetDisp(){
                 use_ss=0;
                 //eip++;
                 //eip++;
-                return *(uint16_t*)&this_cpu->op_cache[1];
+                return this_cpu->ReadCode16(1);
             }else{
                 return reg;
             }
             break;
         case 1: //byte displacement(signed)
             //eip++;
-            return (signed)reg+(signed)this_cpu->op_cache[1];
+            return (signed)reg+(signed)this_cpu->ReadCode8(1);
             break;
         case 2: //word displacement(signed)
-            return (signed)reg+(signed)(*(uint16_t*)&this_cpu->op_cache[1]);
+            return (signed)reg+(signed)(this_cpu->ReadCode16(1));
             break;
         case 3: //opcode specific...
             op_specific=1;
@@ -109,17 +109,17 @@ uint32_t ModRM::GetDisp32(){
             break;
         case 1: //byte displacement(signed)
             if(modrm.rm == 4){
-                return (int32_t)GetSIBDisp() + (int32_t)this_cpu->op_cache[2];
+                return (int32_t)GetSIBDisp() + (int32_t)this_cpu->ReadCode8(2);
             }else{
-                return (int32_t)reg+(int32_t)this_cpu->op_cache[1];
+                return (int32_t)reg+(int32_t)this_cpu->ReadCode8(1);
             }
             break;
         case 2: //dword displacement(signed)
             if(modrm.rm == 4){
                 //make sure to use eip+2 here to account for SIB
-                return (int32_t)GetSIBDisp() + (int32_t)this_cpu->ReadDword(this_cpu->CS, this_cpu->eip + 2);
+                return (int32_t)GetSIBDisp() + (int32_t)this_cpu->ReadCode32(2);
             }else{
-                return (int32_t)reg + (int32_t)this_cpu->ReadDword(this_cpu->CS, this_cpu->eip + 1);
+                return (int32_t)reg + (int32_t)this_cpu->ReadCode32(1);
             }
             break;
         case 3: //opcode specific...
@@ -213,13 +213,27 @@ ModRM::ModRM(x86CPU *this_cpu_){
     use_ss=0;
     op_specific=0;
     this_cpu=this_cpu_;
-    *(uint32_t*)&this_cpu->op_cache=this_cpu->ReadDword(cCS,this_cpu->eip);
-    *(uint8_t*)&modrm=this_cpu->op_cache[0];
-    *(uint8_t*)&sib=this_cpu->op_cache[1];
+    this_cpu->eip++; //to get past opcode and onto modrm
+    modrm = this_cpu->ReadCode8(0);
+    sib = this_cpu->ReadCode8(1);
 }
 
 ModRM::~ModRM(){
-    this_cpu->eip+=GetLength()-1;
+    this_cpu->eip+=GetLength();
+}
+
+//reads immediate after ModRM
+uint8_t ModRM::Imm8(){
+    return this_cpu->ReadCode8(GetLength() + 1);
+}
+uint16_t ModRM::Imm16(){
+    return this_cpu->ReadCode8(GetLength() + 1);
+}
+uint32_t ModRM::Imm32(){
+    return this_cpu->ReadCode8(GetLength() + 1);
+}
+uint32_t ModRM::ImmW(){
+    return this_cpu->ReadCodeW(GetLength() + 1);
 }
 
 //The r suffix means /r, which means for op_specific=1, use general registers
