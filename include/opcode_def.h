@@ -427,8 +427,4 @@ void WriteDword(uint8_t segm,uint32_t off,uint32_t val);
 void WriteW(uint8_t segm,uint32_t off,uint32_t val);
 void WriteWA(uint8_t segm,uint32_t off,uint32_t val);
 
-uint32_t ReadCode32(int index);
-uint16_t ReadCode16(int index);
-uint8_t ReadCode8(int index);
-uint32_t ReadCodeW(int index);
-void ReadCode(void* buf, int index, size_t count);
+

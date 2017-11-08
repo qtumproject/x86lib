@@ -214,8 +214,8 @@ ModRM::ModRM(x86CPU *this_cpu_){
     op_specific=0;
     this_cpu=this_cpu_;
     this_cpu->eip++; //to get past opcode and onto modrm
-    modrm = this_cpu->ReadCode8(0);
-    sib = this_cpu->ReadCode8(1);
+    this_cpu->ReadCode(&modrm, 0, 1); //sizeof would work here, but weird compilers could potentially introduce consensus break
+    this_cpu->ReadCode(&sib, 1, 1);
 }
 
 ModRM::~ModRM(){

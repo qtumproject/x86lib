@@ -317,7 +317,6 @@ void x86CPU::InstallOp(uint8_t num,opcode func, opcode *opcode_table){
 
 
 void x86CPU::op_ext_group(){
-	eip++;
 	ModRM rm(this);
 	(this->*opcodes_hosted_ext_group[opbyte][rm.GetExtra()])(rm);
 }

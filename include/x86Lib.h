@@ -386,6 +386,10 @@ class ModRM{
 	uint8_t GetLength(); //This returns how many total bytes the modrm block consumes
 	uint8_t GetExtra(); //Get the extra fied from mod_rm
 	uint32_t ReadOffset(); //This is only used by LEA. It will obtain the offset and not dereference it...
+    uint8_t Imm8();
+    uint16_t Imm16();
+    uint32_t Imm32();
+    uint32_t ImmW();
 
 };
 
@@ -445,6 +449,13 @@ class x86CPU{
 	\return 0 if no interrupts are pending
 	 */
 	int CheckInterrupts();
+
+    uint32_t ReadCode32(int index);
+    uint16_t ReadCode16(int index);
+    uint8_t ReadCode8(int index);
+    uint32_t ReadCodeW(int index);
+    void ReadCode(void* buf, int index, size_t count);
+    
 	public:
 	MemorySystem *Memory;
 	PortSystem *Ports;
