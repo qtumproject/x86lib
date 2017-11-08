@@ -216,7 +216,11 @@ void x86CPU::SetSegments(uint8_t segm){
     GS=segm;
 }
 
-void x86CPU::Read(uint32_t off, void* buffer, size_t count){
+void x86CPU::Read(void* buffer, uint32_t off, size_t count){
+    Memory->WaitLock(busmaster);
+    Memory->Read(off,count,buffer);
+}
+void x86CPU::Write(uint32_t off, void* buffer, size_t count){
     Memory->WaitLock(busmaster);
     Memory->Read(off,count,buffer);
 }
@@ -325,5 +329,8 @@ uint32_t x86CPU::ReadCodeW(int index){
     }
 }
 
+void x86CPU::ReadCode(void* buf, int index, size_t count){
+    Read(buf, index + eip, count);
+}
 
 

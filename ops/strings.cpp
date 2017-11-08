@@ -44,13 +44,15 @@ void x86CPU::op_movsW(){
 }
 
 void x86CPU::op_cmpsb(){
-	string_compares=1;
+	uint8_t prev = ReadCode8(-1);
+	if( prev == 0xF3 || prev == 0xF2) string_compares=1; //only set string_compares if previous was REPZ/REPNZ
 	Sub8(ReadByte(DS,Reg(SI)),ReadByte(cES,Reg(DI)));
 	SetIndex8();
 }
 
 void x86CPU::op_cmpsW(){
-	string_compares=1;
+	uint8_t prev = ReadCode8(-1);
+	if( prev == 0xF3 || prev == 0xF2) string_compares=1;
 	SubW(ReadW(DS, Reg(SI)), ReadW(cES,Reg(DI)));
 	SetIndex();
 }
@@ -65,12 +67,14 @@ void x86CPU::op_lodsW(){
 }
 
 void x86CPU::op_scasb(){
-	string_compares=1;
+	uint8_t prev = ReadCode8(-1);
+	if( prev == 0xF3 || prev == 0xF2) string_compares=1;
 	Sub8(*regs8[AL],ReadByte(cES,Reg(DI)));
 	SetIndex8();
 }
 void x86CPU::op_scasW(){
-	string_compares=1;
+	uint8_t prev = ReadCode8(-1);
+	if( prev == 0xF3 || prev == 0xF2) string_compares=1;
 	SubW(Reg(AX),ReadW(cES,Reg(DI)));
 	SetIndex();
 }

@@ -45,6 +45,8 @@ out 0xF0, ax
 cli
 hlt
 
+rep lodsw
+
 ;add 10 bytes of padding for reasons
 nop
 nop

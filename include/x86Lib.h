@@ -408,7 +408,7 @@ class x86CPU{
 	volatile uint8_t DS;
 	volatile uint8_t FS;
 	volatile uint8_t GS;
-	volatile bool string_compares;
+	volatile bool string_compares; //TODO can jump to string instruction and corrupt this
 	volatile uint8_t cli_count; //Whenever this is 1, an STI is done.
 	volatile bool int_pending;
 	volatile uint8_t int_number;
@@ -419,6 +419,10 @@ class x86CPU{
     bool AddressSize16;
     bool DoStop;
     int PrefixCount; //otherwise, someone could make some ridiculously long prefix chain (apparently Intel CPUs don't error until you get past 14)
+    //this is the EIP pointed to when execution of the current opcode began in Cycle()
+    //This is used when needing to go back to the current opcode while including all prefixes
+    uint32_t beginEIP;
+    uint8_t opbyte; //current opcode (updated in cycle() and prefix opcodes)
 	protected:
 	//! Do one CPU opcode
 	/*! This should be put in the main loop, as this is what makes the CPU work.
@@ -538,8 +542,8 @@ class x86CPU{
         regs32[reg] = val;
     }
     std::vector<uint32_t> wherebeen;
-    void x86CPU::Read(void* buffer, uint32_t off, size_t count);
-    void x86CPU::Write(uint32_t off, void* buffer, size_t count);
+    void Read(void* buffer, uint32_t off, size_t count);
+    void Write(uint32_t off, void* buffer, size_t count);
 
     /*End public interface*/
 	#ifdef X86LIB_BUILD
@@ -563,27 +567,27 @@ class x86CPU{
 	inline uint32_t ImmW(){
 		if(OperandSize16){
 			eip+=2;
-			return (uint32_t) OpCache16(1);
+			return (uint32_t) ReadCode16(1);
 		}
 		eip+=4;
-		return OpCache32(1);
+		return ReadCode32(1);
 	}
 	inline uint32_t ImmA(){
 		if(AddressSize16){
 			eip+=2;
-			return (uint32_t) OpCache16(1);
+			return (uint32_t) ReadCode16(1);
 		}
 		eip+=4;
-		return OpCache32(1);
+		return ReadCode32(1);
 	}
 
 	inline uint32_t DispW(){
 		if(AddressSize16){
 			eip+=2;
-			return (uint32_t) OpCache16(1);
+			return (uint32_t) ReadCode16(1);
 		}
 		eip+=4;
-		return OpCache32(1);
+		return ReadCode32(1);
 	}
 
 	inline uint32_t Reg(int which){

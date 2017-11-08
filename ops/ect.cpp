@@ -45,12 +45,12 @@ void x86CPU::op_hlt(){ //0xF4
 
 void x86CPU::op_unknown(){
     std::ostringstream oss;
-    oss << "Unknown opcode: 0x" << std::hex << (int)op_cache[0];
+    oss << "Unknown opcode: 0x" << std::hex << (int)ReadCode8(0);
     throw CpuPanic_excp(oss.str(), UNK_IEXCP);
 }
 void x86CPU::op_unknownG(ModRM &rm){
     std::ostringstream oss;
-    oss << "Unknown opcode: 0x" << std::hex << (int)op_cache[0];
+    oss << "Unknown opcode: 0x" << std::hex << (int)ReadCode8(-1); //-1 to go to before modrm
     throw CpuPanic_excp(oss.str(), UNK_IEXCP);
 }
 
@@ -80,107 +80,66 @@ void x86CPU::op_pre_gs_override(){ //0x65
     //nop
 }
 
-void x86CPU::op_rep(){
-	if(AddressSize16){ //why address size and not operand size? Makes no sense to me, but that's what the manual says
-		op16_rep();
-	}else{
-		op32_rep();
-	}
-}
-
-void x86CPU::op16_rep(){ //repe and repne..(different opcodes, but I make them possible to use the same function)
-	//use a string_compares variable...
-	if(*regs16[CX]==0){ //for this, not executing the instruction is almost as expensive...
-		*(uint16_t*)&op_cache=ReadWord(cCS,eip+1); //note we only need 2 bytes, so don't read a whole Qword
-		int i=0;
-		//get size of opcode and prefixes....
-		for(i=0;i<4;i++){
-			switch(op_cache[i]){
-				case 0x67:
-				case 0x66:
-				case 0x2E:
-				case 0x36:
-				case 0x3E:
-				case 0x26:
-				case 0x64:
-				case 0x65:
-				eip++;
-				break;
-				default:
-				eip++;
-				return;
-				break;
-			}
-		}
-		return;
-	}else{
-		uint32_t tmp=eip;
-		uint8_t t2=op_cache[0];
-		eip++;
-		*(uint64_t*)&op_cache=ReadQword(cCS,eip);
-		(this->*Opcodes[op_cache[0]])();
-		(*regs16[CX])--;
-		eip=tmp-1;
-		if(string_compares==1){
-			string_compares=0;
-			if(t2==0xF2){ //repNE
-				if(freg.zf==1){ //exit...
-					eip+=2;
-					return;
-				}
-			}else{
-				if((volatile uint8_t)freg.zf==0){ //exit...
-					eip+=2;
-					return;
-				}
-			}
-		}
-	}
-}
-
-void x86CPU::op32_rep(){ //repe and repne..(different opcodes, but I make them possible to use the same function)
+void x86CPU::op_rep(){ //repe and repne..(different opcodes, but I make them possible to use the same function)
     //use a string_compares variable...
-    if(regs32[ECX]==0){ //for this, not executing the instruction is almost as expensive...
-        *(uint64_t*)&op_cache=ReadQword(cCS,eip+1);
-        int i=0;
-        //get size of opcode and prefixes....
-        for(i=0;i<4;i++){
-            switch(op_cache[i]){ //correct?
-                case 0x67:
-                case 0x66:
-                case 0x2E:
-                case 0x36:
-                case 0x3E:
-                case 0x26:
-                case 0x64:
-                case 0x65:
-                    eip++;
-                    break;
-                default:
-                    eip++;
-                    return;
-                    break;
-            }
-        }
+    uint32_t counter;
+    if(AddressSize16){
+        counter = *regs16[CX];
+    }else{
+        counter = regs32[ECX];
+    }
+    uint8_t repop=opbyte;
+    opbyte = ReadCode8(1); //update to string op
+    switch(opbyte){
+        //validate opcode is string
+        case 0x6C:
+        case 0x6D:
+        case 0xA4:
+        case 0xA5: 
+        case 0x6E:
+        case 0x6F:
+        case 0xAC:
+        case 0xAD:
+        case 0xAA:
+        case 0xAB:
+        case 0xA6:
+        case 0xA7:
+        case 0xAE:
+        case 0xAF:
+        case 0xA6:
+        case 0xA7:
+        case 0xAE:
+        case 0xAF:
+        break;
+        default:
+        eip++;
+        op_unknown();
+        return;
+    }
+    //note: any opcode prefix must come before REP
+    if(counter == 0){
+        eip++; //get past REP, and now will be at string opcode, Cycle will iterate past it (string opcodes are always 1 byte).
         return;
     }else{
-        uint32_t tmp=eip;
-        uint8_t t2=op_cache[0];
-        eip++;
-        *(uint64_t*)&op_cache=ReadQword(cCS,eip);
-        (this->*Opcodes[op_cache[0]])();
-        regs32[ECX]--;
-        eip=tmp-1;
+        uint32_t repEIP = eip;
+        eip++; //now at actual opcode (or prefix)
+        (this->*Opcodes[opbyte]();
+        if(AddressSize16){
+            *regs16[CX]--;
+        }else{
+            regs32[ECX]--;
+        }
+        eip=beginEIP - 1; //move to eip before REP (and prefixes), so that Cycle will iterate back to REP
         if(string_compares==1){
             string_compares=0;
-            if(t2==0xF2){ //repNE
-                if(freg.zf==1){ //exit...
-                    eip+=4;
+            if(repop==0xF2){ //repNE
+                if(freg.zf == 1){ //exit...
+                    eip = repEIP + 1; //
                     return;
                 }
             }else{
-                if((volatile uint8_t)freg.zf==0){ //exit...
-                    eip+=4;
+                if(freg.zf == 0){ //exit...
+                    eip = repEIP + 1;
                     return;
                 }
             }
@@ -197,9 +156,9 @@ void x86CPU::op_lock(){ //0xF0 prefix
 	#endif
 	Lock();
 	eip++;
-	*(uint64_t*)&op_cache=ReadQword(cCS,eip);
+    opbyte = ReadCode8(0);
 	//Add strict opcode testing for 386+
-	(this->*Opcodes[op_cache[0]])();
+	(this->*Opcodes[opbyte])();
 	Unlock();
 }
 
@@ -250,8 +209,10 @@ void x86CPU::op_wait(){
 log:  if cf=0 then al=0 else al=FF
 **/
 void x86CPU::op_salc(){ //set al on carry
-    if(freg.cf==0){*regs8[AL]=0;
-    }else{*regs8[AL]=0xFF;
+    if(freg.cf==0){
+        *regs8[AL]=0;
+    }else{
+        *regs8[AL]=0xFF;
     }
 
 }
@@ -261,31 +222,19 @@ void x86CPU::op_operand_override(){
     eip++; //increment past override byte
     OperandSize16 = true;
     *(uint64_t*)&op_cache=ReadQword(cCS,eip);
-    if(op_cache[0] == 0x0F){
-        //two byte opcode
-        eip++;
-        *(uint64_t*)&op_cache=ReadQword(cCS,eip);
-        (this->*opcodes_hosted_ext[op_cache[0]])();
-    }else {
-        (this->*opcodes_hosted[op_cache[0]])();
-    }
+    opbyte = ReadCode8(0);
+    (this->*opcodes_hosted[opbyte])();
     OperandSize16 = false;
 }
 
 //operand size override to 16bit
 void x86CPU::op_address_override(){
     eip++; //increment past override byte
-    OperandSize16 = true;
+    AddressSize16 = true;
     *(uint64_t*)&op_cache=ReadQword(cCS,eip);
-    if(op_cache[0] == 0x0F){
-        //two byte opcode
-        eip++;
-        *(uint64_t*)&op_cache=ReadQword(cCS,eip);
-        (this->*opcodes_hosted_ext[op_cache[0]])();
-    }else {
-        (this->*opcodes_hosted[op_cache[0]])();
-    }
-    OperandSize16 = false;
+    opbyte = ReadCode8(0);
+    (this->*opcodes_hosted[opbyte])();
+    AddressSize16 = false;
 }
 
 

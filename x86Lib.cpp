@@ -264,6 +264,11 @@ void x86CPU::Exec(int cyclecount){
 	}
 }
 
+void x86CPU::op_ext_0F(){
+    eip++;
+    opbyte = ReadCode8(0);
+    (this->*opcodes_hosted_ext[opbyte])();
+}
 
 void x86CPU::Cycle(){
 #ifdef ENABLE_OPCODE_CALLBACK
@@ -272,25 +277,26 @@ void x86CPU::Cycle(){
 	}
 #endif
 	CheckInterrupts();
-	*(uint64_t*)&op_cache=ReadQword(cCS,eip);
     wherebeen.push_back((uint32_t)eip);
     //note this bit for 0x0F checking could probably be better in this very critical loop
-    if(op_cache[0] == 0x0F){
+    beginEIP = eip;
+    opbyte = ReadCode8(0);
+    if(opbyte == 0x0F){
         //two byte opcode
         eip++;
-        *(uint64_t*)&op_cache=ReadQword(cCS,eip);
         #ifdef QTUM_DEBUG
-        lastOpcode = (0x0F << 8) || op_cache[0];
-        lastOpcodeStr = opcodes_hosted_ext_str[op_cache[0]];
+        lastOpcode = (0x0F << 8) || opbyte;
+        lastOpcodeStr = opcodes_hosted_ext_str[opbyte];
         #endif
-        (this->*Opcodes_ext[op_cache[0]])(); //if in 32-bit mode, then go to 16-bit opcode
+        opbyte = ReadCode8(0);
+        (this->*Opcodes_ext[opbyte])(); //if in 32-bit mode, then go to 16-bit opcode
     }else {
         #ifdef QTUM_DEBUG
-        lastOpcode = op_cache[0];
-        lastOpcodeStr = opcodes_hosted_str[op_cache[0]];
+        lastOpcode = opbyte;
+        lastOpcodeStr = opcodes_hosted_str[opbyte];
         #endif
         //operate on the this class with the opcode functions in this class
-        (this->*Opcodes[op_cache[0]])();
+        (this->*Opcodes[opbyte])();
     }
 	eip=eip+1;
 }
@@ -313,7 +319,7 @@ void x86CPU::InstallOp(uint8_t num,opcode func, opcode *opcode_table){
 void x86CPU::op_ext_group(){
 	eip++;
 	ModRM rm(this);
-	(this->*opcodes_hosted_ext_group[op_cache[0]][rm.GetExtra()])(rm);
+	(this->*opcodes_hosted_ext_group[opbyte][rm.GetExtra()])(rm);
 }
 
 void x86CPU::op_na(){
@@ -327,7 +333,7 @@ void x86CPU::InstallExtGroupOp(uint8_t opcode, uint8_t r_op, groupOpcode func){
 }
 
 #define STRINGIFY(x) #x
-#define op(n, f) InstallOp(n, &x86CPU::f); opcodes_hosted_str[n]=STRINGIFY(f)
+#define op(n, f) InstallOp(n, &x86CPU::f, opcodes_hosted); opcodes_hosted_str[n]=STRINGIFY(f)
 #define opx(n, f) InstallOp(n, &x86CPU::f, opcodes_hosted_ext); opcodes_hosted_ext_str[n]=STRINGIFY(f)
 #define opxg(n, i, f) InstallExtGroupOp(n, i, &x86CPU::f); opcodes_hosted_ext_group_str[n][i]=STRINGIFY(f)
 
@@ -359,6 +365,7 @@ void x86CPU::InitOpcodes(){
     op(0x0C, op_or_al_imm8);
     op(0x0D, op_or_axW_immW);
     op(0x0E, op_push_cs);
+    op(0x0F, op_ext_0F); //this is usually handled in Cycle, but for prefixes etc, we need this
     //0x0F reserved for 2 byte opcodes
     op(0x10, op_adc_rm8_r8);
     op(0x11, op_adc_rmW_rW);

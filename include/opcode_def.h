@@ -389,6 +389,7 @@ void op32_idiv_rm32(ModRM &rm);
 void op_movzx_rW_rm8();
 void op_movzx_r32_rmW();
 
+void op_ext_0F();
 
 //helpers
 void Push(uint32_t val);
@@ -426,7 +427,8 @@ void WriteDword(uint8_t segm,uint32_t off,uint32_t val);
 void WriteW(uint8_t segm,uint32_t off,uint32_t val);
 void WriteWA(uint8_t segm,uint32_t off,uint32_t val);
 
-uint32_t x86CPU::OpCache32(int index);
-uint16_t x86CPU::OpCache16(int index);
-uint8_t x86CPU::OpCache8(int index);
-
+uint32_t ReadCode32(int index);
+uint16_t ReadCode16(int index);
+uint8_t ReadCode8(int index);
+uint32_t ReadCodeW(int index);
+void ReadCode(void* buf, int index, size_t count);
