@@ -318,6 +318,15 @@ int main(int argc, char* argv[]){
 			cout << "Line: " << err.line << endl;
 			return 1;
 		}
+		catch(Mem_excp *err){
+			cout << "Memory Error!" <<endl;
+			cout << "Address: 0x" << hex << err->address << endl;
+			cout <<"OPCODE: " << cpu->GetLastOpcodeName() << "; hex: 0x" << hex << cpu->GetLastOpcode() << endl;
+			cpu->DumpState(cout);
+			cout << endl;
+			throw;
+			//return 1;
+		}
 	}
 	return 0;
 }

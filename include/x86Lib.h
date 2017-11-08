@@ -455,7 +455,7 @@ class x86CPU{
     uint8_t ReadCode8(int index);
     uint32_t ReadCodeW(int index);
     void ReadCode(void* buf, int index, size_t count);
-    
+
 	public:
 	MemorySystem *Memory;
 	PortSystem *Ports;
@@ -579,27 +579,27 @@ class x86CPU{
 	inline uint32_t ImmW(){
 		if(OperandSize16){
 			eip+=2;
-			return (uint32_t) ReadCode16(1);
+			return (uint32_t) ReadCode16(1-2);
 		}
 		eip+=4;
-		return ReadCode32(1);
+		return ReadCode32(1-4);
 	}
 	inline uint32_t ImmA(){
 		if(AddressSize16){
 			eip+=2;
-			return (uint32_t) ReadCode16(1);
+			return (uint32_t) ReadCode16(1-2);
 		}
 		eip+=4;
-		return ReadCode32(1);
+		return ReadCode32(1-4);
 	}
 
 	inline uint32_t DispW(){
 		if(AddressSize16){
 			eip+=2;
-			return (uint32_t) ReadCode16(1);
+			return (uint32_t) ReadCode16(1-2);
 		}
 		eip+=4;
-		return ReadCode32(1);
+		return ReadCode32(1-4);
 	}
 
 	inline uint32_t Reg(int which){

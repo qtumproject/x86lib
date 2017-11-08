@@ -219,7 +219,7 @@ ModRM::ModRM(x86CPU *this_cpu_){
 }
 
 ModRM::~ModRM(){
-    this_cpu->eip+=GetLength();
+    this_cpu->eip+=GetLength() - 1;
 }
 
 //reads immediate after ModRM

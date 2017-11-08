@@ -33,7 +33,6 @@ using namespace std;
 
 
 void x86CPU::op_group_80(){
-	eip++;
 	ModRM rm(this);
 	switch(rm.GetExtra()){
 		case 5:
@@ -71,7 +70,6 @@ void x86CPU::op_group_80(){
 }
 
 void x86CPU::op_group_81(){
-	eip++;
 	ModRM rm(this);
 	switch(rm.GetExtra()){
 		case 5:
@@ -108,7 +106,6 @@ void x86CPU::op_group_81(){
 }
 
 void x86CPU::op_group_83() {
-    eip++;
     ModRM rm(this);
     switch (rm.GetExtra()) {
         case 0:
@@ -146,7 +143,6 @@ void x86CPU::op_group_83() {
 
 
 void x86CPU::op_group_8F(){
-	eip++;
 	ModRM rm(this);
 	switch(rm.GetExtra()){
 		case 0:
@@ -161,7 +157,6 @@ void x86CPU::op_group_8F(){
 }
 
 void x86CPU::op_group_F6(){
-	eip++;
 	ModRM rm(this);
 	switch(rm.GetExtra()){
 		case 6:
@@ -195,7 +190,6 @@ void x86CPU::op_group_F6(){
 }
 
 void x86CPU::op_group_F7(){
-	eip++;
 	ModRM rm(this);
 	switch(rm.GetExtra()){
 		case 6:
@@ -246,7 +240,6 @@ void x86CPU::op_group_F7(){
 
 
 void x86CPU::op_group_FF(){
-	eip++;
 	ModRM rm(this);
 	switch(rm.GetExtra()){
 		case 4:
@@ -279,7 +272,6 @@ void x86CPU::op_group_FF(){
 }
 
 void x86CPU::op_group_FE(){
-	eip++;
 	ModRM rm(this);
 	switch(rm.GetExtra()){
 		case 0:
@@ -297,7 +289,6 @@ void x86CPU::op_group_FE(){
 }
 
 void x86CPU::op_group_D0(){
-	eip++;
 	ModRM rm(this);
 	switch(rm.GetExtra()){
 		case 7:
@@ -329,7 +320,6 @@ void x86CPU::op_group_D0(){
 }
 
 void x86CPU::op_group_D1(){
-	eip++;
 	ModRM rm(this);
 	switch(rm.GetExtra()){
 		case 7:
@@ -364,7 +354,6 @@ void x86CPU::op_group_D1(){
 
 
 void x86CPU::op_group_D2(){
-	eip++;
 	ModRM rm(this);
 	switch(rm.GetExtra()){
 		case 7:
@@ -398,7 +387,6 @@ void x86CPU::op_group_D2(){
 }
 
 void x86CPU::op_group_D3(){
-	eip++;
 	ModRM rm(this);
 	switch(rm.GetExtra()){
 		case 7:
