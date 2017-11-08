@@ -751,24 +751,20 @@ void x86CPU::op_sub_axW_immW(){ //0x2D
 
 
 void x86CPU::op_sub_rm8_r8(){
-	eip++;
 	ModRM rm8(this);
 	rm8.WriteByte(Sub8(rm8.ReadByte(),*regs8[rm8.GetExtra()]));
 }
 
 void x86CPU::op_sub_rmW_rW(){
-	eip++;
 	ModRM rm(this);
 	rm.WriteW(SubW(rm.ReadW(),Reg(rm.GetExtra())));
 }
 void x86CPU::op_sub_r8_rm8(){
-	eip++;
 	ModRM rm8(this);
 	*regs8[rm8.GetExtra()]=Sub8(*regs8[rm8.GetExtra()],rm8.ReadByte());
 }
 
 void x86CPU::op_sub_rW_rmW(){
-	eip++;
 	ModRM rm(this);
 	WriteReg(rm.GetExtra(), SubW(Reg(rm.GetExtra()), rm.ReadW()));
 }
@@ -796,22 +792,18 @@ void x86CPU::op_sbb_axW_immW(){
 }
 
 void x86CPU::op_sbb_rmW_rW(){
-	eip++;
 	ModRM rm(this);
 	rm.WriteW(SubW(rm.ReadW(), Reg(rm.GetExtra())-freg.cf)); //is this correct with CF subtracting as a 32bit integer? 
 }
 void x86CPU::op_sbb_r8_rm8(){
-	eip++;
 	ModRM rm8(this);
 	*regs8[rm8.GetExtra()]=Sub8(*regs8[rm8.GetExtra()],rm8.ReadByte()-freg.cf);
 }
 void x86CPU::op_sbb_rm8_r8(){
-    eip++;
     ModRM rm8(this);
     rm8.WriteByte(Sub8(rm8.ReadByte(), *regs8[rm8.GetExtra()] - freg.cf));
 }
 void x86CPU::op_sbb_rW_rmW(){
-	eip++;
 	ModRM rm(this);
 	WriteReg(rm.GetExtra(), SubW(Reg(rm.GetExtra()), rm.ReadW()-freg.cf));
 }
@@ -859,25 +851,21 @@ void x86CPU::op_cmp_axW_immW(){
 }
 
 void x86CPU::op_cmp_rm8_r8(){
-	eip++;
 	ModRM rm(this);
 	Sub8(rm.ReadByte(),*regs8[rm.GetExtra()]);
 }
 
 void x86CPU::op_cmp_rmW_rW(){
-	eip++;
 	ModRM rm(this);
 	SubW(rm.ReadW(),Reg(rm.GetExtra()));
 }
 
 void x86CPU::op_cmp_r8_rm8(){
-	eip++;
 	ModRM rm(this);
 	Sub8(*regs8[rm.GetExtra()],rm.ReadByte());
 }
 
 void x86CPU::op_cmp_rW_rmW(){
-	eip++;
 	ModRM rm(this);
 	SubW(Reg(rm.GetExtra()),rm.ReadW());
 }
@@ -905,26 +893,22 @@ void x86CPU::op_add_axW_immW(){
 }
 
 void x86CPU::op_add_rm8_r8(){
-	eip++;
 	ModRM rm8(this);
 	rm8.WriteByte(Add8(rm8.ReadByte(),*regs8[rm8.GetExtra()]));
 }
 
 void x86CPU::op_add_rmW_rW(){
-	eip++;
 	ModRM rm(this);
 	rm.WriteW(AddW(rm.ReadW(),Reg(rm.GetExtra())));
 }
 
 
 void x86CPU::op_add_r8_rm8(){
-	eip++;
 	ModRM rm(this);
 	*regs8[rm.GetExtra()]=Add8(*regs8[rm.GetExtra()],rm.ReadByte());
 }
 
 void x86CPU::op_add_rW_rmW(){
-	eip++;
 	ModRM rm(this);
 	WriteReg(rm.GetExtra(), AddW(Reg(rm.GetExtra()), rm.ReadW()));
 }
@@ -953,25 +937,21 @@ void x86CPU::op_adc_axW_immW(){
 }
 
 void x86CPU::op_adc_rm8_r8(){
-	eip++;
 	ModRM rm8(this);
 	rm8.WriteByte(Add8(rm8.ReadByte(),*regs8[rm8.GetExtra()]+freg.cf));
 }
 
 void x86CPU::op_adc_rmW_rW(){
-	eip++;
 	ModRM rm(this);
 	rm.WriteW(AddW(rm.ReadW(),Reg(rm.GetExtra())+freg.cf));
 }
 
 void x86CPU::op_adc_r8_rm8(){
-	eip++;
 	ModRM rm(this);
 	*regs8[rm.GetExtra()]=Add8(*regs8[rm.GetExtra()],rm.ReadByte()+freg.cf);
 }
 
 void x86CPU::op_adc_rW_rmW(){
-	eip++;
 	ModRM rm(this);
 	WriteReg(rm.GetExtra(), AddW(Reg(rm.GetExtra()), rm.ReadW() + freg.cf));
 }
@@ -1203,25 +1183,21 @@ void x86CPU::op32_imul_rm32(ModRM &rm){
 
 
 void x86CPU::op_and_rm8_r8(){
-	eip++;
 	ModRM rm(this);
 	rm.WriteByte(And8(rm.ReadByte(),*regs8[rm.GetExtra()]));
 }
 
 void x86CPU::op_and_rmW_rW(){
-	eip++;
 	ModRM rm(this);
 	rm.WriteW(AndW(rm.ReadW(),Reg(rm.GetExtra())));
 }
 
 void x86CPU::op_and_r8_rm8(){
-	eip++;
 	ModRM rm(this);
 	*regs8[rm.GetExtra()]=And8(*regs8[rm.GetExtra()],rm.ReadByte());
 }
 
 void x86CPU::op_and_rW_rmW(){
-	eip++;
 	ModRM rm(this);
 	WriteReg(rm.GetExtra(), AndW(Reg(rm.GetExtra()), rm.ReadW()));
 }
@@ -1248,25 +1224,21 @@ void x86CPU::op_and_rmW_imm8(ModRM& rm){ //TODO is AND sign extended!? Intel man
 }
 
 void x86CPU::op_or_rm8_r8(){
-	eip++;
 	ModRM rm(this);
 	rm.WriteByte(Or8(rm.ReadByte(),*regs8[rm.GetExtra()]));
 }
 
 void x86CPU::op_or_rmW_rW(){
-	eip++;
 	ModRM rm(this);
 	rm.WriteW(OrW(rm.ReadW(),Reg(rm.GetExtra())));
 }
 
 void x86CPU::op_or_r8_rm8(){
-	eip++;
 	ModRM rm(this);
 	*regs8[rm.GetExtra()]=Or8(*regs8[rm.GetExtra()],rm.ReadByte());
 }
 
 void x86CPU::op_or_rW_rmW(){
-	eip++;
 	ModRM rm(this);
 	WriteReg(rm.GetExtra(), OrW(Reg(rm.GetExtra()), rm.ReadW()));
 }
@@ -1294,25 +1266,21 @@ void x86CPU::op_or_rmW_imm8(ModRM& rm){
 
 
 void x86CPU::op_xor_rm8_r8(){
-	eip++;
 	ModRM rm(this);
 	rm.WriteByte(Xor8(rm.ReadByte(),*regs8[rm.GetExtra()]));
 }
 
 void x86CPU::op_xor_rmW_rW(){
-	eip++;
 	ModRM rm(this);
 	rm.WriteW(XorW(rm.ReadW(), Reg(rm.GetExtra())));
 }
 
 void x86CPU::op_xor_r8_rm8(){
-	eip++;
 	ModRM rm(this);
 	*regs8[rm.GetExtra()]=Xor8(*regs8[rm.GetExtra()],rm.ReadByte());
 }
 
 void x86CPU::op_xor_rW_rmW(){
-	eip++;
 	ModRM rm(this);
 	WriteReg(rm.GetExtra(), XorW(Reg(rm.GetExtra()), rm.ReadW()));
 }
@@ -1339,13 +1307,11 @@ void x86CPU::op_xor_rmW_imm8(ModRM& rm){
 }
 
 void x86CPU::op_test_rm8_r8(){
-	eip++;
 	ModRM rm(this);
 	And8(rm.ReadByte(),*regs8[rm.GetExtra()]);
 }
 
 void x86CPU::op_test_rmW_rW(){
-	eip++;
 	ModRM rm(this);
 	AndW(rm.ReadW(),Reg(rm.GetExtra()));
 }
