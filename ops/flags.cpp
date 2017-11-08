@@ -72,18 +72,20 @@ static bool jcc(int condition, volatile FLAGS &f){
 }
 
 void x86CPU::op_jcc_rel8(){
-    int cc = op_cache[0]-0x70;
+    int cc = opbyte-0x70;
+    uint8_t rel = ReadCode8(1);
     eip+=2;
     if(jcc(cc, freg)){
-        Jmp_near8(op_cache[1]);
+        Jmp_near8(rel);
     }
 }
 
 void x86CPU::op_jcc_relW(){
-    int cc = op_cache[0]-0x80;
+    int cc = opbyte-0x80;
+    uint32_t rel = ReadCodeW(1);
     eip+=OperandSize() + 1; //1 to move past current opcode
     if(jcc(cc, freg)){
-        Jmp_nearW(*(uint32_t*)&op_cache[1]);
+        Jmp_nearW(rel);
     }
     eip--;
 }

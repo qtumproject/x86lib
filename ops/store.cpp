@@ -37,36 +37,32 @@ using namespace std;
 
 
 void x86CPU::op_mov_r8_imm8(){ //0xB0+r
-	*regs8[op_cache[0]-0xB0]=op_cache[1];
+	*regs8[opbyte-0xB0]=ReadCode8(1);
 	eip++;
 }
 
 void x86CPU::op_mov_rW_immW(){ //0xB8+r
-    WriteReg(op_cache[0]-0xB8, W(*(uint32_t*)&op_cache[1]));
+    WriteReg(opbyte-0xB8, ReadCodeW(1));
 	eip+=OperandSize();
 }
 
 void x86CPU::op_mov_sr_rm16(){ //0x8E
-    eip++;
     ModRM rm(this);
     //need ModRM for parsing, but otherwise it's a no-op
 }
 
 void x86CPU::op_mov_rm16_sr(){ //0x8C
-    eip++;
     ModRM rm(this);
     rm.WriteWord(0);
 }
 
 
 void x86CPU::op_mov_rW_rmW(){
-	eip++;
 	ModRM rm(this);
 	WriteReg(rm.GetExtra(), rm.ReadW());
 }
 
 void x86CPU::op_mov_rmW_rW(){
-	eip++;
 	ModRM rm(this);
 	rm.WriteW(Reg(rm.GetExtra()));
 }
@@ -79,13 +75,11 @@ void x86CPU::op_mov_axW_mW(){
 }
 
 void x86CPU::op_mov_rm8_r8(){
-	eip++;
 	ModRM rm(this);
 	rm.WriteByte(*regs8[rm.GetExtra()]);
 }
 
 void x86CPU::op_mov_r8_rm8(){
-	eip++;
 	ModRM rm(this);
 	*regs8[rm.GetExtra()]=rm.ReadByte();
 }
@@ -98,7 +92,6 @@ void x86CPU::op_mov_mW_axW(){
 }
 
 void x86CPU::op_mov_rm8_imm8(){
-	eip++;
 	ModRM rm(this);
 	
 	//eventually fix this so that if r is used, then invalid opcode...
@@ -107,7 +100,6 @@ void x86CPU::op_mov_rm8_imm8(){
 }
 
 void x86CPU::op_mov_rmW_immW(){
-    eip++;
     ModRM rm(this);
     rm.WriteW(ReadW(cCS,eip+rm.GetLength()));
     eip+=OperandSize();
@@ -122,7 +114,6 @@ void x86CPU::op_les(){
 }
 
 void x86CPU::op_lea(){
-	eip++;
 	ModRM rm(this);
 	WriteReg(rm.GetExtra(), rm.ReadOffset());
 }
@@ -130,8 +121,8 @@ void x86CPU::op_lea(){
 
 
 void x86CPU::op_push_imm8(){
-	eip++;
-	Push(op_cache[1]);
+	Push(ReadCode8(1));
+    eip++;
 }
 void x86CPU::op_push_rmW(ModRM &rm){
 	Push(rm.ReadW());
@@ -142,7 +133,7 @@ void x86CPU::op_push_immW(){ //0x68
 }
 
 void x86CPU::op_push_rW(){ //0x50+reg
-	Push(Reg(op_cache[0]-0x50));
+	Push(Reg(opbyte-0x50));
 }
 
 void x86CPU::op_push_es(){
@@ -166,7 +157,7 @@ void x86CPU::op_pop_rmW(ModRM &rm){
 }
 
 void x86CPU::op_pop_rW(){ //0x58+reg
-	WriteReg(op_cache[0]-0x58, Pop());
+	WriteReg(opbyte-0x58, Pop());
 }
 
 void x86CPU::op_pop_es(){
@@ -182,15 +173,15 @@ void x86CPU::op_pop_ds(){
 }
 
 void x86CPU::op_out_imm8_al(){
-	Ports->Write(op_cache[1],1,(void*)regs8[AL]);
+	Ports->Write(ReadCode8(1),1,(void*)regs8[AL]);
 	eip++;
 }
 
 void x86CPU::op_out_imm8_axW(){
     if(OperandSize16){
-        Ports->Write(op_cache[1],2,(void*)regs16[AX]);
+        Ports->Write(ReadCode8(1),2,(void*)regs16[AX]);
     }else{
-        Ports->Write(op_cache[1],4,(void*)&regs32[EAX]);
+        Ports->Write(ReadCode8(1),4,(void*)&regs32[EAX]);
     }
 	eip++;
 }
@@ -208,15 +199,15 @@ void x86CPU::op_out_dx_axW(){
 }
 
 void x86CPU::op_in_al_imm8(){
-	Ports->Read(op_cache[1],1,(void*)regs8[AL]);
+	Ports->Read(ReadCode8(1),1,(void*)regs8[AL]);
 	eip++;
 }
 
 void x86CPU::op_in_axW_imm8(){
     if(OperandSize16){
-    	Ports->Read(op_cache[1],2,(void*)regs16[AX]);
+    	Ports->Read(ReadCode8(1),2,(void*)regs16[AX]);
     }else{
-        Ports->Read(op_cache[1],4,(void*)&regs32[EAX]);
+        Ports->Read(ReadCode8(1),4,(void*)&regs32[EAX]);
     }
 	eip++;
 }
@@ -243,7 +234,6 @@ void x86CPU::op_xchg_rm8_r8(){
 	}
 	#endif
 	Lock();
-	eip++;
 	ModRM rm(this);
 	uint8_t tmp=*regs8[rm.GetExtra()];
 	*regs8[rm.GetExtra()]=rm.ReadByte();
@@ -258,7 +248,6 @@ void x86CPU::op_xchg_rmW_rW(){
 	}
 	#endif
 	Lock();
-	eip++;
 	ModRM rm(this);
 	uint32_t tmp=Reg(rm.GetExtra());
     WriteReg(rm.GetExtra(), rm.ReadW());
@@ -268,8 +257,8 @@ void x86CPU::op_xchg_rmW_rW(){
 
 void x86CPU::op_xchg_axW_rW(){ //0x90+r
 	uint32_t tmp=Reg(AX);
-	WriteReg(AX, Reg(op_cache[0]-0x90));
-	WriteReg(op_cache[0]-0x90, tmp);
+	WriteReg(AX, Reg(opbyte-0x90));
+	WriteReg(opbyte-0x90, tmp);
 }
 
 void x86CPU::op_xlatb(){
@@ -277,12 +266,10 @@ void x86CPU::op_xlatb(){
 }
 
 void x86CPU::op_movzx_rW_rm8(){
-    eip++;
     ModRM rm(this);
     WriteReg(rm.GetExtra(), rm.ReadByte());
 }
 void x86CPU::op_movzx_r32_rmW(){
-    eip++;
     ModRM rm(this);
     regs32[rm.GetExtra()] = rm.ReadWord();
 }
