@@ -741,7 +741,7 @@ uint32_t x86CPU::RotateCarryRightW(uint32_t base,uint8_t arg){
 
 
 void x86CPU::op_sub_al_imm8(){ //0x2C
-	*regs8[AL]=Sub8(*regs8[AL],op_cache[1]);
+	*regs8[AL]=Sub8(*regs8[AL],ReadCode8(1));
 	eip++;
 }
 
@@ -787,7 +787,7 @@ void x86CPU::op_sub_rmW_imm8(ModRM &rm){ //group 0x83 /5
 
 /****/
 void x86CPU::op_sbb_al_imm8(){
-	*regs8[AL]=Sub8(*regs8[AL],op_cache[1]-freg.cf);
+	*regs8[AL]=Sub8(*regs8[AL],ReadCode8(1)-freg.cf);
 	eip++;
 }
 
@@ -831,7 +831,7 @@ void x86CPU::op_sbb_rmW_imm8(ModRM &rm){ //group 0x83
 
 void x86CPU::op_dec_rW(){ //0x48+r
 	freg.r0=freg.cf;
-	WriteReg(op_cache[0]-0x48, SubW(Reg(op_cache[0]-0x48), 1));
+	WriteReg(opbyte-0x48, SubW(Reg(opbyte-0x48), 1));
 	freg.cf=freg.r0;
 }
 
@@ -850,7 +850,7 @@ void x86CPU::op_dec_rmW(ModRM& rm){
 
 //cmp and sub are so similar, that they are both going in here...
 void x86CPU::op_cmp_al_imm8(){
-	Sub8(*regs8[AL],op_cache[1]);
+	Sub8(*regs8[AL],ReadCode8(1));
 	eip++;
 }
 
@@ -896,7 +896,7 @@ void x86CPU::op_cmp_rmW_imm8(ModRM &rm){ //group 83 /7
 
 
 void x86CPU::op_add_al_imm8(){
-	*regs8[AL]=Add8(*regs8[AL],op_cache[1]);
+	*regs8[AL]=Add8(*regs8[AL],ReadCode8(1));
 	eip++;
 }
 
@@ -944,7 +944,7 @@ void x86CPU::op_add_rmW_imm8(ModRM &rm){ //group 0x83 /0
 
 /****/
 void x86CPU::op_adc_al_imm8(){
-	*regs8[AL]=Add8(*regs8[AL],op_cache[1]+freg.cf);
+	*regs8[AL]=Add8(*regs8[AL],ReadCode8(1)+freg.cf);
 	eip++;
 }
 
@@ -991,7 +991,7 @@ void x86CPU::op_adc_rmW_imm8(ModRM &rm){ //group 0x83 /2
 
 void x86CPU::op_inc_rW(){ //0x40+r
 	freg.r0=freg.cf;
-	WriteReg(op_cache[0]-0x40, AddW(Reg((op_cache[0] - 0x40)), 1));
+	WriteReg(opbyte-0x40, AddW(Reg((opbyte - 0x40)), 1));
 	freg.cf=freg.r0;
 }
 
@@ -1227,8 +1227,8 @@ void x86CPU::op_and_rW_rmW(){
 }
 
 void x86CPU::op_and_al_imm8(){
-	eip++;
-	*regs8[AL]=And8(*regs8[AL],op_cache[1]);
+	*regs8[AL]=And8(*regs8[AL],ReadCode8(1));
+    eip++;
 }
 
 void x86CPU::op_and_axW_immW(){
@@ -1272,8 +1272,8 @@ void x86CPU::op_or_rW_rmW(){
 }
 
 void x86CPU::op_or_al_imm8(){
-	eip++;
-	*regs8[AL]=Or8(*regs8[AL],op_cache[1]);
+	*regs8[AL]=Or8(*regs8[AL],ReadCode8(1));
+    eip++;
 }
 
 void x86CPU::op_or_axW_immW(){
@@ -1318,8 +1318,8 @@ void x86CPU::op_xor_rW_rmW(){
 }
 
 void x86CPU::op_xor_al_imm8(){
-	eip++;
-	*regs8[AL]=Xor8(*regs8[AL],op_cache[1]);
+	*regs8[AL]=Xor8(*regs8[AL],ReadCode8(1));
+    eip++;
 }
 
 void x86CPU::op_xor_axW_immW(){
@@ -1351,8 +1351,8 @@ void x86CPU::op_test_rmW_rW(){
 }
 
 void x86CPU::op_test_al_imm8(){
-	eip++;
-	And8(*regs8[AL],op_cache[1]);
+	And8(*regs8[AL],ReadCode8(1));
+    eip++;
 }
 void x86CPU::op_test_axW_immW(){
 	AndW(Reg(AX), ImmW());
@@ -1560,17 +1560,20 @@ void x86CPU::op_aad_imm8(){
 	//for "apparently" no reason. But really, it is just
 	//undocumented... the 0x0A in the second byte is for
 	//multiplecation...but it can be changed...
-	*regs8[AL]=(*regs8[AH])*(op_cache[1])+*regs8[AL];
+	*regs8[AL]=(*regs8[AH])*(ReadCode8(1))+*regs8[AL];
 	*regs8[AH]=0;
+    eip++;
 }
 
 void x86CPU::op_aam_imm8(){
 	//same wiht the 0x0A operand as above..
-	if(op_cache[1]==0){
+    uint8_t imm = ReadCode8(1);
+	if(imm==0){
 		throw CpuInt_excp(DIV0_IEXCP);
 	}
-	*regs8[AH]=(*regs8[AL])/op_cache[1];
-	*regs8[AL]=(*regs8[AL])%op_cache[1];
+	*regs8[AH]=(*regs8[AL])/imm;
+	*regs8[AL]=(*regs8[AL])%imm;
+    eip++;
 }
 
 
