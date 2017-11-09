@@ -58,7 +58,7 @@ void x86CPU::op_cmpsW(){
 }
 
 void x86CPU::op_lodsb(){
-	*regs8[AL]=ReadByte(DS,Reg(SI));
+	SetReg8(AL, ReadByte(DS,Reg(SI)));
 	SetIndex8();
 }
 void x86CPU::op_lodsW(){
@@ -69,7 +69,7 @@ void x86CPU::op_lodsW(){
 void x86CPU::op_scasb(){
 	uint8_t prev = ReadCode8(-1);
 	if( prev == 0xF3 || prev == 0xF2) string_compares=1;
-	Sub8(*regs8[AL],ReadByte(cES,Reg(DI)));
+	Sub8(Reg8(AL),ReadByte(cES,Reg(DI)));
 	SetIndex8();
 }
 void x86CPU::op_scasW(){
@@ -80,7 +80,7 @@ void x86CPU::op_scasW(){
 }
 
 void x86CPU::op_stosb(){
-	WriteByte(ES,Reg(DI),*regs8[AL]);
+	WriteByte(ES,Reg(DI), Reg8(AL));
 	SetIndex8();
 }
 

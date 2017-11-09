@@ -84,7 +84,7 @@ void x86CPU::op_rep(){ //repe and repne..(different opcodes, but I make them pos
     //use a string_compares variable...
     uint32_t counter;
     if(AddressSize16){
-        counter = *regs16[CX];
+        counter = Reg16(CX);
     }else{
         counter = regs32[ECX];
     }
@@ -121,9 +121,9 @@ void x86CPU::op_rep(){ //repe and repne..(different opcodes, but I make them pos
         eip++; //now at actual opcode (or prefix)
         (this->*Opcodes[opbyte])();
         if(AddressSize16){
-            *regs16[CX]--;
+            SetReg16(CX, Reg16(CX) - 1);
         }else{
-            regs32[ECX]--;
+            SetReg32(ECX, Reg32(ECX) - 1);
         }
         eip=beginEIP - 1; //move to eip before REP (and prefixes), so that Cycle will iterate back to REP
         if(string_compares==1){
@@ -162,9 +162,9 @@ void x86CPU::op_lock(){ //0xF0 prefix
 
 void x86CPU::op_cbW(){
     if(OperandSize16){
-        *regs16[AX] = SignExtend8to16(*regs8[AL]);
+        SetReg16(AX, SignExtend8to16(Reg8(AL)));
     }else{
-        regs32[EAX] = SignExtend16to32(*regs16[AL]);
+        regs32[EAX] = SignExtend16to32(Reg16(AX));
     }
 }
 
@@ -172,10 +172,10 @@ void x86CPU::op_cbW(){
 
 void x86CPU::op_cwE(){
 	if(OperandSize16){
-		if(*regs16[AX]>=0x8000){
-			*regs16[DX]=0xFFFF;
+		if(Reg16(AX)>=0x8000){
+			SetReg16(DX, 0xFFFF);
 		}else{
-			*regs16[DX]=0;
+            SetReg16(DX, 0);
 		}
 	}else{
 	    if(regs32[EAX]>=0x80000000){
@@ -206,9 +206,9 @@ log:  if cf=0 then al=0 else al=FF
 **/
 void x86CPU::op_salc(){ //set al on carry
     if(freg.cf==0){
-        *regs8[AL]=0;
+        SetReg8(AL, 0);
     }else{
-        *regs8[AL]=0xFF;
+        SetReg8(AL, 0xFF);
     }
 
 }
