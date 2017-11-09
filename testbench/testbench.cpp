@@ -33,7 +33,7 @@ This file is part of the x86Lib project.
 #include <string.h>
 #include <stdlib.h>
 #undef X86LIB_BUILD //so we don't need special makefile flags for this specific file.
-#include <x86Lib.h>
+#include <x86lib.h>
 
 using namespace std;
 using namespace x86Lib;

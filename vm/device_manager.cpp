@@ -32,7 +32,7 @@ This file is part of the x86Lib project.
 #include <stdlib.h>
 #include <stdio.h>
 #include <cstring>
-#include <x86Lib.h>
+#include <x86lib.h>
 
 
 namespace x86Lib{

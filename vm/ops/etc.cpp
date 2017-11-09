@@ -27,7 +27,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 This file is part of the x86Lib project.
 **/
-#include <x86Lib.h>
+#include <x86lib.h>
 #include <sstream>
 
 

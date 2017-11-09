@@ -36,7 +36,7 @@ This file is part of the x86Lib project.
 #include <string>
 
 #ifdef X86LIB_BUILD
-#include <x86Lib_internal.h>
+#include <x86lib_internal.h>
 #endif
 
 //! The main namespace of x86Lib
