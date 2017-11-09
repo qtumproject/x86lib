@@ -31,7 +31,7 @@ _OBJS=objs/x86Lib.o objs/ops/ect.o objs/ops/groups.o objs/ops/store.o objs/ops/f
       objs/device_manager.o objs/modrm.o objs/cpu_helpers.o
 
 
-debug_CPPFLAGS=-Wall -g3 -O3 -fexceptions -I./include -DX86LIB_BUILD -fPIC -Wall
+debug_CPPFLAGS=-Wall -g3 -fexceptions -I./include -DX86LIB_BUILD -fPIC -Wall
 release_CPPFLAGS=-Os -I./include -DX86LIB_BUILD
 profile_CPPFLAGS=-pg -O2 -fexceptions -I./include -DX86LIB_BUILD
 #_CPPFLAGS=-O2 -march=athlon64 -I./include -DX86LIB_BUILD
