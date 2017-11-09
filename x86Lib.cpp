@@ -73,7 +73,7 @@ void x86CPU::Reset(){
 	ResetSegments();
 	eip=0x1000;
 	seg[cCS]=0;
-	*(uint16_t*)&freg=0;
+	freg.data=0;
     regs32[ESP] = 0x1FF000; //set stack to reasonable address for Qtum
 	string_compares=0;
 	int_pending=0;
@@ -93,7 +93,7 @@ void x86CPU::SaveState(x86SaveData *save){
 	for(i=0;i<7;i++){
 		save->seg[i]=seg[i];
 	}
-	save->freg=*(uint16_t*)&freg;
+	save->freg=freg.data;
 	save->eip=eip;
 	save->seg_route[cES]=ES;
 	save->seg_route[cCS]=CS;
@@ -115,7 +115,7 @@ void x86CPU::LoadState(x86SaveData &load){
 	for(i=0;i<7;i++){
 		seg[i]=load.seg[i];
 	}
-	*(uint16_t*)&freg=load.freg;
+	freg.data=load.freg;
 	eip=load.eip;
 	ES=load.seg_route[cES];
 	CS=load.seg_route[cCS];
@@ -147,7 +147,7 @@ void x86CPU::DumpState(ostream &output){
 	output << "GS: " << hex << seg[cGS] << endl;
 	output << "EIP: " << hex << eip << endl;
 
-	output << "--Flags:" <<hex << *(uint16_t*)&freg<< endl;
+	output << "--Flags:" <<hex << freg.data << endl;
 	output << "CF: " << (int)freg.bits.cf << endl;
 	output << "PF: " << (int)freg.bits.pf << endl;
 	output << "AF: " << (int)freg.bits.af << endl;

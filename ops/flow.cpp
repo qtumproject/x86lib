@@ -138,8 +138,10 @@ void x86CPU::op_int_imm8(){
 void x86CPU::op_iret(){
 	//TODO mark fault handled
     eip=Pop();
+    Pop(); //throw away CS value
 	seg[cCS]=0; //Pop16();
-	*(uint32_t*)&freg=Pop();;
+    //Qtum ignores top 16 bits for iret
+    freg.data = (freg.data & 0xFFFF0000) | Pop();
 }
 
 void x86CPU::op_int3(){

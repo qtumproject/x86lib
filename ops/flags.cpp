@@ -121,10 +121,10 @@ void x86CPU::op_cmc(){
 }
 
 void x86CPU::op_lahf(){
-	SetReg8(AL, *(uint8_t*)&freg);
+	SetReg8(AL, freg.data & 0xFF);
 }
 void x86CPU::op_sahf(){
-	*(uint8_t*)&freg=Reg8(AL);
+    freg.data = (freg.data & 0xFFFFFF00) | Reg8(AL);
 }
 
 
