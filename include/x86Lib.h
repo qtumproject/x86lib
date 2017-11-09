@@ -602,23 +602,58 @@ class x86CPU{
 		return ReadCode32(1-4);
 	}
 
-	inline uint32_t Reg(int which){
-		if(OperandSize16){
-			return *regs16[which];
-		}else{
-			return regs32[which];
-		}
-	}
+
+    inline uint8_t Reg8(int which){
+        if(which < 4){
+            //0-3 is low bytes; al, cl, dl, bl
+            return regs32[which] & 0xFF;
+        }else{
+            //4-7 is high bytes; ah, ch, dh, bh
+            return (regs32[which - 4] & 0xFF00) >> 8;
+        }
+    }
+    inline uint16_t Reg16(int which){
+        uint32_t tmp = regs32[which];
+        return (tmp & 0xFFFF);
+    }
+
+    inline void SetReg8(int which, uint8_t val){
+        if(which < 4){
+            //0-3 is low bytes; al, cl, dl, bl
+            regs32[which] = (regs32[which] & 0xFFFFFF00) | val;
+        }else{
+            //4-7 is high bytes; ah, ch, dh, bh
+            regs32[which] = (regs32[which - 4] & 0xFFFF00FF) | (val << 8);
+        }
+    }
+    inline void SetReg16(int which, uint16_t val){
+        regs32[which] = (regs32[which] & 0xFFFF0000) | val;
+    }
+    //no real need for 32bit versions, but for consistency..
+    inline void SetReg32(int which, uint32_t val){
+        regs32[which] = val;
+    }
+    inline uint16_t Reg32(int which){
+        return regs32[which];
+    }
+
+    inline uint32_t Reg(int which){
+        if(OperandSize16){
+            return Reg16(which);
+        }else{
+            return regs32[which];
+        }
+    }
 	inline uint32_t RegA(int which){
 		if(AddressSize16){
-			return *regs16[which];
+            return Reg16(which);
 		}else{
 			return regs32[which];
 		}
 	}
-	inline void WriteReg(int which, uint32_t val){
+	inline void SetReg(int which, uint32_t val){
 		if(OperandSize16){
-			*regs16[which] = val;
+            SetReg16(which, val);
 		}else{
 			regs32[which] = val;
 		}

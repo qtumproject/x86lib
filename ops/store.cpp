@@ -42,7 +42,7 @@ void x86CPU::op_mov_r8_imm8(){ //0xB0+r
 }
 
 void x86CPU::op_mov_rW_immW(){ //0xB8+r
-    WriteReg(opbyte-0xB8, ReadCodeW(1));
+    SetReg(opbyte-0xB8, ReadCodeW(1));
 	eip+=OperandSize();
 }
 
@@ -59,7 +59,7 @@ void x86CPU::op_mov_rm16_sr(){ //0x8C
 
 void x86CPU::op_mov_rW_rmW(){
 	ModRM rm(this);
-	WriteReg(rm.GetExtra(), rm.ReadW());
+	SetReg(rm.GetExtra(), rm.ReadW());
 }
 
 void x86CPU::op_mov_rmW_rW(){
@@ -71,7 +71,7 @@ void x86CPU::op_mov_al_m8(){
     *regs8[AL] = ReadByteA(DS, ImmA());
 }
 void x86CPU::op_mov_axW_mW(){
-    WriteReg(AX, ReadWA(DS, ImmA()));
+    SetReg(AX, ReadWA(DS, ImmA()));
 }
 
 void x86CPU::op_mov_rm8_r8(){
@@ -115,7 +115,7 @@ void x86CPU::op_les(){
 
 void x86CPU::op_lea(){
 	ModRM rm(this);
-	WriteReg(rm.GetExtra(), rm.ReadOffset());
+	SetReg(rm.GetExtra(), rm.ReadOffset());
 }
 
 
@@ -157,7 +157,7 @@ void x86CPU::op_pop_rmW(ModRM &rm){
 }
 
 void x86CPU::op_pop_rW(){ //0x58+reg
-	WriteReg(opbyte-0x58, Pop());
+	SetReg(opbyte-0x58, Pop());
 }
 
 void x86CPU::op_pop_es(){
@@ -250,15 +250,15 @@ void x86CPU::op_xchg_rmW_rW(){
 	Lock();
 	ModRM rm(this);
 	uint32_t tmp=Reg(rm.GetExtra());
-    WriteReg(rm.GetExtra(), rm.ReadW());
+    SetReg(rm.GetExtra(), rm.ReadW());
 	rm.WriteW(tmp);
 	Unlock();
 }
 
 void x86CPU::op_xchg_axW_rW(){ //0x90+r
 	uint32_t tmp=Reg(AX);
-	WriteReg(AX, Reg(opbyte-0x90));
-	WriteReg(opbyte-0x90, tmp);
+	SetReg(AX, Reg(opbyte-0x90));
+	SetReg(opbyte-0x90, tmp);
 }
 
 void x86CPU::op_xlatb(){
@@ -267,7 +267,7 @@ void x86CPU::op_xlatb(){
 
 void x86CPU::op_movzx_rW_rm8(){
     ModRM rm(this);
-    WriteReg(rm.GetExtra(), rm.ReadByte());
+    SetReg(rm.GetExtra(), rm.ReadByte());
 }
 void x86CPU::op_movzx_r32_rmW(){
     ModRM rm(this);

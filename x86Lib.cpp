@@ -57,22 +57,7 @@ void x86CPU::Init(){
 
 void x86CPU::Reset(){
 	/**Initialize register pointers**/
-	regs16[0]=&((volatile uint16_t*)regs32)[0];
-	regs16[1]=&((volatile uint16_t*)regs32)[2];
-	regs16[2]=&((volatile uint16_t*)regs32)[4];
-	regs16[3]=&((volatile uint16_t*)regs32)[6];
-	regs16[4]=&((volatile uint16_t*)regs32)[8];
-	regs16[5]=&((volatile uint16_t*)regs32)[10];
-	regs16[6]=&((volatile uint16_t*)regs32)[12];
-	regs16[7]=&((volatile uint16_t*)regs32)[14];
-	regs8[0]=&((volatile uint8_t*)regs32)[0];
-	regs8[1]=&((volatile uint8_t*)regs32)[4];
-	regs8[2]=&((volatile uint8_t*)regs32)[8];
-	regs8[3]=&((volatile uint8_t*)regs32)[12], //now do all the highs
-	regs8[4]=&((volatile uint8_t*)regs32)[1];
-	regs8[5]=&((volatile uint8_t*)regs32)[5];
-	regs8[6]=&((volatile uint8_t*)regs32)[9];
-	regs8[7]=&((volatile uint8_t*)regs32)[13];
+
 	busmaster=0;
 	//assumes pmem and ports are still the same...
 	InitOpcodes();

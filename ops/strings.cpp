@@ -62,7 +62,7 @@ void x86CPU::op_lodsb(){
 	SetIndex8();
 }
 void x86CPU::op_lodsW(){
-	WriteReg(AX, ReadW(DS,Reg(SI)));
+	SetReg(AX, ReadW(DS,Reg(SI)));
 	SetIndex();
 }
 

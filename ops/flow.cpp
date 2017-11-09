@@ -94,7 +94,7 @@ void x86CPU::op_retn(){
 
 void x86CPU::op_loopcc_rel8(){ //handles loop, loopne, and loope
 	//loopne is 0xE0, loope is 0xE1, loop is 0xE2
-    WriteReg(ECX, Reg(ECX)-1);
+    SetReg(ECX, Reg(ECX)-1);
     uint8_t rel = ReadCode8(1);
     eip+=2;
     if((Reg(ECX)!=0) &&
