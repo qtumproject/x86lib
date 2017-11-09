@@ -37,7 +37,7 @@ using namespace std;
 
 
 void x86CPU::op_mov_r8_imm8(){ //0xB0+r
-	*regs8[opbyte-0xB0]=ReadCode8(1);
+	SetReg8(opbyte-0xB0, ReadCode8(1));
 	eip++;
 }
 
@@ -68,7 +68,7 @@ void x86CPU::op_mov_rmW_rW(){
 }
 
 void x86CPU::op_mov_al_m8(){
-    *regs8[AL] = ReadByteA(DS, ImmA());
+    SetReg8(AL, ReadByteA(DS, ImmA()));
 }
 void x86CPU::op_mov_axW_mW(){
     SetReg(AX, ReadWA(DS, ImmA()));
@@ -76,15 +76,15 @@ void x86CPU::op_mov_axW_mW(){
 
 void x86CPU::op_mov_rm8_r8(){
 	ModRM rm(this);
-	rm.WriteByte(*regs8[rm.GetExtra()]);
+	rm.WriteByte(Reg8(rm.GetExtra()));
 }
 
 void x86CPU::op_mov_r8_rm8(){
 	ModRM rm(this);
-	*regs8[rm.GetExtra()]=rm.ReadByte();
+	SetReg8(rm.GetExtra(), rm.ReadByte());
 }
 void x86CPU::op_mov_m8_al(){
-    WriteByte(DS, ImmA(), *regs8[AL]);
+    WriteByte(DS, ImmA(), Reg8(AL));
 }
 
 void x86CPU::op_mov_mW_axW(){
@@ -173,55 +173,67 @@ void x86CPU::op_pop_ds(){
 }
 
 void x86CPU::op_out_imm8_al(){
-	Ports->Write(ReadCode8(1),1,(void*)regs8[AL]);
+    uint8_t tmp = Reg8(AL);
+	Ports->Write(ReadCode8(1),1, &tmp);
 	eip++;
 }
 
 void x86CPU::op_out_imm8_axW(){
+    uint32_t tmp = Reg(AX);
     if(OperandSize16){
-        Ports->Write(ReadCode8(1),2,(void*)regs16[AX]);
+        Ports->Write(ReadCode8(1),2, (void*) &tmp);
     }else{
-        Ports->Write(ReadCode8(1),4,(void*)&regs32[EAX]);
+        Ports->Write(ReadCode8(1),4, (void*) &tmp);
     }
 	eip++;
 }
 
 void x86CPU::op_out_dx_al(){
-	Ports->Write(*regs16[DX],1,(void*)regs8[AL]);
+    uint8_t tmp = Reg8(AL);
+	Ports->Write(Reg16(DX),1, (void*)&tmp);
 }
 
 void x86CPU::op_out_dx_axW(){
+    uint32_t tmp = Reg(AX);
     if(OperandSize16){
-        Ports->Write(*regs16[DX],2,(void*)regs16[AX]);
+        Ports->Write(Reg16(DX),2,(void*) &tmp);
     }else{
-        Ports->Write(*regs16[DX],4,(void*)&regs32[EAX]);
+        Ports->Write(Reg16(DX),4,(void*) &tmp);
     }
 }
 
 void x86CPU::op_in_al_imm8(){
-	Ports->Read(ReadCode8(1),1,(void*)regs8[AL]);
+    uint8_t tmp;
+	Ports->Read(ReadCode8(1),1,(void*) &tmp);
+    SetReg8(AL, tmp);
 	eip++;
 }
 
 void x86CPU::op_in_axW_imm8(){
+    uint32_t tmp;
     if(OperandSize16){
-    	Ports->Read(ReadCode8(1),2,(void*)regs16[AX]);
+    	Ports->Read(ReadCode8(1),2,(void*) &tmp);
     }else{
-        Ports->Read(ReadCode8(1),4,(void*)&regs32[EAX]);
+        Ports->Read(ReadCode8(1),4,(void*) &tmp);
     }
+    SetReg(AX, tmp);
 	eip++;
 }
 
 void x86CPU::op_in_al_dx(){
-	Ports->Read(*regs16[DX],1,(void*)regs8[AL]);
+    uint8_t tmp;
+	Ports->Read(Reg16(DX),1,(void*) &tmp);
+    SetReg8(AL, tmp);
 }
 
 void x86CPU::op_in_axW_dx(){
+    uint32_t tmp;
     if(OperandSize16){
-    	Ports->Read(*regs16[DX],2,(void*)regs16[AX]);
+    	Ports->Read(Reg16(DX),2,(void*) &tmp);
     }else{
-        Ports->Read(*regs16[DX],4,(void*)&regs32[EAX]);
+        Ports->Read(Reg16(DX),4,(void*) &tmp);
     }
+    SetReg(AX, tmp);
 }
 
 
@@ -235,8 +247,8 @@ void x86CPU::op_xchg_rm8_r8(){
 	#endif
 	Lock();
 	ModRM rm(this);
-	uint8_t tmp=*regs8[rm.GetExtra()];
-	*regs8[rm.GetExtra()]=rm.ReadByte();
+	uint8_t tmp=Reg8(rm.GetExtra());
+	SetReg8(rm.GetExtra(), rm.ReadByte());
 	rm.WriteByte(tmp);
 	Unlock();
 }
@@ -262,7 +274,7 @@ void x86CPU::op_xchg_axW_rW(){ //0x90+r
 }
 
 void x86CPU::op_xlatb(){
-    *regs8[AL] = ReadByteA(DS, RegA(BX) + (*regs8[AL]));
+    SetReg8(AL, ReadByteA(DS, RegA(BX) + (Reg8(AL))));
 }
 
 void x86CPU::op_movzx_rW_rm8(){
