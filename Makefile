@@ -26,37 +26,42 @@
 #
 #This file is part of the x86Lib project.
 
+TEST_CFLAGS := -fdata-sections -ffunction-sections
 
-_OBJS=objs/x86Lib.o objs/ops/ect.o objs/ops/groups.o objs/ops/store.o objs/ops/flags.o objs/ops/strings.o objs/ops/flow.o objs/ops/maths.o \
-      objs/device_manager.o objs/modrm.o objs/cpu_helpers.o
+HDRS := 
+CXX := g++
+AR := ar
+TEST_CC := i386-elf-gcc
 
+CXX_VM_SRC = vm/x86lib.cpp vm/modrm.cpp vm/device_manager.cpp vm/cpu_helpers.cpp vm/ops/strings.cpp vm/ops/store.cpp vm/ops/maths.cpp \
+		  vm/ops/groups.cpp vm/ops/flow.cpp vm/ops/flags.cpp vm/ops/etc.cpp
 
-debug_CPPFLAGS=-Wall -g3 -fexceptions -I./include -DX86LIB_BUILD -fPIC -Wall
+CXX_VM_OBJS = $(subst .cpp,.o,$(CXX_VM_SRC))
+
+CXXFLAGS := -Wall -g3 -fexceptions -I./include -DX86LIB_BUILD -fPIC -Wall
 release_CPPFLAGS=-Os -I./include -DX86LIB_BUILD
 profile_CPPFLAGS=-pg -O2 -fexceptions -I./include -DX86LIB_BUILD
 #_CPPFLAGS=-O2 -march=athlon64 -I./include -DX86LIB_BUILD
 #_CPPFLAGS=-O2 -save-temps -I./include -DX86LIB_BUILD
 
-#NOTE: Full(-O3) optimization does not work...it causes problems with op_cache.
-#but, every other optimization level works including for size(-Os)
-
-VERSION=1.0
+VERSION=1.1
 
 
-#target information:
-#default: will build the library and test application with debug information, and statically link it.
-#  default will not create the shared object, as it is assumed you only make this during development.
-#test: will build only the test application and asm code and will statically link it.
-#release: will build everything except asm source and will build using static linking.
-# this will also build iwth optimizations.
-#install_static: will install the static library into $(INSTALL_PREFIX)/usr/local/lib
-#install_header: will install the x86lib header into $(INSTALL_PREFIX)/usr/local/include
-#install_shared: will install the shared library into $(INSTALL_PREFIX)/usr/local/lib
-#install: will build shared-release, install_header, and install_shared targets.
-#install-static: will build release, install_header, and install_static targets.
-#uninstall: will remove the header, shared object, and static library from $(INSTALL_PREFIX)/usr/local
+OUTPUTS = libx86lib.a libx86lib.so.$(VERSION)
 
-testos_CFLAGS=-fdata-sections -ffunction-sections
+build: $(OUTPUTS)
+
+libx86lib.a: $(CXX_VM_OBJS)
+	ar crs libx86lib.a $(CXX_VM_OBJS)
+
+libx86lib.so.$(VERSION): $(CXX_VM_OBJS)
+	g++ -shared $(CXX_VM_OBJS) -o libx86lib.so.$(VERSION)
+
+$(CXX_VM_OBJS): $(HDRS) 
+	$(CXX) $(CXXFLAGS) -c $*.cpp -o $@
+
+clean:
+	rm $(CXX_VM_OBJS) $(OUTPUTS) 
 
 default:
 #build the library
