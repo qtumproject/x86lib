@@ -400,12 +400,9 @@ class ModRM{
 class x86CPU{
 	friend class ModRM;
 	volatile uint32_t regs32[8];
-	volatile uint16_t *regs16[8];
-	volatile uint8_t *regs8[8];
 	volatile uint16_t seg[7];
 	volatile uint32_t eip;
 	volatile FLAGS freg;
-	volatile uint8_t op_cacheX[8];
     //These variables should be used instead of cES etc when the segment register can not be overridden
 	volatile uint8_t ES;
 	volatile uint8_t CS;

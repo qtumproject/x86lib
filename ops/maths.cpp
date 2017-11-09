@@ -741,7 +741,7 @@ uint32_t x86CPU::RotateCarryRightW(uint32_t base,uint8_t arg){
 
 
 void x86CPU::op_sub_al_imm8(){ //0x2C
-	*regs8[AL]=Sub8(*regs8[AL],ReadCode8(1));
+	SetReg8(AL, Sub8(Reg8(AL),ReadCode8(1)));
 	eip++;
 }
 
@@ -752,7 +752,7 @@ void x86CPU::op_sub_axW_immW(){ //0x2D
 
 void x86CPU::op_sub_rm8_r8(){
 	ModRM rm8(this);
-	rm8.WriteByte(Sub8(rm8.ReadByte(),*regs8[rm8.GetExtra()]));
+	rm8.WriteByte(Sub8(rm8.ReadByte(),Reg8(rm8.GetExtra())));
 }
 
 void x86CPU::op_sub_rmW_rW(){
@@ -761,7 +761,7 @@ void x86CPU::op_sub_rmW_rW(){
 }
 void x86CPU::op_sub_r8_rm8(){
 	ModRM rm8(this);
-	*regs8[rm8.GetExtra()]=Sub8(*regs8[rm8.GetExtra()],rm8.ReadByte());
+	SetReg8(rm8.GetExtra(), Sub8(Reg8(rm8.GetExtra()),rm8.ReadByte()));
 }
 
 void x86CPU::op_sub_rW_rmW(){
@@ -783,7 +783,7 @@ void x86CPU::op_sub_rmW_imm8(ModRM &rm){ //group 0x83 /5
 
 /****/
 void x86CPU::op_sbb_al_imm8(){
-	*regs8[AL]=Sub8(*regs8[AL],ReadCode8(1)-freg.cf);
+	SetReg8(AL, Sub8(Reg8(AL),ReadCode8(1)-freg.cf));
 	eip++;
 }
 
@@ -797,11 +797,11 @@ void x86CPU::op_sbb_rmW_rW(){
 }
 void x86CPU::op_sbb_r8_rm8(){
 	ModRM rm8(this);
-	*regs8[rm8.GetExtra()]=Sub8(*regs8[rm8.GetExtra()],rm8.ReadByte()-freg.cf);
+	SetReg8(rm8.GetExtra(), Sub8(Reg8(rm8.GetExtra()),rm8.ReadByte()-freg.cf));
 }
 void x86CPU::op_sbb_rm8_r8(){
     ModRM rm8(this);
-    rm8.WriteByte(Sub8(rm8.ReadByte(), *regs8[rm8.GetExtra()] - freg.cf));
+    rm8.WriteByte(Sub8(rm8.ReadByte(), Reg8(rm8.GetExtra()) - freg.cf));
 }
 void x86CPU::op_sbb_rW_rmW(){
 	ModRM rm(this);
@@ -842,7 +842,7 @@ void x86CPU::op_dec_rmW(ModRM& rm){
 
 //cmp and sub are so similar, that they are both going in here...
 void x86CPU::op_cmp_al_imm8(){
-	Sub8(*regs8[AL],ReadCode8(1));
+	Sub8(Reg8(AL),ReadCode8(1));
 	eip++;
 }
 
@@ -852,7 +852,7 @@ void x86CPU::op_cmp_axW_immW(){
 
 void x86CPU::op_cmp_rm8_r8(){
 	ModRM rm(this);
-	Sub8(rm.ReadByte(),*regs8[rm.GetExtra()]);
+	Sub8(rm.ReadByte(),Reg8(rm.GetExtra()));
 }
 
 void x86CPU::op_cmp_rmW_rW(){
@@ -862,7 +862,7 @@ void x86CPU::op_cmp_rmW_rW(){
 
 void x86CPU::op_cmp_r8_rm8(){
 	ModRM rm(this);
-	Sub8(*regs8[rm.GetExtra()],rm.ReadByte());
+	Sub8(Reg8(rm.GetExtra()),rm.ReadByte());
 }
 
 void x86CPU::op_cmp_rW_rmW(){
@@ -884,7 +884,7 @@ void x86CPU::op_cmp_rmW_imm8(ModRM &rm){ //group 83 /7
 
 
 void x86CPU::op_add_al_imm8(){
-	*regs8[AL]=Add8(*regs8[AL],ReadCode8(1));
+	SetReg8(AL, Add8(Reg8(AL),ReadCode8(1)));
 	eip++;
 }
 
@@ -894,7 +894,7 @@ void x86CPU::op_add_axW_immW(){
 
 void x86CPU::op_add_rm8_r8(){
 	ModRM rm8(this);
-	rm8.WriteByte(Add8(rm8.ReadByte(),*regs8[rm8.GetExtra()]));
+	rm8.WriteByte(Add8(rm8.ReadByte(),Reg8(rm8.GetExtra())));
 }
 
 void x86CPU::op_add_rmW_rW(){
@@ -905,7 +905,7 @@ void x86CPU::op_add_rmW_rW(){
 
 void x86CPU::op_add_r8_rm8(){
 	ModRM rm(this);
-	*regs8[rm.GetExtra()]=Add8(*regs8[rm.GetExtra()],rm.ReadByte());
+	SetReg8(rm.GetExtra(), Add8(Reg8(rm.GetExtra()),rm.ReadByte()));
 }
 
 void x86CPU::op_add_rW_rmW(){
@@ -928,7 +928,7 @@ void x86CPU::op_add_rmW_imm8(ModRM &rm){ //group 0x83 /0
 
 /****/
 void x86CPU::op_adc_al_imm8(){
-	*regs8[AL]=Add8(*regs8[AL],ReadCode8(1)+freg.cf);
+	SetReg8(AL, Add8(Reg8(AL),ReadCode8(1)+freg.cf));
 	eip++;
 }
 
@@ -938,7 +938,7 @@ void x86CPU::op_adc_axW_immW(){
 
 void x86CPU::op_adc_rm8_r8(){
 	ModRM rm8(this);
-	rm8.WriteByte(Add8(rm8.ReadByte(),*regs8[rm8.GetExtra()]+freg.cf));
+	rm8.WriteByte(Add8(rm8.ReadByte(),Reg8(rm8.GetExtra())+freg.cf));
 }
 
 void x86CPU::op_adc_rmW_rW(){
@@ -948,7 +948,7 @@ void x86CPU::op_adc_rmW_rW(){
 
 void x86CPU::op_adc_r8_rm8(){
 	ModRM rm(this);
-	*regs8[rm.GetExtra()]=Add8(*regs8[rm.GetExtra()],rm.ReadByte()+freg.cf);
+	SetReg8(rm.GetExtra(), Add8(Reg8(rm.GetExtra()),rm.ReadByte()+freg.cf));
 }
 
 void x86CPU::op_adc_rW_rmW(){
@@ -1007,29 +1007,29 @@ void x86CPU::op_neg_rmW(ModRM &rm){
 }
 
 void x86CPU::op_div_rm8(ModRM &rm){
-	if(rm.ReadByte()==0){
+	if(rm.ReadByte() == 0){
 		throw CpuInt_excp(DIV0_IEXCP);
 	}
-	if(((*regs16[AX])/rm.ReadByte())>0xFF){
+	if(((Reg16(AX))/rm.ReadByte())>0xFF){
 		throw CpuInt_excp(DIV0_IEXCP); 
 	}
-	*regs8[AL]=(*regs16[AX])/rm.ReadByte();
-	*regs8[AH]=(*regs16[AX])%rm.ReadByte();
+	SetReg8(AL, Reg16(AX)/rm.ReadByte());
+	SetReg8(AL, Reg16(AX)%rm.ReadByte());
 }
 
 void x86CPU::op16_div_rm16(ModRM &rm){
-	if(rm.ReadWord()==0){
+	if(rm.ReadWord() == 0){
 		throw CpuInt_excp(DIV0_IEXCP);
 	}
-	if((((*regs16[DX]<<16)|(*regs16[AX]))/rm.ReadWord())>0xFFFF){
+	if((((Reg16(DX)<<16)|(Reg16(AX)))/rm.ReadWord())>0xFFFF){
 		throw CpuInt_excp(DIV0_IEXCP);
 	}
-	*regs16[AX]=((*regs16[DX]<<16)|(*regs16[AX]))/rm.ReadWord();
-	*regs16[DX]=((*regs16[DX]<<16)|(*regs16[AX]))%rm.ReadWord();
+	SetReg16(AX, ((Reg16(DX)<<16)|(Reg16(AX)))/rm.ReadWord());
+	SetReg16(DX, ((Reg16(DX)<<16)|(Reg16(AX)))%rm.ReadWord());
 }
 
 void x86CPU::op32_div_rm32(ModRM &rm){
-    if(rm.ReadDword()==0){
+    if(rm.ReadDword() == 0){
         throw CpuInt_excp(DIV0_IEXCP);
     }
     if((((uint64_t)regs32[EDX]<<32)|((uint64_t)regs32[EAX])/(uint64_t)rm.ReadDword()) > 0xFFFFFFFF){
@@ -1041,40 +1041,40 @@ void x86CPU::op32_div_rm32(ModRM &rm){
 
 
 void x86CPU::op_idiv_rm8(ModRM &rm){
-	if(rm.ReadByte()==0){
+	if(rm.ReadByte() ==0){
 		throw CpuInt_excp(DIV0_IEXCP);
 	}
 	uint8_t tmp=rm.ReadByte();
 	bool store1,store2;
 
 	tmp=Unsign8(tmp,store1);
-	*regs16[AX]=Unsign16(*regs16[AX],store2);
-	if(((*regs16[AX])/tmp)>0xFF){
+	SetReg16(AX, Unsign16(Reg16(AX),store2));
+	if(((Reg16(AX))/tmp)>0xFF){
 		throw CpuInt_excp(DIV0_IEXCP);
 	}
 
-	*regs8[AL]=(*regs16[AX])/tmp;
-	*regs8[AH]=(*regs16[AX])%tmp;
+	SetReg8(AL, (Reg16(AX))/tmp);
+	SetReg8(AH, (Reg16(AX))%tmp);
 
-	*regs8[AL]=Resign8(*regs8[AL],store1^store2);
+	SetReg8(AL, Resign8(Reg8(AL),store1^store2));
 }
 
 void x86CPU::op16_idiv_rm16(ModRM &rm){
-	if(rm.ReadWord()==0){
+	if(rm.ReadWord() ==0){
 		throw CpuInt_excp(DIV0_IEXCP);
 	}
 	uint16_t tmp=rm.ReadWord();
 	bool store1,store2;
 	tmp=Unsign16(tmp,store1);
-	uint32_t tmp2=Unsign32(((*regs16[DX])<<16)|(*regs16[AX]),store2);
+	uint32_t tmp2=Unsign32(((Reg16(DX))<<16)|(Reg16(AX)),store2);
 
 	if((tmp2/tmp)>0xFFFF){
 		throw CpuInt_excp(DIV0_IEXCP);
 	}
-	*regs16[AX]=tmp2/tmp;
-	*regs16[DX]=tmp2%tmp;
+	SetReg16(AX, tmp2/tmp);
+	SetReg16(DX, tmp2%tmp);
 
-	*regs16[AX]=Resign16(*regs16[AX],store1^store2);
+	SetReg16(AX, Resign16(Reg16(AX),store1^store2));
 }
 
 void x86CPU::op32_idiv_rm32(ModRM &rm){
@@ -1098,8 +1098,8 @@ void x86CPU::op32_idiv_rm32(ModRM &rm){
 
 
 void x86CPU::op_mul_rm8(ModRM &rm){
-    *regs16[AX]=(*regs8[AL])*rm.ReadByte();
-    if((*regs8[AH])>0){ //if tophalf of result has anything in it
+    SetReg16(AX, (Reg8(AL))*rm.ReadByte());
+    if((Reg8(AH))>0){ //if tophalf of result has anything in it
         freg.cf=1;
         freg.of=1;
     }else{
@@ -1111,10 +1111,10 @@ void x86CPU::op_mul_rm8(ModRM &rm){
 
 void x86CPU::op16_mul_rm16(ModRM &rm){
 	uint32_t result;
-    result=(*regs16[AX])*rm.ReadWord();
-    *regs16[AX]=result&0x0000FFFF;
-    *regs16[DX]=(result&0xFFFF0000)>>16;
-    if((*regs16[DX])>0){ //if tophalf of result has anything in it
+    result=(Reg16(AX))*rm.ReadWord();
+    SetReg16(AX, result&0x0000FFFF);
+    SetReg16(DX, (result&0xFFFF0000)>>16);
+    if((Reg16(DX))>0){ //if tophalf of result has anything in it
         freg.cf=1;
         freg.of=1;
     }else{
@@ -1139,20 +1139,20 @@ void x86CPU::op32_mul_rm32(ModRM &rm){
 
 void x86CPU::op_imul_rm8(ModRM &rm){
 	bool store1,store2;
-	*regs16[AX]=Unsign8(*regs8[AL],store1)*Unsign8(rm.ReadByte(),store2);
-	if(*regs8[AX]>0){
+	SetReg16(AX, Unsign8(Reg8(AL),store1)*Unsign8(rm.ReadByte(),store2));
+	if(Reg16(AX)>0){
 		freg.of=1;
 		freg.cf=1;
 	}else{
 		freg.of=0;
 		freg.cf=0;
 	}
-	*regs16[AX]=Resign16(*regs16[AX],store1^store2);
+	SetReg16(AX, Resign16(Reg16(AX),store1^store2));
 }
 
 void x86CPU::op16_imul_rm16(ModRM &rm){
 	bool store1,store2;
-	uint32_t result=Unsign16(*regs16[AX],store1)*Unsign16(rm.ReadWord(),store2);
+	uint32_t result=Unsign16(Reg16(AX),store1)*Unsign16(rm.ReadWord(),store2);
 	if((result&0xFFFF0000)>0){
 		freg.of=1;
 		freg.cf=1;
@@ -1161,8 +1161,8 @@ void x86CPU::op16_imul_rm16(ModRM &rm){
 		freg.cf=0;
 	}
 	result=Resign32(result,store1^store2);
-	*regs16[DX]=(result&0xFFFF0000)>>16;
-	*regs16[AX]=(result&0xFFFF);
+	SetReg16(DX, (result&0xFFFF0000)>>16);
+	SetReg16(AX, (result&0xFFFF));
 }
 
 void x86CPU::op32_imul_rm32(ModRM &rm){
@@ -1184,7 +1184,7 @@ void x86CPU::op32_imul_rm32(ModRM &rm){
 
 void x86CPU::op_and_rm8_r8(){
 	ModRM rm(this);
-	rm.WriteByte(And8(rm.ReadByte(),*regs8[rm.GetExtra()]));
+	rm.WriteByte(And8(rm.ReadByte(),Reg8(rm.GetExtra())));
 }
 
 void x86CPU::op_and_rmW_rW(){
@@ -1194,7 +1194,7 @@ void x86CPU::op_and_rmW_rW(){
 
 void x86CPU::op_and_r8_rm8(){
 	ModRM rm(this);
-	*regs8[rm.GetExtra()]=And8(*regs8[rm.GetExtra()],rm.ReadByte());
+	SetReg8(rm.GetExtra(), And8(Reg8(rm.GetExtra()),rm.ReadByte()));
 }
 
 void x86CPU::op_and_rW_rmW(){
@@ -1203,7 +1203,7 @@ void x86CPU::op_and_rW_rmW(){
 }
 
 void x86CPU::op_and_al_imm8(){
-	*regs8[AL]=And8(*regs8[AL],ReadCode8(1));
+	SetReg8(AL, And8(Reg8(AL),ReadCode8(1)));
     eip++;
 }
 
@@ -1225,7 +1225,7 @@ void x86CPU::op_and_rmW_imm8(ModRM& rm){ //TODO is AND sign extended!? Intel man
 
 void x86CPU::op_or_rm8_r8(){
 	ModRM rm(this);
-	rm.WriteByte(Or8(rm.ReadByte(),*regs8[rm.GetExtra()]));
+	rm.WriteByte(Or8(rm.ReadByte(),Reg8(rm.GetExtra())));
 }
 
 void x86CPU::op_or_rmW_rW(){
@@ -1235,7 +1235,7 @@ void x86CPU::op_or_rmW_rW(){
 
 void x86CPU::op_or_r8_rm8(){
 	ModRM rm(this);
-	*regs8[rm.GetExtra()]=Or8(*regs8[rm.GetExtra()],rm.ReadByte());
+	SetReg8(rm.GetExtra(), Or8(Reg8(rm.GetExtra()),rm.ReadByte()));
 }
 
 void x86CPU::op_or_rW_rmW(){
@@ -1244,7 +1244,7 @@ void x86CPU::op_or_rW_rmW(){
 }
 
 void x86CPU::op_or_al_imm8(){
-	*regs8[AL]=Or8(*regs8[AL],ReadCode8(1));
+	SetReg8(AL, Or8(Reg8(AL),ReadCode8(1)));
     eip++;
 }
 
@@ -1267,7 +1267,7 @@ void x86CPU::op_or_rmW_imm8(ModRM& rm){
 
 void x86CPU::op_xor_rm8_r8(){
 	ModRM rm(this);
-	rm.WriteByte(Xor8(rm.ReadByte(),*regs8[rm.GetExtra()]));
+	rm.WriteByte(Xor8(rm.ReadByte(),Reg8(rm.GetExtra())));
 }
 
 void x86CPU::op_xor_rmW_rW(){
@@ -1277,7 +1277,7 @@ void x86CPU::op_xor_rmW_rW(){
 
 void x86CPU::op_xor_r8_rm8(){
 	ModRM rm(this);
-	*regs8[rm.GetExtra()]=Xor8(*regs8[rm.GetExtra()],rm.ReadByte());
+	SetReg8(rm.GetExtra(), Xor8(Reg8(rm.GetExtra()),rm.ReadByte()));
 }
 
 void x86CPU::op_xor_rW_rmW(){
@@ -1286,7 +1286,7 @@ void x86CPU::op_xor_rW_rmW(){
 }
 
 void x86CPU::op_xor_al_imm8(){
-	*regs8[AL]=Xor8(*regs8[AL],ReadCode8(1));
+	SetReg8(AL, Xor8(Reg8(AL),ReadCode8(1)));
     eip++;
 }
 
@@ -1308,7 +1308,7 @@ void x86CPU::op_xor_rmW_imm8(ModRM& rm){
 
 void x86CPU::op_test_rm8_r8(){
 	ModRM rm(this);
-	And8(rm.ReadByte(),*regs8[rm.GetExtra()]);
+	And8(rm.ReadByte(),Reg8(rm.GetExtra()));
 }
 
 void x86CPU::op_test_rmW_rW(){
@@ -1317,7 +1317,7 @@ void x86CPU::op_test_rmW_rW(){
 }
 
 void x86CPU::op_test_al_imm8(){
-	And8(*regs8[AL],ReadCode8(1));
+	And8(Reg8(AL),ReadCode8(1));
     eip++;
 }
 void x86CPU::op_test_axW_immW(){
@@ -1337,53 +1337,53 @@ void x86CPU::op_test_rmW_imm8(ModRM& rm){
 }
 
 void x86CPU::op_shr_rm8_cl(ModRM &rm){
-	rm.WriteByte(ShiftLogicalRight8(rm.ReadByte(),*regs8[CL]));
+	rm.WriteByte(ShiftLogicalRight8(rm.ReadByte(),Reg8(CL)));
 }
 void x86CPU::op_shr_rmW_cl(ModRM &rm){
-	rm.WriteW(ShiftLogicalRightW(rm.ReadW(),*regs8[CL]));
+	rm.WriteW(ShiftLogicalRightW(rm.ReadW(),Reg8(CL)));
 }
 
 void x86CPU::op_shl_rm8_cl(ModRM &rm){
-	rm.WriteByte(ShiftLogicalLeft8(rm.ReadByte(),*regs8[CL]));
+	rm.WriteByte(ShiftLogicalLeft8(rm.ReadByte(),Reg8(CL)));
 }
 void x86CPU::op_shl_rmW_cl(ModRM &rm){
-	rm.WriteW(ShiftLogicalLeftW(rm.ReadW(),*regs8[CL]));
+	rm.WriteW(ShiftLogicalLeftW(rm.ReadW(),Reg8(CL)));
 }
 
 void x86CPU::op_sar_rm8_cl(ModRM &rm){
-	rm.WriteByte(ShiftArithmeticRight8(rm.ReadByte(),*regs8[CL]));
+	rm.WriteByte(ShiftArithmeticRight8(rm.ReadByte(),Reg8(CL)));
 }
 void x86CPU::op_sar_rmW_cl(ModRM &rm){
-	rm.WriteW(ShiftArithmeticRightW(rm.ReadW(),*regs8[CL]));
+	rm.WriteW(ShiftArithmeticRightW(rm.ReadW(),Reg8(CL)));
 }
 
 void x86CPU::op_rol_rm8_cl(ModRM &rm){
-	rm.WriteByte(RotateLeft8(rm.ReadByte(),*regs8[CL]));
+	rm.WriteByte(RotateLeft8(rm.ReadByte(),Reg8(CL)));
 }
 void x86CPU::op_rol_rmW_cl(ModRM &rm){
-	rm.WriteW(RotateLeftW(rm.ReadW(),*regs8[CL]));
+	rm.WriteW(RotateLeftW(rm.ReadW(),Reg8(CL)));
 }
 
 void x86CPU::op_ror_rm8_cl(ModRM &rm){
-	rm.WriteByte(RotateRight8(rm.ReadByte(),*regs8[CL]));
+	rm.WriteByte(RotateRight8(rm.ReadByte(),Reg8(CL)));
 }
 void x86CPU::op_ror_rmW_cl(ModRM &rm){
-	rm.WriteW(RotateRightW(rm.ReadW(),*regs8[CL]));
+	rm.WriteW(RotateRightW(rm.ReadW(),Reg8(CL)));
 }
 
 
 void x86CPU::op_rcl_rm8_cl(ModRM &rm){
-	rm.WriteByte(RotateCarryLeft8(rm.ReadByte(),*regs8[CL]));
+	rm.WriteByte(RotateCarryLeft8(rm.ReadByte(),Reg8(CL)));
 }
 void x86CPU::op_rcl_rmW_cl(ModRM &rm){
-	rm.WriteW(RotateCarryLeftW(rm.ReadW(),*regs8[CL]));
+	rm.WriteW(RotateCarryLeftW(rm.ReadW(),Reg8(CL)));
 }
 
 void x86CPU::op_rcr_rm8_cl(ModRM &rm){
-	rm.WriteByte(RotateCarryRight8(rm.ReadByte(),*regs8[CL]));
+	rm.WriteByte(RotateCarryRight8(rm.ReadByte(),Reg8(CL)));
 }
 void x86CPU::op_rcr_rmW_cl(ModRM &rm){
-	rm.WriteW(RotateCarryRightW(rm.ReadW(),*regs8[CL]));
+	rm.WriteW(RotateCarryRightW(rm.ReadW(),Reg8(CL)));
 }
 
 
@@ -1456,9 +1456,9 @@ Modified to work with x86Lib by Jordan(hckr83)
 
 /* Opcode: 0x37 */
 void x86CPU::op_aaa() {
-	if((*regs8[AL] & 0x0f) > 9 || freg.af == 1) {
-		*regs8[AL] += 6;
-		*regs8[AH]++;
+	if((Reg8(AL) & 0x0f) > 9 || freg.af == 1) {
+		SetReg8(AL, Reg8(AL) + 6);
+		SetReg8(AH, Reg8(AH) + 1);
 		freg.af = 1;
 		freg.cf = 1;
 	}
@@ -1466,21 +1466,21 @@ void x86CPU::op_aaa() {
 		freg.af = 0;
 		freg.cf = 0;
 	}
-	*regs8[AL] = *regs8[AL] & 0x0f;
+	SetReg8(AL, Reg8(AL) & 0x0f);
 }
 
 
 /* Opcode: 0x27 */
 void x86CPU::op_daa() {
-	if((*regs8[AL] & 0x0f) > 9 || freg.af == 1) {
-		*regs8[AL] += 6;
-		*regs8[AH]++;
+	if((Reg8(AL) & 0x0f) > 9 || freg.af == 1) {
+		SetReg8(AL, Reg8(AL) + 6);
+		SetReg8(AH, Reg8(AH) + 1);
 	}
 	else
 		freg.af = 0;
 
-	if(*regs8[AL] > 0x9f || freg.cf == 1) {
-			*regs8[AL] = *regs8[AL] + 0x60;
+	if(Reg8(AL) > 0x9f || freg.cf == 1) {
+			SetReg8(AL, Reg8(AL) + 0x60);
 			freg.cf = 1;
 	}
 	else
@@ -1489,15 +1489,15 @@ void x86CPU::op_daa() {
 
 /* Opcode: 0x2F */
 void x86CPU::op_das() {
-	if((*regs8[AL] & 0x0f) > 9 || freg.af == 1) {
-		*regs8[AL] -= 6;
+	if((Reg8(AL) & 0x0f) > 9 || freg.af == 1) {
+		SetReg8(AL, Reg8(AL) - 6);
 		freg.af = 1;
 	}
 	else
 		freg.af = 0;
 
-	if(*regs8[AL] > 0x9f || freg.cf == 1) {
-			*regs8[AL] -= 0x60;
+	if(Reg8(AL) > 0x9f || freg.cf == 1) {
+			SetReg8(AL, Reg8(AL) - 0x60);
 			freg.cf = 1;
 	}
 	else
@@ -1506,9 +1506,9 @@ void x86CPU::op_das() {
 
 /* Opcode: 0x3F */
 void x86CPU::op_aas() {
-	if((*regs8[AL] & 0x0f) > 9 || freg.af == 1) {
-		*regs8[AL] -= 6;
-		*regs8[AH]--;
+	if((Reg8(AL) & 0x0f) > 9 || freg.af == 1) {
+		SetReg8(AL, Reg8(AL) -6);
+		SetReg8(AH, Reg8(AH) - 1);
 		freg.af = 1;
 		freg.cf = 1;
 	}
@@ -1516,7 +1516,7 @@ void x86CPU::op_aas() {
 		freg.af = 0;
 		freg.cf = 0;
 	}
-	*regs8[AL] = *regs8[AL] & 0x0f;
+	SetReg8(AL, Reg8(AL) & 0x0f);
 }
 
 
@@ -1526,8 +1526,8 @@ void x86CPU::op_aad_imm8(){
 	//for "apparently" no reason. But really, it is just
 	//undocumented... the 0x0A in the second byte is for
 	//multiplecation...but it can be changed...
-	*regs8[AL]=(*regs8[AH])*(ReadCode8(1))+*regs8[AL];
-	*regs8[AH]=0;
+	SetReg8(AL, (Reg8(AH))*(ReadCode8(1))+Reg8(AL));
+	SetReg8(AH, 0);
     eip++;
 }
 
@@ -1537,8 +1537,8 @@ void x86CPU::op_aam_imm8(){
 	if(imm==0){
 		throw CpuInt_excp(DIV0_IEXCP);
 	}
-	*regs8[AH]=(*regs8[AL])/imm;
-	*regs8[AL]=(*regs8[AL])%imm;
+	SetReg8(AH, (Reg8(AL))/imm);
+	SetReg8(AL, (Reg8(AL))%imm);
     eip++;
 }
 
