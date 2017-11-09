@@ -148,15 +148,15 @@ void x86CPU::DumpState(ostream &output){
 	output << "EIP: " << hex << eip << endl;
 
 	output << "--Flags:" <<hex << *(uint16_t*)&freg<< endl;
-	output << "CF: " << (int)freg.cf << endl;
-	output << "PF: " << (int)freg.pf << endl;
-	output << "AF: " << (int)freg.af << endl;
-	output << "ZF: " << (int)freg.zf << endl;
-	output << "SF: " << (int)freg.sf << endl;
-	output << "TF: " << (int)freg.tf << endl;
-	output << "IF: " << (int)freg._if << endl;
-	output << "DF: " << (int)freg.df << endl;
-	output << "OF: " << (int)freg.of << endl;
+	output << "CF: " << (int)freg.bits.cf << endl;
+	output << "PF: " << (int)freg.bits.pf << endl;
+	output << "AF: " << (int)freg.bits.af << endl;
+	output << "ZF: " << (int)freg.bits.zf << endl;
+	output << "SF: " << (int)freg.bits.sf << endl;
+	output << "TF: " << (int)freg.bits.tf << endl;
+	output << "IF: " << (int)freg.bits._if << endl;
+	output << "DF: " << (int)freg.bits.df << endl;
+	output << "OF: " << (int)freg.bits.of << endl;
 }
 
 void x86CPU::Int(uint8_t num){ //external interrupt
@@ -180,12 +180,12 @@ int x86CPU::CheckInterrupts(){
 		int_pending=0;
 		return 1;
 	}
-	if(freg._if==0){
+	if(freg.bits._if==0){
 		if(cli_count>1){
 			cli_count--;
 		}else{
 			if(cli_count!=0){
-				freg._if=1;
+				freg.bits._if=1;
 			}
 		}
 	}else{

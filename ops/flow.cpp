@@ -98,7 +98,7 @@ void x86CPU::op_loopcc_rel8(){ //handles loop, loopne, and loope
     uint8_t rel = ReadCode8(1);
     eip+=2;
     if((Reg(ECX)!=0) &&
-     		(opbyte == 0xE2 || (freg.zf==(opbyte & 0x1)))){
+     		(opbyte == 0xE2 || (freg.bits.zf==(opbyte & 0x1)))){
         Jmp_near8(rel);
     }
 }
@@ -151,7 +151,7 @@ void x86CPU::op_int1(){
 }
 
 void x86CPU::op_into(){
-	if(freg.of==1){
+	if(freg.bits.of==1){
 		Int16(4);
 	}
 }

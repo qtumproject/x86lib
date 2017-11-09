@@ -25,7 +25,7 @@ uint32_t x86CPU::Pop(){
 }
 
 void x86CPU::SetIndex8(){ //this just makes my code look better...
-    if(freg.df==0){
+    if(freg.bits.df==0){
         SetReg16(SI, Reg(SI) + 1);
         SetReg16(DI, Reg(DI) + 1);
     }else{
@@ -42,7 +42,7 @@ void x86CPU::SetIndex(){
     }
 }
 void x86CPU::SetIndex16(){
-    if(freg.df==0){
+    if(freg.bits.df==0){
         SetReg16(SI, Reg(SI) + 2);
         SetReg16(DI, Reg(DI) + 2);
     }else{
@@ -52,7 +52,7 @@ void x86CPU::SetIndex16(){
 }
 
 void x86CPU::SetIndex32(){
-    if(freg.df==0){
+    if(freg.bits.df==0){
         (regs32[ESI])+=4;
         (regs32[EDI])+=4;
     }else{
@@ -66,7 +66,7 @@ void x86CPU::CalculatePF8(uint8_t val){
     for(i=0;i<=7;i++){
         if((val&((1<<i)))!=0){count++;}
     }
-    if((count%2)==0){freg.pf=1;}else{freg.pf=0;}
+    if((count%2)==0){freg.bits.pf=1;}else{freg.bits.pf=0;}
 }
 
 void x86CPU::CalculatePF(uint32_t val){
@@ -85,7 +85,7 @@ void x86CPU::CalculatePF16(uint16_t val){
         /* TODO (Jordan#4#): speed this up! */
         if((val&((1<<i)))!=0){count++;}
     }
-    if((count%2)==0){freg.pf=1;}else{freg.pf=0;}
+    if((count%2)==0){freg.bits.pf=1;}else{freg.bits.pf=0;}
 #else
     //x86 ASM optimization..
     __asm(".intel_syntax noprefix\n"
@@ -101,7 +101,7 @@ void x86CPU::CalculatePF16(uint16_t val){
     __asm(".intel_syntax noprefix\n"
     ".local .end__:\n"
     ".att_syntax\n");
-    freg.pf=val;
+    freg.bits.pf=val;
     return;
 #endif
 }
@@ -114,7 +114,7 @@ void x86CPU::CalculatePF32(uint32_t val){
         /* TODO (Jordan#4#): speed this up! */
         if((val&((1<<i)))!=0){count++;}
     }
-    if((count%2)==0){freg.pf=1;}else{freg.pf=0;}
+    if((count%2)==0){freg.bits.pf=1;}else{freg.bits.pf=0;}
 #else
     #error "not yet supported"
     //x86 ASM optimization..
@@ -131,14 +131,14 @@ void x86CPU::CalculatePF32(uint32_t val){
     __asm(".intel_syntax noprefix\n"
     ".local .end__:\n"
     ".att_syntax\n");
-    freg.pf=val;
+    freg.bits.pf=val;
     return;
 #endif
 }
 
 //these calculate SF for the given operand size
 void x86CPU::CalculateSF8(uint8_t val){
-    if((val&0x80)==0){freg.sf=0;}else{freg.sf=1;}
+    if((val&0x80)==0){freg.bits.sf=0;}else{freg.bits.sf=1;}
 }
 
 void x86CPU::CalculateSF(uint32_t val){
@@ -149,11 +149,11 @@ void x86CPU::CalculateSF(uint32_t val){
     }
 }
 void x86CPU::CalculateSF16(uint16_t val){
-    if((val&0x8000)==0){freg.sf=0;}else{freg.sf=1;}
+    if((val&0x8000)==0){freg.bits.sf=0;}else{freg.bits.sf=1;}
 }
 
 void x86CPU::CalculateSF32(uint32_t val){
-    if((val&0x80000000)==0){freg.sf=0;}else{freg.sf=1;}
+    if((val&0x80000000)==0){freg.bits.sf=0;}else{freg.bits.sf=1;}
 }
 
 void x86CPU::Jmp_nearW(uint32_t off){

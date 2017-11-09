@@ -34,39 +34,39 @@ using namespace std;
 
 uint8_t x86CPU::Sub8(uint8_t base,uint8_t subt){
     int8_t result;
-    if(subt>base){freg.cf=1;}else{freg.cf=0;}
+    if(subt>base){freg.bits.cf=1;}else{freg.bits.cf=0;}
     if((int16_t)base-subt>127 || (int16_t)base-subt<-127){
-            freg.of=1;
+            freg.bits.of=1;
         }else{
-            freg.of=0;
+            freg.bits.of=0;
         }
     result=base-subt;
-    if(result==0){freg.zf=1;}else{freg.zf=0;}
+    if(result==0){freg.bits.zf=1;}else{freg.bits.zf=0;}
     CalculatePF8(result); //do pf
     CalculateSF8(result); //do sf
 	base&=0xF;
 	subt&=0xF; 
-    freg.af = (((base-subt) & ~0xf) != 0); //thank you http://stackoverflow.com/questions/4513746/explain-how-the-af-flag-works-in-an-x86-instructions
+    freg.bits.af = (((base-subt) & ~0xf) != 0); //thank you http://stackoverflow.com/questions/4513746/explain-how-the-af-flag-works-in-an-x86-instructions
     return result;
 }
 
 uint16_t x86CPU::Sub16(uint16_t base,uint16_t subt){
     int16_t result;
     uint16_t mirror;
-    if(subt>base){freg.cf=1;}else{freg.cf=0;}
+    if(subt>base){freg.bits.cf=1;}else{freg.bits.cf=0;}
     if((int32_t)base-subt>32767 || (int32_t)base-subt<-32767){
-            freg.of=1;
+            freg.bits.of=1;
         }else{
-            freg.of=0;
+            freg.bits.of=0;
         }
     mirror=base-subt;
     result=mirror;
-    if(result==0){freg.zf=1;}else{freg.zf=0;}
+    if(result==0){freg.bits.zf=1;}else{freg.bits.zf=0;}
     CalculatePF16(result); //do pf
     CalculateSF16(result); //do sf
 	base&=0xF;
 	subt&=0xF; 
-    freg.af = (((base-subt) & ~0xf) != 0); 
+    freg.bits.af = (((base-subt) & ~0xf) != 0); 
     return mirror;
 }
 
@@ -76,18 +76,18 @@ uint32_t x86CPU::Sub32(uint32_t base,uint32_t subt){
     int64_t result64 = (int64_t) base - (int64_t) subt;
     mirror=base-subt;
     result=mirror;
-    if(subt>base){freg.cf=1;}else{freg.cf=0;}
+    if(subt>base){freg.bits.cf=1;}else{freg.bits.cf=0;}
     if(result64 > INT32_MAX || result64 < INT32_MIN){
-        freg.of=1;
+        freg.bits.of=1;
     }else{
-        freg.of=0;
+        freg.bits.of=0;
     }
-    if(result==0){freg.zf=1;}else{freg.zf=0;}
+    if(result==0){freg.bits.zf=1;}else{freg.bits.zf=0;}
     CalculatePF32(result); //do pf
     CalculateSF32(result); //do sf
     base&=0xF;
     subt&=0xF;
-    freg.af = (((base-subt) & ~0xf) != 0);
+    freg.bits.af = (((base-subt) & ~0xf) != 0);
     return mirror;
 }
 uint32_t x86CPU::SubW(uint32_t base,uint32_t subt){
@@ -100,37 +100,37 @@ uint32_t x86CPU::SubW(uint32_t base,uint32_t subt){
 
 uint8_t x86CPU::Add8(uint8_t base,uint8_t adder){
     int8_t result;
-    if(adder+base>255){freg.cf=1;}else{freg.cf=0;}
+    if(adder+base>255){freg.bits.cf=1;}else{freg.bits.cf=0;}
     if((int16_t)base+adder>127 || (int16_t)base+adder<-127){
-            freg.of=1;
+            freg.bits.of=1;
         }else{
-            freg.of=0;
+            freg.bits.of=0;
         }
     result=base+adder;
-    if(result==0){freg.zf=1;}else{freg.zf=0;}
+    if(result==0){freg.bits.zf=1;}else{freg.bits.zf=0;}
     CalculatePF8(result); //do pf
     CalculateSF8(result); //do sf
 	base&=0x0F;
 	adder&=0x0F;
-    freg.af = ((int16_t)base+adder > 15);
+    freg.bits.af = ((int16_t)base+adder > 15);
     return result;
 }
 
 uint16_t x86CPU::Add16(uint16_t base,uint16_t adder){
     int16_t result;
-    if((uint32_t)adder+base>(uint32_t)65535){freg.cf=1;}else{freg.cf=0;}
+    if((uint32_t)adder+base>(uint32_t)65535){freg.bits.cf=1;}else{freg.bits.cf=0;}
     if((int32_t)base+adder>32767 || (int32_t)base+adder<-32767){
-            freg.of=1;
+            freg.bits.of=1;
         }else{
-            freg.of=0;
+            freg.bits.of=0;
         }
     result=base+adder;
-    if(result==0){freg.zf=1;}else{freg.zf=0;}
+    if(result==0){freg.bits.zf=1;}else{freg.bits.zf=0;}
     CalculatePF16(result); //do pf
     CalculateSF16(result); //do sf
 	base&=0x0F;
 	adder&=0x0F;
-    freg.af = ((int16_t)base+adder > 15);
+    freg.bits.af = ((int16_t)base+adder > 15);
     return result;
 }
 
@@ -138,18 +138,18 @@ uint32_t x86CPU::Add32(uint32_t base,uint32_t adder){
     int32_t result;
     result=(int32_t)(base+adder);
     int64_t result64 = (int64_t) base + (int64_t) adder;
-    if((uint64_t)adder+base>(uint64_t)UINT32_MAX){freg.cf=1;}else{freg.cf=0;}
+    if((uint64_t)adder+base>(uint64_t)UINT32_MAX){freg.bits.cf=1;}else{freg.bits.cf=0;}
     if(result64 > INT32_MAX || result64 < INT32_MIN){
-        freg.of=1;
+        freg.bits.of=1;
     }else{
-        freg.of=0;
+        freg.bits.of=0;
     }
-    if(result==0){freg.zf=1;}else{freg.zf=0;}
+    if(result==0){freg.bits.zf=1;}else{freg.bits.zf=0;}
     CalculatePF32(result); //do pf
     CalculateSF32(result); //do sf
     base&=0x0F;
     adder&=0x0F;
-    freg.af = result > 15;
+    freg.bits.af = result > 15;
     return result;
 }
 
@@ -164,43 +164,43 @@ uint32_t x86CPU::AddW(uint32_t base,uint32_t adder){
 
 
 uint8_t x86CPU::And8(uint8_t base,uint8_t mask){
-	freg.of=0;
-	freg.cf=0;
+	freg.bits.of=0;
+	freg.bits.cf=0;
 	base=base&mask;
 	CalculatePF8(base);
 	CalculateSF8(base);
 	if(base==0){
-		freg.zf=1;
+		freg.bits.zf=1;
 	}else{
-		freg.zf=0;
+		freg.bits.zf=0;
 	}
 	return base;
 }
 
 uint16_t x86CPU::And16(uint16_t base,uint16_t mask){
-	freg.of=0;
-	freg.cf=0;
+	freg.bits.of=0;
+	freg.bits.cf=0;
 	base=base&mask;
 	CalculatePF16(base);
 	CalculateSF16(base);
 	if(base==0){
-		freg.zf=1;
+		freg.bits.zf=1;
 	}else{
-		freg.zf=0;
+		freg.bits.zf=0;
 	}
 	return base;
 }
 
 uint32_t x86CPU::And32(uint32_t base,uint32_t mask){
-    freg.of=0;
-    freg.cf=0;
+    freg.bits.of=0;
+    freg.bits.cf=0;
     base=base&mask;
     CalculatePF32(base);
     CalculateSF32(base);
     if(base==0){
-        freg.zf=1;
+        freg.bits.zf=1;
     }else{
-        freg.zf=0;
+        freg.bits.zf=0;
     }
     return base;
 }
@@ -216,43 +216,43 @@ uint32_t x86CPU::AndW(uint32_t base,uint32_t mask){
 //Not affects no flags, so just use ~
 
 uint8_t x86CPU::Or8(uint8_t base,uint8_t mask){
-	freg.of=0;
-	freg.cf=0;
+	freg.bits.of=0;
+	freg.bits.cf=0;
 	base=base|mask;
 	CalculatePF8(base);
 	CalculateSF8(base);
 	if(base==0){
-		freg.zf=1;
+		freg.bits.zf=1;
 	}else{
-		freg.zf=0;
+		freg.bits.zf=0;
 	}
 	return base;
 }
 
 uint16_t x86CPU::Or16(uint16_t base,uint16_t mask){
-	freg.of=0;
-	freg.cf=0;
+	freg.bits.of=0;
+	freg.bits.cf=0;
 	base=base|mask;
 	CalculatePF16(base);
 	CalculateSF16(base);
 	if(base==0){
-		freg.zf=1;
+		freg.bits.zf=1;
 	}else{
-		freg.zf=0;
+		freg.bits.zf=0;
 	}
 	return base;
 }
 
 uint32_t x86CPU::Or32(uint32_t base,uint32_t mask){
-    freg.of=0;
-    freg.cf=0;
+    freg.bits.of=0;
+    freg.bits.cf=0;
     base=base|mask;
     CalculatePF32(base);
     CalculateSF32(base);
     if(base==0){
-        freg.zf=1;
+        freg.bits.zf=1;
     }else{
-        freg.zf=0;
+        freg.bits.zf=0;
     }
     return base;
 }
@@ -265,42 +265,42 @@ uint32_t x86CPU::OrW(uint32_t base,uint32_t arg){
 }
 
 uint8_t x86CPU::Xor8(uint8_t base,uint8_t mask){
-	freg.of=0;
-	freg.cf=0;
+	freg.bits.of=0;
+	freg.bits.cf=0;
 	base=base^mask;
 	CalculatePF8(base);
 	CalculateSF8(base);
 	if(base==0){
-		freg.zf=1;
+		freg.bits.zf=1;
 	}else{
-		freg.zf=0;
+		freg.bits.zf=0;
 	}
 	return base;
 }
 
 uint16_t x86CPU::Xor16(uint16_t base,uint16_t mask){
-	freg.of=0;
-	freg.cf=0;
+	freg.bits.of=0;
+	freg.bits.cf=0;
 	base=base^mask;
 	CalculatePF16(base);
 	CalculateSF16(base);
 	if(base==0){
-		freg.zf=1;
+		freg.bits.zf=1;
 	}else{
-		freg.zf=0;
+		freg.bits.zf=0;
 	}
 	return base;
 }
 uint32_t x86CPU::Xor32(uint32_t base,uint32_t mask){
-    freg.of=0;
-    freg.cf=0;
+    freg.bits.of=0;
+    freg.bits.cf=0;
     base=base^mask;
     CalculatePF32(base);
     CalculateSF32(base);
     if(base==0){
-        freg.zf=1;
+        freg.bits.zf=1;
     }else{
-        freg.zf=0;
+        freg.bits.zf=0;
     }
     return base;
 }
@@ -317,21 +317,21 @@ uint8_t x86CPU::ShiftLogicalRight8(uint8_t base,uint8_t count){
 	if(count==0){
 		CalculatePF8(base);
 		CalculateSF8(base);
-		freg.zf=1;
+		freg.bits.zf=1;
 		return base;
 	}
-	freg.of=(base&0x80)>>7;
-	freg.cf=(base>>(count-1))&1;
+	freg.bits.of=(base&0x80)>>7;
+	freg.bits.cf=(base>>(count-1))&1;
 	base=base>>count;
-	freg.of=freg.of^((base&0x80)>>7); //if the sign bit changed, then set it to 1
+	freg.bits.of=freg.bits.of^((base&0x80)>>7); //if the sign bit changed, then set it to 1
 	CalculatePF8(base);
 	CalculateSF8(base);
 	if(base==0){
-		freg.zf=1;
+		freg.bits.zf=1;
 	}else{
-		freg.zf=0;
+		freg.bits.zf=0;
 	}
-	freg.of=0;
+	freg.bits.of=0;
 	return base;
 }
 
@@ -340,21 +340,21 @@ uint16_t x86CPU::ShiftLogicalRight16(uint16_t base,uint8_t count){
 	if(count==0){
 		CalculatePF16(base);
 		CalculateSF16(base);
-		freg.zf=1;
+		freg.bits.zf=1;
 		return base;
 	}
-	freg.of=(base&0x8000)>>15;
-	freg.cf=(base>>(count-1))&1;
+	freg.bits.of=(base&0x8000)>>15;
+	freg.bits.cf=(base>>(count-1))&1;
 	base=base>>count;
-	freg.of=freg.of^((base&0x8000)>>15); //if the sign bit changed, then set it to 1
+	freg.bits.of=freg.bits.of^((base&0x8000)>>15); //if the sign bit changed, then set it to 1
 	CalculatePF16(base);
 	CalculateSF16(base);
 	if(base==0){
-		freg.zf=1;
+		freg.bits.zf=1;
 	}else{
-		freg.zf=0;
+		freg.bits.zf=0;
 	}
-	freg.of=0;
+	freg.bits.of=0;
 	return base;
 }
 
@@ -363,21 +363,21 @@ uint32_t x86CPU::ShiftLogicalRight32(uint32_t base,uint8_t count){
     if(count==0){
         CalculatePF32(base);
         CalculateSF32(base);
-        freg.zf=1;
+        freg.bits.zf=1;
         return base;
     }
-    freg.of=(base&0x80000000)>>31;
-    freg.cf=(base>>(count-1))&1;
+    freg.bits.of=(base&0x80000000)>>31;
+    freg.bits.cf=(base>>(count-1))&1;
     base=base>>count;
-    freg.of=freg.of^((base&0x80000000)>>31); //if the sign bit changed, then set it to 1
+    freg.bits.of=freg.bits.of^((base&0x80000000)>>31); //if the sign bit changed, then set it to 1
     CalculatePF32(base);
     CalculateSF32(base);
     if(base==0){
-        freg.zf=1;
+        freg.bits.zf=1;
     }else{
-        freg.zf=0;
+        freg.bits.zf=0;
     }
-    freg.of=0;
+    freg.bits.of=0;
     return base;
 }
 
@@ -394,24 +394,24 @@ uint8_t x86CPU::ShiftArithmeticRight8(uint8_t base,uint8_t count){
 	if(count==0){
 		CalculatePF8(base);
 		CalculateSF8(base);
-		freg.zf=1;
+		freg.bits.zf=1;
 		return base;
 	}
-	freg.cf=(base>>(count-1))&1;
+	freg.bits.cf=(base>>(count-1))&1;
 	if((base&0x80)!=0){
 		base=(base>>count)|(~(0xFF>>count)); //this replaces displaced zero bits with the sign bit
 	}else{
 		base=(base>>count);
 	}
-	freg.of=0;
+	freg.bits.of=0;
 	CalculatePF8(base);
 	CalculateSF8(base);
 	if(base==0){
-		freg.zf=1;
+		freg.bits.zf=1;
 	}else{
-		freg.zf=0;
+		freg.bits.zf=0;
 	}
-	freg.of=0;
+	freg.bits.of=0;
 	return base;
 }
 uint16_t x86CPU::ShiftArithmeticRight16(uint16_t base,uint8_t count){
@@ -419,24 +419,24 @@ uint16_t x86CPU::ShiftArithmeticRight16(uint16_t base,uint8_t count){
 	if(count==0){
 		CalculatePF16(base);
 		CalculateSF16(base);
-		freg.zf=1;
+		freg.bits.zf=1;
 		return base;
 	}
-	freg.cf=(base>>(count-1))&1;
+	freg.bits.cf=(base>>(count-1))&1;
 	if((base&0x8000)!=0){
 		base=(base>>count)|(~(0xFFFF>>count)); //this replaces displaced zero bits with the sign bit
 	}else{
 		base=(base>>count);
 	}
-	freg.of=0;
+	freg.bits.of=0;
 	CalculatePF16(base);
 	CalculateSF16(base);
 	if(base==0){
-		freg.zf=1;
+		freg.bits.zf=1;
 	}else{
-		freg.zf=0;
+		freg.bits.zf=0;
 	}
-	freg.of=0;
+	freg.bits.of=0;
 	return base;
 }
 
@@ -445,24 +445,24 @@ uint32_t x86CPU::ShiftArithmeticRight32(uint32_t base,uint8_t count){
     if(count==0){
         CalculatePF32(base);
         CalculateSF32(base);
-        freg.zf=1;
+        freg.bits.zf=1;
         return base;
     }
-    freg.cf=(base>>(count-1))&1;
+    freg.bits.cf=(base>>(count-1))&1;
     if((base&0x80000000)!=0){
         base=(base>>count)|(~(0xFFFFFFFF>>count)); //this replaces displaced zero bits with the sign bit
     }else{
         base=(base>>count);
     }
-    freg.of=0;
+    freg.bits.of=0;
     CalculatePF32(base);
     CalculateSF32(base);
     if(base==0){
-        freg.zf=1;
+        freg.bits.zf=1;
     }else{
-        freg.zf=0;
+        freg.bits.zf=0;
     }
-    freg.of=0;
+    freg.bits.of=0;
     return base;
 }
 
@@ -479,21 +479,21 @@ uint8_t x86CPU::ShiftLogicalLeft8(uint8_t base,uint8_t count){
 	if(count==0){
 		CalculatePF8(base);
 		CalculateSF8(base);
-		freg.zf=1;
+		freg.bits.zf=1;
 		return base;
 	}
-	freg.of=(base&0x80)>>7;
-	freg.cf=((base<<(count-1))&0x80)>>7;
+	freg.bits.of=(base&0x80)>>7;
+	freg.bits.cf=((base<<(count-1))&0x80)>>7;
 	base=base<<count;
-	freg.of=freg.of^((base&0x80)>>7); //if the sign bit changed, then set it to 1
+	freg.bits.of=freg.bits.of^((base&0x80)>>7); //if the sign bit changed, then set it to 1
 	CalculatePF8(base);
 	CalculateSF8(base);
 	if(base==0){
-		freg.zf=1;
+		freg.bits.zf=1;
 	}else{
-		freg.zf=0;
+		freg.bits.zf=0;
 	}
-	freg.of=0;
+	freg.bits.of=0;
 	return base;
 }
 
@@ -502,19 +502,19 @@ uint16_t x86CPU::ShiftLogicalLeft16(uint16_t base,uint8_t count){
 	if(count==0){
 		CalculatePF16(base);
 		CalculateSF16(base);
-		freg.zf=1;
+		freg.bits.zf=1;
 		return base;
 	}
-	freg.of=(base&0x8000)>>15;
-	freg.cf=((base<<(count-1))&0x8000)>>15;
+	freg.bits.of=(base&0x8000)>>15;
+	freg.bits.cf=((base<<(count-1))&0x8000)>>15;
 	base=base<<count;
-	freg.of=freg.of^((base&0x8000)>>15); //if the sign bit changed, then set it to 1
+	freg.bits.of=freg.bits.of^((base&0x8000)>>15); //if the sign bit changed, then set it to 1
 	CalculatePF16(base);
 	CalculateSF16(base);
 	if(base==0){
-		freg.zf=1;
+		freg.bits.zf=1;
 	}else{
-		freg.zf=0;
+		freg.bits.zf=0;
 	}
 	return base;
 }
@@ -524,19 +524,19 @@ uint32_t x86CPU::ShiftLogicalLeft32(uint32_t base,uint8_t count){
     if(count==0){
         CalculatePF32(base);
         CalculateSF32(base);
-        freg.zf=1;
+        freg.bits.zf=1;
         return base;
     }
-    freg.of=(base&0x80000000)>>31;
-    freg.cf=((base<<(count-1))&0x80000000)>>31;
+    freg.bits.of=(base&0x80000000)>>31;
+    freg.bits.cf=((base<<(count-1))&0x80000000)>>31;
     base=base<<count;
-    freg.of=freg.of^((base&0x80000000)>>31); //if the sign bit changed, then set it to 1
+    freg.bits.of=freg.bits.of^((base&0x80000000)>>31); //if the sign bit changed, then set it to 1
     CalculatePF32(base);
     CalculateSF32(base);
     if(base==0){
-        freg.zf=1;
+        freg.bits.zf=1;
     }else{
-        freg.zf=0;
+        freg.bits.zf=0;
     }
     return base;
 }
@@ -552,36 +552,36 @@ uint32_t x86CPU::ShiftLogicalLeftW(uint32_t base,uint8_t arg){
 /**ToDo: Possibly adapt BOCHS source so that we avoid this loop crap...**/
 uint8_t x86CPU::RotateRight8(uint8_t base,uint8_t count){
     count&=0x1F; //only use bottom 5 bits
-	freg.of=(base&0x80)>>7;
+	freg.bits.of=(base&0x80)>>7;
 	while(count>0){
-		freg.cf=(base&0x01);
-		base=(freg.cf<<7)|(base>>1);
+		freg.bits.cf=(base&0x01);
+		base=(freg.bits.cf<<7)|(base>>1);
 		count--;
 	}
-	freg.of=freg.of^((base&0x80)>>7);
+	freg.bits.of=freg.bits.of^((base&0x80)>>7);
 	return base;
 }
 
 uint16_t x86CPU::RotateRight16(uint16_t base,uint8_t count){
     count&=0x1F; //only use bottom 5 bits
-	freg.of=(base&0x8000)>>15;
+	freg.bits.of=(base&0x8000)>>15;
 	while(count>0){
-		freg.cf=(base&0x01);
-		base=(freg.cf<<15)|(base>>1);
+		freg.bits.cf=(base&0x01);
+		base=(freg.bits.cf<<15)|(base>>1);
 		count--;
 	}
-	freg.of=freg.of^((base&0x80)>>15);
+	freg.bits.of=freg.bits.of^((base&0x80)>>15);
 	return base;
 }
 uint32_t x86CPU::RotateRight32(uint32_t base,uint8_t count){
     count&=0x1F; //only use bottom 5 bits
-    freg.of=(base&0x80000000)>>31;
+    freg.bits.of=(base&0x80000000)>>31;
     while(count>0){
-        freg.cf=(base&0x01);
-        base=(freg.cf<<31)|(base>>1);
+        freg.bits.cf=(base&0x01);
+        base=(freg.bits.cf<<31)|(base>>1);
         count--;
     }
-    freg.of=freg.of^((base&0x80)>>31);
+    freg.bits.of=freg.bits.of^((base&0x80)>>31);
     return base;
 }
 
@@ -595,37 +595,37 @@ uint32_t x86CPU::RotateRightW(uint32_t base,uint8_t arg){
 
 uint8_t x86CPU::RotateLeft8(uint8_t base,uint8_t count){
     count&=0x1F; //only use bottom 5 bits
-	freg.of=(base&0x80)>>7;
+	freg.bits.of=(base&0x80)>>7;
 	while(count>0){
-		freg.cf=(base&0x80)>>7;
-		base=(freg.cf)|(base<<1);
+		freg.bits.cf=(base&0x80)>>7;
+		base=(freg.bits.cf)|(base<<1);
 		count--;
 	}
-	freg.of=freg.of^((base&0x80)>>7);
+	freg.bits.of=freg.bits.of^((base&0x80)>>7);
 	return base;
 }
 
 uint16_t x86CPU::RotateLeft16(uint16_t base,uint8_t count){
     count&=0x1F; //only use bottom 5 bits
-	freg.of=(base&0x8000)>>15;
+	freg.bits.of=(base&0x8000)>>15;
 	while(count>0){
-		freg.cf=(base&0x8000)>>15;
-		base=(freg.cf)|(base<<1);
+		freg.bits.cf=(base&0x8000)>>15;
+		base=(freg.bits.cf)|(base<<1);
 		count--;
 	}
-	freg.of=freg.of^((base&0x8000)>>15);
+	freg.bits.of=freg.bits.of^((base&0x8000)>>15);
 	return base;
 }
 
 uint32_t x86CPU::RotateLeft32(uint32_t base,uint8_t count){
     count&=0x1F; //only use bottom 5 bits
-    freg.of=(base&0x80000000)>>31;
+    freg.bits.of=(base&0x80000000)>>31;
     while(count>0){
-        freg.cf=(base&0x80000000)>>31;
-        base=(freg.cf)|(base<<1);
+        freg.bits.cf=(base&0x80000000)>>31;
+        base=(freg.bits.cf)|(base<<1);
         count--;
     }
-    freg.of=freg.of^((base&0x80000000)>>31);
+    freg.bits.of=freg.bits.of^((base&0x80000000)>>31);
     return base;
 }
 
@@ -639,43 +639,43 @@ uint32_t x86CPU::RotateLeftW(uint32_t base,uint8_t arg){
 
 uint8_t x86CPU::RotateCarryLeft8(uint8_t base,uint8_t count){
     count&=0x1F; //only use bottom 5 bits
-   freg.of=(base&0x80)>>7;
+   freg.bits.of=(base&0x80)>>7;
    while(count>0){
-      freg.r0=freg.cf; //reserved bit as a temp variable...
-      freg.cf=(base&0x80)>>7;
+      freg.bits.r0=freg.bits.cf; //reserved bit as a temp variable...
+      freg.bits.cf=(base&0x80)>>7;
       base=(base<<1);
-      base|=freg.r0; //puts (old)CF in it's place
+      base|=freg.bits.r0; //puts (old)CF in it's place
       count--;
    }
-   freg.of=freg.of^((base&0x80)>>7);
+   freg.bits.of=freg.bits.of^((base&0x80)>>7);
    return base;
 }
 
 uint16_t x86CPU::RotateCarryLeft16(uint16_t base,uint8_t count){
     count&=0x1F; //only use bottom 5 bits
-	freg.of=(base&0x8000)>>15;
+	freg.bits.of=(base&0x8000)>>15;
 	while(count>0){
-		freg.r0=freg.cf; //reserved bit as a temp variable...
-		freg.cf=(base&0x8000)>>15;
+		freg.bits.r0=freg.bits.cf; //reserved bit as a temp variable...
+		freg.bits.cf=(base&0x8000)>>15;
 		base=(base<<1);
-		base=(base&0xFFFE)|freg.r0; //zeros the 0 bit and puts (old)CF in it's place
+		base=(base&0xFFFE)|freg.bits.r0; //zeros the 0 bit and puts (old)CF in it's place
 		count--;
 	}
-	freg.of=freg.of^((base&0x8000)>>15);
+	freg.bits.of=freg.bits.of^((base&0x8000)>>15);
 	return base;
 }
 
 uint32_t x86CPU::RotateCarryLeft32(uint32_t base,uint8_t count){
     count&=0x1F; //only use bottom 5 bits
-    freg.of=(base&0x80000000)>>31;
+    freg.bits.of=(base&0x80000000)>>31;
     while(count>0){
-        freg.r0=freg.cf; //reserved bit as a temp variable...
-        freg.cf=(base&0x80000000)>>31;
+        freg.bits.r0=freg.bits.cf; //reserved bit as a temp variable...
+        freg.bits.cf=(base&0x80000000)>>31;
         base=(base<<1);
-        base=(base&0xFFFFFFFE)|freg.r0; //zeros the 0 bit and puts (old)CF in it's place
+        base=(base&0xFFFFFFFE)|freg.bits.r0; //zeros the 0 bit and puts (old)CF in it's place
         count--;
     }
-    freg.of=freg.of^((base&0x80000000)>>31);
+    freg.bits.of=freg.bits.of^((base&0x80000000)>>31);
     return base;
 }
 
@@ -689,40 +689,40 @@ uint32_t x86CPU::RotateCarryLeftW(uint32_t base,uint8_t arg){
 
 uint8_t x86CPU::RotateCarryRight8(uint8_t base,uint8_t count){
     count&=0x1F; //only use bottom 5 bits
-	freg.of=(base&0x80)>>7;
+	freg.bits.of=(base&0x80)>>7;
 	while(count>0){
-		freg.r0=freg.cf;
-		freg.cf=(base&0x01);
-		base=(freg.r0<<7)|(base>>1);
+		freg.bits.r0=freg.bits.cf;
+		freg.bits.cf=(base&0x01);
+		base=(freg.bits.r0<<7)|(base>>1);
 		count--;
 	}
-	freg.of=freg.of^((base&0x80)>>7);
+	freg.bits.of=freg.bits.of^((base&0x80)>>7);
 	return base;
 }
 
 uint16_t x86CPU::RotateCarryRight16(uint16_t base,uint8_t count){
     count&=0x1F; //only use bottom 5 bits
-	freg.of=(base&0x8000)>>15;
+	freg.bits.of=(base&0x8000)>>15;
 	while(count>0){
-		freg.r0=freg.cf;
-		freg.cf=(base&0x01);
-		base=(freg.r0<<15)|(base>>1);
+		freg.bits.r0=freg.bits.cf;
+		freg.bits.cf=(base&0x01);
+		base=(freg.bits.r0<<15)|(base>>1);
 		count--;
 	}
-	freg.of=freg.of^((base&0x8000)>>15);
+	freg.bits.of=freg.bits.of^((base&0x8000)>>15);
 	return base;
 }
 
 uint32_t x86CPU::RotateCarryRight32(uint32_t base,uint8_t count){
     count&=0x1F; //only use bottom 5 bits
-    freg.of=(base&0x80000000)>>31;
+    freg.bits.of=(base&0x80000000)>>31;
     while(count>0){
-        freg.r0=freg.cf;
-        freg.cf=(base&0x01);
-        base=(freg.r0<<31)|(base>>1);
+        freg.bits.r0=freg.bits.cf;
+        freg.bits.cf=(base&0x01);
+        base=(freg.bits.r0<<31)|(base>>1);
         count--;
     }
-    freg.of=freg.of^((base&0x80000000)>>31);
+    freg.bits.of=freg.bits.of^((base&0x80000000)>>31);
     return base;
 }
 
@@ -783,60 +783,60 @@ void x86CPU::op_sub_rmW_imm8(ModRM &rm){ //group 0x83 /5
 
 /****/
 void x86CPU::op_sbb_al_imm8(){
-	SetReg8(AL, Sub8(Reg8(AL),ReadCode8(1)-freg.cf));
+	SetReg8(AL, Sub8(Reg8(AL),ReadCode8(1)-freg.bits.cf));
 	eip++;
 }
 
 void x86CPU::op_sbb_axW_immW(){
-	SetReg(AX, SubW(Reg(AX), ImmW()-freg.cf));
+	SetReg(AX, SubW(Reg(AX), ImmW()-freg.bits.cf));
 }
 
 void x86CPU::op_sbb_rmW_rW(){
 	ModRM rm(this);
-	rm.WriteW(SubW(rm.ReadW(), Reg(rm.GetExtra())-freg.cf)); //is this correct with CF subtracting as a 32bit integer? 
+	rm.WriteW(SubW(rm.ReadW(), Reg(rm.GetExtra())-freg.bits.cf)); //is this correct with CF subtracting as a 32bit integer? 
 }
 void x86CPU::op_sbb_r8_rm8(){
 	ModRM rm8(this);
-	SetReg8(rm8.GetExtra(), Sub8(Reg8(rm8.GetExtra()),rm8.ReadByte()-freg.cf));
+	SetReg8(rm8.GetExtra(), Sub8(Reg8(rm8.GetExtra()),rm8.ReadByte()-freg.bits.cf));
 }
 void x86CPU::op_sbb_rm8_r8(){
     ModRM rm8(this);
-    rm8.WriteByte(Sub8(rm8.ReadByte(), Reg8(rm8.GetExtra()) - freg.cf));
+    rm8.WriteByte(Sub8(rm8.ReadByte(), Reg8(rm8.GetExtra()) - freg.bits.cf));
 }
 void x86CPU::op_sbb_rW_rmW(){
 	ModRM rm(this);
-	SetReg(rm.GetExtra(), SubW(Reg(rm.GetExtra()), rm.ReadW()-freg.cf));
+	SetReg(rm.GetExtra(), SubW(Reg(rm.GetExtra()), rm.ReadW()-freg.bits.cf));
 }
 
 void x86CPU::op_sbb_rm8_imm8(ModRM &rm8){ //group 0x80
-	rm8.WriteByte(Sub8(rm8.ReadByte(),ReadByte(cCS,eip+rm8.GetLength())-freg.cf));
+	rm8.WriteByte(Sub8(rm8.ReadByte(),ReadByte(cCS,eip+rm8.GetLength())-freg.bits.cf));
 }
 
 void x86CPU::op_sbb_rmW_immW(ModRM &rm){ //Group 0x81
-	rm.WriteW(SubW(rm.ReadW(), ReadW(cCS,eip+rm.GetLength())-freg.cf));
+	rm.WriteW(SubW(rm.ReadW(), ReadW(cCS,eip+rm.GetLength())-freg.bits.cf));
 }
 
 void x86CPU::op_sbb_rmW_imm8(ModRM &rm){ //group 0x83
-	rm.WriteW(SubW(rm.ReadW(), SignExtend8to32(ReadByte(cCS,eip+rm.GetLength())-freg.cf)));
+	rm.WriteW(SubW(rm.ReadW(), SignExtend8to32(ReadByte(cCS,eip+rm.GetLength())-freg.bits.cf)));
 }
 
 
 void x86CPU::op_dec_rW(){ //0x48+r
-	freg.r0=freg.cf;
+	freg.bits.r0=freg.bits.cf;
 	SetReg(opbyte-0x48, SubW(Reg(opbyte-0x48), 1));
-	freg.cf=freg.r0;
+	freg.bits.cf=freg.bits.r0;
 }
 
 void x86CPU::op_dec_rm8(ModRM& rm){
-	freg.r0=freg.cf;
+	freg.bits.r0=freg.bits.cf;
 	rm.WriteByte(Sub8(rm.ReadByte(),1));
-	freg.cf=freg.r0;
+	freg.bits.cf=freg.bits.r0;
 }
 
 void x86CPU::op_dec_rmW(ModRM& rm){
-	freg.r0=freg.cf;
+	freg.bits.r0=freg.bits.cf;
 	rm.WriteW(SubW(rm.ReadW(),1));
-	freg.cf=freg.r0;
+	freg.bits.cf=freg.bits.r0;
 }
 
 
@@ -928,82 +928,82 @@ void x86CPU::op_add_rmW_imm8(ModRM &rm){ //group 0x83 /0
 
 /****/
 void x86CPU::op_adc_al_imm8(){
-	SetReg8(AL, Add8(Reg8(AL),ReadCode8(1)+freg.cf));
+	SetReg8(AL, Add8(Reg8(AL),ReadCode8(1)+freg.bits.cf));
 	eip++;
 }
 
 void x86CPU::op_adc_axW_immW(){
-	SetReg(AX, AddW(Reg(AX), ImmW() + freg.cf));
+	SetReg(AX, AddW(Reg(AX), ImmW() + freg.bits.cf));
 }
 
 void x86CPU::op_adc_rm8_r8(){
 	ModRM rm8(this);
-	rm8.WriteByte(Add8(rm8.ReadByte(),Reg8(rm8.GetExtra())+freg.cf));
+	rm8.WriteByte(Add8(rm8.ReadByte(),Reg8(rm8.GetExtra())+freg.bits.cf));
 }
 
 void x86CPU::op_adc_rmW_rW(){
 	ModRM rm(this);
-	rm.WriteW(AddW(rm.ReadW(),Reg(rm.GetExtra())+freg.cf));
+	rm.WriteW(AddW(rm.ReadW(),Reg(rm.GetExtra())+freg.bits.cf));
 }
 
 void x86CPU::op_adc_r8_rm8(){
 	ModRM rm(this);
-	SetReg8(rm.GetExtra(), Add8(Reg8(rm.GetExtra()),rm.ReadByte()+freg.cf));
+	SetReg8(rm.GetExtra(), Add8(Reg8(rm.GetExtra()),rm.ReadByte()+freg.bits.cf));
 }
 
 void x86CPU::op_adc_rW_rmW(){
 	ModRM rm(this);
-	SetReg(rm.GetExtra(), AddW(Reg(rm.GetExtra()), rm.ReadW() + freg.cf));
+	SetReg(rm.GetExtra(), AddW(Reg(rm.GetExtra()), rm.ReadW() + freg.bits.cf));
 }
 
 void x86CPU::op_adc_rm8_imm8(ModRM &rm){ //Group 0x80 /2
-	rm.WriteByte(Add8(rm.ReadByte(),ReadByte(cCS,eip+rm.GetLength())+freg.cf));
+	rm.WriteByte(Add8(rm.ReadByte(),ReadByte(cCS,eip+rm.GetLength())+freg.bits.cf));
 }
 
 void x86CPU::op_adc_rmW_immW(ModRM &rm){ //Group 0x81 /2
-	rm.WriteW(AddW(rm.ReadW(),ReadW(cCS, eip + rm.GetLength()) + freg.cf));
+	rm.WriteW(AddW(rm.ReadW(),ReadW(cCS, eip + rm.GetLength()) + freg.bits.cf));
 }
 
 void x86CPU::op_adc_rmW_imm8(ModRM &rm){ //group 0x83 /2
-	rm.WriteW(AddW(rm.ReadW(),SignExtend8to32(ReadByte(cCS, eip + rm.GetLength())) + freg.cf));
+	rm.WriteW(AddW(rm.ReadW(),SignExtend8to32(ReadByte(cCS, eip + rm.GetLength())) + freg.bits.cf));
 }
 
 
 void x86CPU::op_inc_rW(){ //0x40+r
-	freg.r0=freg.cf;
+	freg.bits.r0=freg.bits.cf;
 	SetReg(opbyte-0x40, AddW(Reg((opbyte - 0x40)), 1));
-	freg.cf=freg.r0;
+	freg.bits.cf=freg.bits.r0;
 }
 
 void x86CPU::op_inc_rm8(ModRM &rm){
-	freg.r0=freg.cf; //yay for reserved flags! TODO check for qtum
+	freg.bits.r0=freg.bits.cf; //yay for reserved flags! TODO check for qtum
 	rm.WriteByte(Add8(rm.ReadByte(),1));
-	freg.cf=freg.r0;
+	freg.bits.cf=freg.bits.r0;
 }
 
 void x86CPU::op_inc_rmW(ModRM &rm){
-	freg.r0=freg.cf;
+	freg.bits.r0=freg.bits.cf;
 	rm.WriteW(AddW(rm.ReadW(), 1));
-	freg.cf=freg.r0;
+	freg.bits.cf=freg.bits.r0;
 }
 
 void x86CPU::op_neg_rm8(ModRM &rm){
 	uint8_t tmp=rm.ReadByte();
 	if(tmp==0xFF){
-		freg.of=1;
+		freg.bits.of=1;
 		return;
 	}
 	rm.WriteByte(Sub8(0,tmp));
 	if(tmp==0){
-		freg.cf=0;
+		freg.bits.cf=0;
 	}else{
-		freg.cf=1;
+		freg.bits.cf=1;
 	}
 }
 void x86CPU::op_neg_rmW(ModRM &rm){
 	uint32_t tmp=rm.ReadW();
 	rm.WriteW(SubW(0, tmp));
-	freg.cf = tmp != 0;
+	freg.bits.cf = tmp != 0;
 }
 
 void x86CPU::op_div_rm8(ModRM &rm){
@@ -1100,11 +1100,11 @@ void x86CPU::op32_idiv_rm32(ModRM &rm){
 void x86CPU::op_mul_rm8(ModRM &rm){
     SetReg16(AX, (Reg8(AL))*rm.ReadByte());
     if((Reg8(AH))>0){ //if tophalf of result has anything in it
-        freg.cf=1;
-        freg.of=1;
+        freg.bits.cf=1;
+        freg.bits.of=1;
     }else{
-        freg.cf=0;
-        freg.of=0;
+        freg.bits.cf=0;
+        freg.bits.of=0;
     }
 }
 
@@ -1115,11 +1115,11 @@ void x86CPU::op16_mul_rm16(ModRM &rm){
     SetReg16(AX, result&0x0000FFFF);
     SetReg16(DX, (result&0xFFFF0000)>>16);
     if((Reg16(DX))>0){ //if tophalf of result has anything in it
-        freg.cf=1;
-        freg.of=1;
+        freg.bits.cf=1;
+        freg.bits.of=1;
     }else{
-        freg.cf=0;
-        freg.of=0;
+        freg.bits.cf=0;
+        freg.bits.of=0;
     }
 }
 
@@ -1129,11 +1129,11 @@ void x86CPU::op32_mul_rm32(ModRM &rm){
     regs32[EAX]=result&0x00000000FFFFFFFF;
     regs32[EDX]=(result&0xFFFFFFFF00000000)>>32;
     if((regs32[EDX])>0){ //if tophalf of result has anything in it
-        freg.cf=1;
-        freg.of=1;
+        freg.bits.cf=1;
+        freg.bits.of=1;
     }else{
-        freg.cf=0;
-        freg.of=0;
+        freg.bits.cf=0;
+        freg.bits.of=0;
     }
 }
 
@@ -1141,11 +1141,11 @@ void x86CPU::op_imul_rm8(ModRM &rm){
 	bool store1,store2;
 	SetReg16(AX, Unsign8(Reg8(AL),store1)*Unsign8(rm.ReadByte(),store2));
 	if(Reg16(AX)>0){
-		freg.of=1;
-		freg.cf=1;
+		freg.bits.of=1;
+		freg.bits.cf=1;
 	}else{
-		freg.of=0;
-		freg.cf=0;
+		freg.bits.of=0;
+		freg.bits.cf=0;
 	}
 	SetReg16(AX, Resign16(Reg16(AX),store1^store2));
 }
@@ -1154,11 +1154,11 @@ void x86CPU::op16_imul_rm16(ModRM &rm){
 	bool store1,store2;
 	uint32_t result=Unsign16(Reg16(AX),store1)*Unsign16(rm.ReadWord(),store2);
 	if((result&0xFFFF0000)>0){
-		freg.of=1;
-		freg.cf=1;
+		freg.bits.of=1;
+		freg.bits.cf=1;
 	}else{
-		freg.of=0;
-		freg.cf=0;
+		freg.bits.of=0;
+		freg.bits.cf=0;
 	}
 	result=Resign32(result,store1^store2);
 	SetReg16(DX, (result&0xFFFF0000)>>16);
@@ -1169,11 +1169,11 @@ void x86CPU::op32_imul_rm32(ModRM &rm){
     bool store1,store2;
     uint64_t result=Unsign32(regs32[EAX],store1) * (uint64_t)Unsign32(rm.ReadDword(),store2);
     if((result&0xFFFFFFFF00000000)>0){
-        freg.of=1;
-        freg.cf=1;
+        freg.bits.of=1;
+        freg.bits.cf=1;
     }else{
-        freg.of=0;
-        freg.cf=0;
+        freg.bits.of=0;
+        freg.bits.cf=0;
     }
     result=Resign64(result,store1^store2);
     regs32[EDX]=(result&0xFFFFFFFF00000000)>>32;
@@ -1456,15 +1456,15 @@ Modified to work with x86Lib by Jordan(hckr83)
 
 /* Opcode: 0x37 */
 void x86CPU::op_aaa() {
-	if((Reg8(AL) & 0x0f) > 9 || freg.af == 1) {
+	if((Reg8(AL) & 0x0f) > 9 || freg.bits.af == 1) {
 		SetReg8(AL, Reg8(AL) + 6);
 		SetReg8(AH, Reg8(AH) + 1);
-		freg.af = 1;
-		freg.cf = 1;
+		freg.bits.af = 1;
+		freg.bits.cf = 1;
 	}
 	else {
-		freg.af = 0;
-		freg.cf = 0;
+		freg.bits.af = 0;
+		freg.bits.cf = 0;
 	}
 	SetReg8(AL, Reg8(AL) & 0x0f);
 }
@@ -1472,49 +1472,49 @@ void x86CPU::op_aaa() {
 
 /* Opcode: 0x27 */
 void x86CPU::op_daa() {
-	if((Reg8(AL) & 0x0f) > 9 || freg.af == 1) {
+	if((Reg8(AL) & 0x0f) > 9 || freg.bits.af == 1) {
 		SetReg8(AL, Reg8(AL) + 6);
 		SetReg8(AH, Reg8(AH) + 1);
 	}
 	else
-		freg.af = 0;
+		freg.bits.af = 0;
 
-	if(Reg8(AL) > 0x9f || freg.cf == 1) {
+	if(Reg8(AL) > 0x9f || freg.bits.cf == 1) {
 			SetReg8(AL, Reg8(AL) + 0x60);
-			freg.cf = 1;
+			freg.bits.cf = 1;
 	}
 	else
-		freg.cf = 0;
+		freg.bits.cf = 0;
 }
 
 /* Opcode: 0x2F */
 void x86CPU::op_das() {
-	if((Reg8(AL) & 0x0f) > 9 || freg.af == 1) {
+	if((Reg8(AL) & 0x0f) > 9 || freg.bits.af == 1) {
 		SetReg8(AL, Reg8(AL) - 6);
-		freg.af = 1;
+		freg.bits.af = 1;
 	}
 	else
-		freg.af = 0;
+		freg.bits.af = 0;
 
-	if(Reg8(AL) > 0x9f || freg.cf == 1) {
+	if(Reg8(AL) > 0x9f || freg.bits.cf == 1) {
 			SetReg8(AL, Reg8(AL) - 0x60);
-			freg.cf = 1;
+			freg.bits.cf = 1;
 	}
 	else
-		freg.cf = 0;
+		freg.bits.cf = 0;
 }
 
 /* Opcode: 0x3F */
 void x86CPU::op_aas() {
-	if((Reg8(AL) & 0x0f) > 9 || freg.af == 1) {
+	if((Reg8(AL) & 0x0f) > 9 || freg.bits.af == 1) {
 		SetReg8(AL, Reg8(AL) -6);
 		SetReg8(AH, Reg8(AH) - 1);
-		freg.af = 1;
-		freg.cf = 1;
+		freg.bits.af = 1;
+		freg.bits.cf = 1;
 	}
 	else {
-		freg.af = 0;
-		freg.cf = 0;
+		freg.bits.af = 0;
+		freg.bits.cf = 0;
 	}
 	SetReg8(AL, Reg8(AL) & 0x0f);
 }

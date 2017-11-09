@@ -38,7 +38,7 @@ void x86CPU::op_nop(){ //0x90
 }
 
 void x86CPU::op_hlt(){ //0xF4
-	if(freg._if==0){
+	if(freg.bits._if==0){
 		throw CpuPanic_excp("HLT With IF=0; Nothing to do",CLIHLT_EXCP);
 	}
 }
@@ -129,12 +129,12 @@ void x86CPU::op_rep(){ //repe and repne..(different opcodes, but I make them pos
         if(string_compares==1){
             string_compares=0;
             if(repop==0xF2){ //repNE
-                if(freg.zf == 1){ //exit...
+                if(freg.bits.zf == 1){ //exit...
                     eip = repEIP + 1; //
                     return;
                 }
             }else{
-                if(freg.zf == 0){ //exit...
+                if(freg.bits.zf == 0){ //exit...
                     eip = repEIP + 1;
                     return;
                 }
@@ -205,7 +205,7 @@ void x86CPU::op_wait(){
 log:  if cf=0 then al=0 else al=FF
 **/
 void x86CPU::op_salc(){ //set al on carry
-    if(freg.cf==0){
+    if(freg.bits.cf==0){
         SetReg8(AL, 0);
     }else{
         SetReg8(AL, 0xFF);

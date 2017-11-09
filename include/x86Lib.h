@@ -306,24 +306,27 @@ static const int cGS=5;
 static const int cIS=6; //this is an imaginary segment only used for direct segment overrides
 //for instance it would be used in mov [1000:bx],ax
 
-typedef struct{
-    unsigned char cf:1;
-    unsigned char r0:1;
-    unsigned char pf:1;
-    unsigned char r1:1;
-    unsigned char af:1;
-    unsigned char r2:1;
-    unsigned char zf:1;
-    unsigned char sf:1;
-    unsigned char tf:1;
-    unsigned char _if:1;
-    unsigned char df:1;
-    unsigned char of:1;
-    unsigned char iopl:2; //not yet used
-    unsigned char nt:1;
-    unsigned char r3:1;
-    unsigned int upper:16;
-}__attribute__((packed))FLAGS; //this is a better representation of flags(much easier to use)
+typedef union {
+    struct{
+        unsigned char cf:1;
+        unsigned char r0:1;
+        unsigned char pf:1;
+        unsigned char r1:1;
+        unsigned char af:1;
+        unsigned char r2:1;
+        unsigned char zf:1;
+        unsigned char sf:1;
+        unsigned char tf:1;
+        unsigned char _if:1;
+        unsigned char df:1;
+        unsigned char of:1;
+        unsigned char iopl:2; //not yet used
+        unsigned char nt:1;
+        unsigned char r3:1;
+        unsigned int upper:16;
+    }__attribute__((packed))bits; //this is a better representation of flags(much easier to use)
+    uint32_t data;
+} FLAGS;
 
 
 namespace x86Lib{

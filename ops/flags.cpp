@@ -35,37 +35,37 @@ using namespace std;
 static bool jcc(int condition, volatile FLAGS &f){
     switch(condition){ //see http://www.ousob.com/ng/iapx86/ng10482.php for a good reference
         case 0:
-            return f.of;
+            return f.bits.of;
         case 1:
-            return !f.of;
+            return !f.bits.of;
         case 2:
-            return f.cf;
+            return f.bits.cf;
         case 3:
-            return !f.cf;
+            return !f.bits.cf;
         case 4:
-            return f.zf;
+            return f.bits.zf;
         case 5:
-            return !f.zf;
+            return !f.bits.zf;
         case 6:
-            return f.cf | f.zf;
+            return f.bits.cf | f.bits.zf;
         case 7:
-            return !f.cf & !f.zf;
+            return !f.bits.cf & !f.bits.zf;
         case 8:
-            return f.sf;
+            return f.bits.sf;
         case 9:
-            return !f.sf;
+            return !f.bits.sf;
         case 10:
-            return f.pf;
+            return f.bits.pf;
         case 11:
-            return !f.pf;
+            return !f.bits.pf;
         case 12:
-            return f.sf!=f.of;
+            return f.bits.sf!=f.bits.of;
         case 13:
-            return f.sf==f.of;
+            return f.bits.sf==f.bits.of;
         case 14:
-            return (f.sf!=f.of) | f.zf;
+            return (f.bits.sf!=f.bits.of) | f.bits.zf;
         case 15:
-            return (f.sf==f.of) & f.zf;
+            return (f.bits.sf==f.bits.of) & f.bits.zf;
         default:
             throw new CpuPanic_excp("This code should not be reached", 0xFFFF);
     }
@@ -92,32 +92,32 @@ void x86CPU::op_jcc_relW(){
 
 
 void x86CPU::op_clc(){
-	freg.cf=0;
+	freg.bits.cf=0;
 }
 
 void x86CPU::op_cld(){
-	freg.df=0;
+	freg.bits.df=0;
 }
 
 void x86CPU::op_cli(){
-	freg._if=0;
+	freg.bits._if=0;
 }
 
 void x86CPU::op_stc(){
-	freg.cf=1;
+	freg.bits.cf=1;
 }
 
 void x86CPU::op_std(){
-	freg.df=1;
+	freg.bits.df=1;
 }
 
 void x86CPU::op_sti(){
-	freg._if=1;
+	freg.bits._if=1;
 }
 
 
 void x86CPU::op_cmc(){
-    freg.cf=freg.cf^1;
+    freg.bits.cf=freg.bits.cf^1;
 }
 
 void x86CPU::op_lahf(){
