@@ -9,4 +9,5 @@ objs
 libx86Lib.*
 *.bin
 *.o
-x86test
+libx86lib.a
+libx86lib.so.*

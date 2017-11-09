@@ -36,7 +36,7 @@ This file is part of the x86Lib project.
 
 //#define X86_MULTITHREADING //This should be defined to enable multi-threading optimizations(note, these will break most single thread implementations)
 
-
+#define QTUM_DEBUG //define to enable potentially performance impacting debug features
 
 #endif
 

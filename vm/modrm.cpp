@@ -1,5 +1,5 @@
 #include <stdint.h>
-#include <x86Lib.h>
+#include <x86lib.h>
 
 namespace x86Lib{
 
@@ -8,29 +8,29 @@ namespace x86Lib{
 uint16_t ModRM::GetRegD(){ //This returns the register displacement value
     switch(modrm.rm){
         case 0:
-            return *this_cpu->regs16[BX]+*this_cpu->regs16[SI];
+            return this_cpu->Reg16(BX)+this_cpu->Reg16(SI);
             break;
         case 1:
-            return *this_cpu->regs16[BX]+*this_cpu->regs16[DI];
+            return this_cpu->Reg16(BX)+this_cpu->Reg16(DI);
             break;
         case 2:
             use_ss=1;
-            return *this_cpu->regs16[BP]+*this_cpu->regs16[SI];
+            return this_cpu->Reg16(BP)+this_cpu->Reg16(SI);
             break;
         case 3:
             use_ss=1;
-            return *this_cpu->regs16[BP]+*this_cpu->regs16[DI];
+            return this_cpu->Reg16(BP)+this_cpu->Reg16(DI);
             break;
         case 4:
-            return *this_cpu->regs16[SI];
+            return this_cpu->Reg16(SI);
             break;
         case 5:
-            return *this_cpu->regs16[DI];
+            return this_cpu->Reg16(DI);
         case 6: //immediate Displacement only, so no register displace..
             return 0;
             break;
         case 7:
-            return *this_cpu->regs16[BX];
+            return this_cpu->Reg16(BX);
             break;
     }
     return 0;
@@ -66,7 +66,7 @@ uint16_t ModRM::GetDisp(){
     reg=GetRegD();
     if(modrm.rm==6){ //Don't worry, it's safe...
         use_ss=1;
-        reg=*this_cpu->regs16[BP];
+        reg=this_cpu->Reg16(BP);
     }
     switch(modrm.mod){
         case 0: //no displacement
@@ -75,17 +75,17 @@ uint16_t ModRM::GetDisp(){
                 use_ss=0;
                 //eip++;
                 //eip++;
-                return *(uint16_t*)&this_cpu->op_cache[1];
+                return this_cpu->ReadCode16(1);
             }else{
                 return reg;
             }
             break;
         case 1: //byte displacement(signed)
             //eip++;
-            return (signed)reg+(signed)this_cpu->op_cache[1];
+            return (signed)reg+(signed)this_cpu->ReadCode8(1);
             break;
         case 2: //word displacement(signed)
-            return (signed)reg+(signed)(*(uint16_t*)&this_cpu->op_cache[1]);
+            return (signed)reg+(signed)(this_cpu->ReadCode16(1));
             break;
         case 3: //opcode specific...
             op_specific=1;
@@ -109,17 +109,17 @@ uint32_t ModRM::GetDisp32(){
             break;
         case 1: //byte displacement(signed)
             if(modrm.rm == 4){
-                return (int32_t)GetSIBDisp() + (int32_t)this_cpu->op_cache[2];
+                return (int32_t)GetSIBDisp() + (int32_t)this_cpu->ReadCode8(2);
             }else{
-                return (int32_t)reg+(int32_t)this_cpu->op_cache[1];
+                return (int32_t)reg+(int32_t)this_cpu->ReadCode8(1);
             }
             break;
         case 2: //dword displacement(signed)
             if(modrm.rm == 4){
                 //make sure to use eip+2 here to account for SIB
-                return (int32_t)GetSIBDisp() + (int32_t)this_cpu->ReadDword(this_cpu->CS, this_cpu->eip + 2);
+                return (int32_t)GetSIBDisp() + (int32_t)this_cpu->ReadCode32(2);
             }else{
-                return (int32_t)reg + (int32_t)this_cpu->ReadDword(this_cpu->CS, this_cpu->eip + 1);
+                return (int32_t)reg + (int32_t)this_cpu->ReadCode32(1);
             }
             break;
         case 3: //opcode specific...
@@ -213,25 +213,39 @@ ModRM::ModRM(x86CPU *this_cpu_){
     use_ss=0;
     op_specific=0;
     this_cpu=this_cpu_;
-    *(uint32_t*)&this_cpu->op_cache=this_cpu->ReadDword(cCS,this_cpu->eip);
-    *(uint8_t*)&modrm=this_cpu->op_cache[0];
-    *(uint8_t*)&sib=this_cpu->op_cache[1];
+    this_cpu->eip++; //to get past opcode and onto modrm
+    this_cpu->ReadCode(&modrm, 0, 1); //sizeof would work here, but weird compilers could potentially introduce consensus break
+    this_cpu->ReadCode(&sib, 1, 1);
 }
 
 ModRM::~ModRM(){
-    this_cpu->eip+=GetLength()-1;
+    this_cpu->eip+=GetLength() - 1;
+}
+
+//reads immediate after ModRM
+uint8_t ModRM::Imm8(){
+    return this_cpu->ReadCode8(GetLength() + 1);
+}
+uint16_t ModRM::Imm16(){
+    return this_cpu->ReadCode8(GetLength() + 1);
+}
+uint32_t ModRM::Imm32(){
+    return this_cpu->ReadCode8(GetLength() + 1);
+}
+uint32_t ModRM::ImmW(){
+    return this_cpu->ReadCodeW(GetLength() + 1);
 }
 
 //The r suffix means /r, which means for op_specific=1, use general registers
-uint8_t ModRM::ReadByter(){
+uint8_t ModRM::ReadByte(){
     if(this_cpu->Use32BitAddress()){
-        return ReadByter32();
+        return ReadByte32();
     }
     use_ss=0;
     op_specific=0;
     uint16_t disp=GetDisp();
     if(op_specific==1){
-        return *this_cpu->regs8[modrm.rm];
+        return this_cpu->Reg8(modrm.rm);
     }else{
         if(use_ss==1){
             return this_cpu->ReadByte(this_cpu->SS,disp);
@@ -241,16 +255,15 @@ uint8_t ModRM::ReadByter(){
     }
 }
 
-uint16_t ModRM::ReadWordr(){
+uint16_t ModRM::ReadWord(){
     if(this_cpu->Use32BitAddress()){
-        return ReadWordr32();
+        return ReadWord32();
     }
     use_ss=0;
     op_specific=0;
     uint16_t disp=GetDisp();
     if(op_specific==1){
-        //cout << "h" << endl;
-        return *this_cpu->regs16[modrm.rm];
+        return this_cpu->Reg16(modrm.rm);
     }else{
 
         if(use_ss==1){
@@ -260,12 +273,26 @@ uint16_t ModRM::ReadWordr(){
         }
     }
 }
-uint32_t ModRM::ReadDwordr(){ //make this for consistency. Need to refactor this whole class later..
-    return ReadDword();
+
+uint32_t ModRM::ReadW(){
+    if(this_cpu->Use32BitOperand()){
+        return ReadDword();
+    }else{
+        return ReadWord();
+    }
 }
+
+uint32_t ModRM::ReadA(){
+    if(this_cpu->Use32BitAddress()){
+        return ReadDword();
+    }else{
+        return ReadWord();
+    }
+}
+
 uint32_t ModRM::ReadDword(){
     if(this_cpu->Use32BitAddress()){
-        return ReadDwordr32();
+        return ReadDword32();
     }
     use_ss=0;
     op_specific=0;
@@ -282,15 +309,15 @@ uint32_t ModRM::ReadDword(){
     }
 }
 
-void ModRM::WriteByter(uint8_t byte){
+void ModRM::WriteByte(uint8_t byte){
     if(this_cpu->Use32BitAddress()){
-        return WriteByter32(byte);
+        return WriteByte32(byte);
     }
     use_ss=0;
     op_specific=0;
     uint16_t disp=GetDisp();
     if(op_specific==1){
-        *this_cpu->regs8[modrm.rm]=byte;
+        this_cpu->SetReg8(modrm.rm, byte);
     }else{
 
         if(use_ss==1){
@@ -300,15 +327,15 @@ void ModRM::WriteByter(uint8_t byte){
         }
     }
 }
-void ModRM::WriteWordr(uint16_t word){
+void ModRM::WriteWord(uint16_t word){
     if(this_cpu->Use32BitAddress()){
-        return WriteWordr32(word);
+        return WriteWord32(word);
     }
     use_ss=0;
     op_specific=0;
     uint16_t disp=GetDisp();
     if(op_specific==1){
-        *this_cpu->regs16[modrm.rm]=word;
+        this_cpu->SetReg16(modrm.rm, word);
     }else{
 
         if(use_ss==1){
@@ -318,12 +345,18 @@ void ModRM::WriteWordr(uint16_t word){
         }
     }
 }
-void ModRM::WriteDwordr(uint32_t dword){
-    WriteDword(dword);
+
+void ModRM::WriteW(uint32_t val){
+    if(this_cpu->Use32BitOperand()){
+        WriteDword(val);
+    }else{
+        WriteWord(val);
+    }
 }
+
 void ModRM::WriteDword(uint32_t dword){
     if(this_cpu->Use32BitAddress()){
-        return WriteDwordr32(dword);
+        return WriteDword32(dword);
     }
     use_ss=0;
     op_specific=0;
@@ -343,29 +376,29 @@ void ModRM::WriteDword(uint32_t dword){
 
 
 //The r suffix means /r, which means for op_specific=1, use general registers
-uint8_t ModRM::ReadByter32(){
+uint8_t ModRM::ReadByte32(){
     use_ss=0;
     op_specific=0;
     uint32_t disp=GetDisp32();
     if(op_specific==1){
-        return *this_cpu->regs8[modrm.rm];
+        return this_cpu->Reg8(modrm.rm);
     }else{
         return this_cpu->ReadByte(this_cpu->DS,disp);
     }
 }
 
-uint16_t ModRM::ReadWordr32(){
+uint16_t ModRM::ReadWord32(){
     use_ss=0;
     op_specific=0;
     uint32_t disp=GetDisp32();
     if(op_specific==1){
         //don't think this is actually possible in 32bit mode, but ok
-        return *this_cpu->regs16[modrm.rm];
+        return this_cpu->Reg16(modrm.rm);
     }else{
         return this_cpu->ReadWord(this_cpu->DS,disp);
     }
 }
-uint32_t ModRM::ReadDwordr32(){
+uint32_t ModRM::ReadDword32(){
     use_ss=0;
     op_specific=0;
     uint32_t disp=GetDisp32();
@@ -376,27 +409,27 @@ uint32_t ModRM::ReadDwordr32(){
     }
 }
 
-void ModRM::WriteByter32(uint8_t byte){
+void ModRM::WriteByte32(uint8_t byte){
     use_ss=0;
     op_specific=0;
     uint32_t disp=GetDisp32();
     if(op_specific==1){
-        *this_cpu->regs8[modrm.rm]=byte;
+        this_cpu->SetReg8(modrm.rm, byte);
     }else{
         this_cpu->WriteByte(this_cpu->DS,disp,byte);
     }
 }
-void ModRM::WriteWordr32(uint16_t word){
+void ModRM::WriteWord32(uint16_t word){
     use_ss=0;
     op_specific=0;
     uint32_t disp=GetDisp32();
     if(op_specific==1){
-        *this_cpu->regs16[modrm.rm]=word;
+        this_cpu->SetReg16(modrm.rm, word);
     }else{
         this_cpu->WriteWord(this_cpu->DS,disp,word);
     }
 }
-void ModRM::WriteDwordr32(uint32_t dword){
+void ModRM::WriteDword32(uint32_t dword){
     use_ss=0;
     op_specific=0;
     uint32_t disp=GetDisp32();
@@ -457,7 +490,10 @@ uint8_t ModRM::GetExtra(){ //Get the extra fied from mod_rm
     return modrm.extra;
 }
 
-uint16_t ModRM::ReadOffset(){ //This is only used by LEA. It will obtain the offset and not dereference it...
+uint32_t ModRM::ReadOffset(){ //This is only used by LEA. It will obtain the offset and not dereference it...
+    if(this_cpu->Use32BitAddress()){
+        return ReadOffset32();
+    }
     use_ss=0;
     op_specific=0;
     uint16_t disp=GetDisp();

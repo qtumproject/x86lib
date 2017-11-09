@@ -38,8 +38,6 @@ namespace x86Lib{
 
 class x86CPU;
 
-typedef void (x86Lib::x86CPU::*opcode)();
-
 
 static const uint32_t OPCODE_REAL_16=1;
 static const uint32_t OPCODE_HOSTED_32=2;
@@ -88,6 +86,22 @@ static inline uint16_t SignExtend8to16(uint8_t val){ //sign extend a byte to a w
 static inline uint32_t SignExtend8to32(uint8_t val){ //sign extend a byte to a word
     if((val&0x80)!=0){
         return 0xFFFFFFFF00|val;
+    }else{
+        return val;
+    }
+}
+
+static inline uint32_t SignExtend16to32(uint16_t val){ //sign extend a byte to a word
+    if((val&0x8000)!=0){
+        return 0xFFFF0000|val;
+    }else{
+        return val;
+    }
+}
+
+static inline uint64_t SignExtend32to64(uint32_t val){ //sign extend a byte to a word
+    if((val&0x80000000)!=0){
+        return 0xFFFFFFFF00000000|val;
     }else{
         return val;
     }

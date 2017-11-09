@@ -27,88 +27,68 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 This file is part of the x86Lib project.
 **/
-#include <x86Lib.h>
+#include <x86lib.h>
 namespace x86Lib{
 using namespace std;
 
 
 
-void x86CPU::op16_movsb(){
-	WriteByte(cES,GetAddressReg(DI),ReadByte(DS,GetAddressReg(SI)));
+void x86CPU::op_movsb(){
+	WriteByte(cES,Reg(DI),ReadByte(DS,Reg(SI)));
 	SetIndex8();
 }
 
-void x86CPU::op16_movsw(){
-	WriteWord(cES,GetAddressReg(DI),ReadWord(DS,GetAddressReg(SI)));
-	SetIndex16();
+void x86CPU::op_movsW(){
+	WriteW(cES, Reg(DI), ReadW(DS, Reg(SI)));
+	SetIndex();
 }
 
-void x86CPU::op32_movsd(){
-    WriteDword(cES,GetAddressReg(EDI),ReadDword(DS,GetAddressReg(EDI)));
-    SetIndex32();
-}
-
-void x86CPU::op16_cmpsb(){
-	string_compares=1;
-	Sub8(ReadByte(DS,GetAddressReg(SI)),ReadByte(cES,GetAddressReg(DI)));
+void x86CPU::op_cmpsb(){
+	uint8_t prev = ReadCode8(-1);
+	if( prev == 0xF3 || prev == 0xF2) string_compares=1; //only set string_compares if previous was REPZ/REPNZ
+	Sub8(ReadByte(DS,Reg(SI)),ReadByte(cES,Reg(DI)));
 	SetIndex8();
 }
 
-void x86CPU::op16_cmpsw(){
-	string_compares=1;
-	Sub16(ReadWord(DS,GetAddressReg(SI)),ReadWord(cES,GetAddressReg(DI)));
-	SetIndex16();
-}
-void x86CPU::op32_cmpsd(){
-    string_compares=1;
-    Sub32(ReadDword(DS,GetAddressReg(SI)),ReadDword(cES,GetAddressReg(DI)));
-    SetIndex32();
+void x86CPU::op_cmpsW(){
+	uint8_t prev = ReadCode8(-1);
+	if( prev == 0xF3 || prev == 0xF2) string_compares=1;
+	SubW(ReadW(DS, Reg(SI)), ReadW(cES,Reg(DI)));
+	SetIndex();
 }
 
-void x86CPU::op16_lodsb(){
-	*regs8[AL]=ReadByte(DS,GetAddressReg(SI));
+void x86CPU::op_lodsb(){
+	SetReg8(AL, ReadByte(DS,Reg(SI)));
 	SetIndex8();
 }
-void x86CPU::op16_lodsw(){
-	*regs16[AX]=ReadWord(DS,GetAddressReg(SI));
-	SetIndex16();
-}
-void x86CPU::op32_lodsd(){
-    regs32[EAX]=ReadDword(DS,GetAddressReg(SI));
-    SetIndex32();
+void x86CPU::op_lodsW(){
+	SetReg(AX, ReadW(DS,Reg(SI)));
+	SetIndex();
 }
 
-void x86CPU::op16_scasb(){
-	string_compares=1;
-	Sub8(*regs8[AL],ReadByte(cES,GetAddressReg(DI)));
+void x86CPU::op_scasb(){
+	uint8_t prev = ReadCode8(-1);
+	if( prev == 0xF3 || prev == 0xF2) string_compares=1;
+	Sub8(Reg8(AL),ReadByte(cES,Reg(DI)));
 	SetIndex8();
 }
-void x86CPU::op16_scasw(){
-	string_compares=1;
-	Sub16(*regs16[AX],ReadWord(cES,GetAddressReg(DI)));
-	SetIndex16();
+void x86CPU::op_scasW(){
+	uint8_t prev = ReadCode8(-1);
+	if( prev == 0xF3 || prev == 0xF2) string_compares=1;
+	SubW(Reg(AX),ReadW(cES,Reg(DI)));
+	SetIndex();
 }
 
-void x86CPU::op32_scasd(){
-    string_compares=1;
-    Sub32(regs32[EAX],ReadDword(cES,GetAddressReg(DI)));
-    SetIndex32();
-}
-
-void x86CPU::op16_stosb(){
-	WriteByte(ES,GetAddressReg(DI),*regs8[AL]);
+void x86CPU::op_stosb(){
+	WriteByte(ES,Reg(DI), Reg8(AL));
 	SetIndex8();
 }
 
-void x86CPU::op16_stosw(){
-	WriteWord(ES,GetAddressReg(DI),*regs16[AX]);
-	SetIndex16();
+void x86CPU::op_stosW(){
+	WriteW(ES,Reg(DI),Reg(AX));
+	SetIndex();
 }
 
-void x86CPU::op32_stosd(){
-    WriteDword(ES,GetAddressReg(DI), regs32[EAX]);
-    SetIndex32();
-}
 
 
 

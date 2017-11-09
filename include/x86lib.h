@@ -36,7 +36,7 @@ This file is part of the x86Lib project.
 #include <string>
 
 #ifdef X86LIB_BUILD
-#include <x86Lib_internal.h>
+#include <x86lib_internal.h>
 #endif
 
 //! The main namespace of x86Lib
@@ -258,7 +258,7 @@ struct x86SaveData{
 	//! Which opcode map is currently in use
 	uint32_t opcode_mode;
 	//! Flags register
-	uint16_t freg;
+	uint32_t freg;
 	//! CPU level
 	uint32_t cpu_level;
 };
@@ -306,28 +306,35 @@ static const int cGS=5;
 static const int cIS=6; //this is an imaginary segment only used for direct segment overrides
 //for instance it would be used in mov [1000:bx],ax
 
-typedef struct{
-    unsigned char cf:1;
-    unsigned char r0:1;
-    unsigned char pf:1;
-    unsigned char r1:1;
-    unsigned char af:1;
-    unsigned char r2:1;
-    unsigned char zf:1;
-    unsigned char sf:1;
-    unsigned char tf:1;
-    unsigned char _if:1;
-    unsigned char df:1;
-    unsigned char of:1;
-    unsigned char iopl:2; //not yet used
-    unsigned char nt:1;
-    unsigned char r3:1;
-}__attribute__((packed))FLAGS; //this is a better representation of flags(much easier to use)
+typedef union {
+    struct{
+        unsigned char cf:1;
+        unsigned char r0:1;
+        unsigned char pf:1;
+        unsigned char r1:1;
+        unsigned char af:1;
+        unsigned char r2:1;
+        unsigned char zf:1;
+        unsigned char sf:1;
+        unsigned char tf:1;
+        unsigned char _if:1;
+        unsigned char df:1;
+        unsigned char of:1;
+        unsigned char iopl:2; //not yet used
+        unsigned char nt:1;
+        unsigned char r3:1;
+        unsigned int upper:16;
+    }__attribute__((packed))bits; //this is a better representation of flags(much easier to use)
+    uint32_t data;
+} FLAGS;
 
 
 namespace x86Lib{
 
+class ModRM;
+
 typedef void (x86Lib::x86CPU::*opcode)();
+typedef void (x86Lib::x86CPU::*groupOpcode)(ModRM &rm);
 typedef struct{
      unsigned char rm:3;
      unsigned char extra:3;
@@ -358,29 +365,34 @@ class ModRM{
 	uint16_t GetDisp();
     uint32_t GetDisp32();
     uint32_t GetSIBDisp();
+    uint32_t ReadOffset32(); //This is only used by LEA. It will obtain the offset and not dereference it...
+    uint8_t ReadByte32();
+    uint16_t ReadWord32();
+    uint32_t ReadDword32();
+    void WriteByte32(uint8_t byte);
+    void WriteWord32(uint16_t word);
+    void WriteDword32(uint32_t dword);
 	public:
 
 	ModRM(x86CPU* this_cpu_);
 	~ModRM();
 	//The r suffix means /r, which means for op_specific=1, use general registers
-	uint8_t ReadByter();
-	uint16_t ReadWordr();
+	uint8_t ReadByte();
+	uint16_t ReadWord();
 	uint32_t ReadDword();
-    uint32_t ReadDwordr();
-	void WriteByter(uint8_t byte);
-	void WriteWordr(uint16_t word);
-	void WriteDword(uint32_t dword);
-    void WriteDwordr(uint32_t dword);
-    uint8_t ReadByter32();
-    uint16_t ReadWordr32();
-    uint32_t ReadDwordr32();
-    void WriteByter32(uint8_t byte);
-    void WriteWordr32(uint16_t word);
-    void WriteDwordr32(uint32_t dword);
+	uint32_t ReadW();
+    uint32_t ReadA(); //should be used for addresses
+	void WriteByte(uint8_t byte);
+	void WriteWord(uint16_t word);
+    void WriteDword(uint32_t dword);
+    void WriteW(uint32_t dword);
 	uint8_t GetLength(); //This returns how many total bytes the modrm block consumes
 	uint8_t GetExtra(); //Get the extra fied from mod_rm
-	uint16_t ReadOffset(); //This is only used by LEA. It will obtain the offset and not dereference it...
-    uint32_t ReadOffset32(); //This is only used by LEA. It will obtain the offset and not dereference it...
+	uint32_t ReadOffset(); //This is only used by LEA. It will obtain the offset and not dereference it...
+    uint8_t Imm8();
+    uint16_t Imm16();
+    uint32_t Imm32();
+    uint32_t ImmW();
 
 };
 
@@ -391,12 +403,9 @@ class ModRM{
 class x86CPU{
 	friend class ModRM;
 	volatile uint32_t regs32[8];
-	volatile uint16_t *regs16[8];
-	volatile uint8_t *regs8[8];
 	volatile uint16_t seg[7];
 	volatile uint32_t eip;
 	volatile FLAGS freg;
-	volatile uint8_t op_cache[8];
     //These variables should be used instead of cES etc when the segment register can not be overridden
 	volatile uint8_t ES;
 	volatile uint8_t CS;
@@ -404,7 +413,7 @@ class x86CPU{
 	volatile uint8_t DS;
 	volatile uint8_t FS;
 	volatile uint8_t GS;
-	volatile bool string_compares;
+	volatile bool string_compares; //TODO can jump to string instruction and corrupt this
 	volatile uint8_t cli_count; //Whenever this is 1, an STI is done.
 	volatile bool int_pending;
 	volatile uint8_t int_number;
@@ -414,26 +423,50 @@ class x86CPU{
     bool OperandSize16;
     bool AddressSize16;
     bool DoStop;
+    int PrefixCount; //otherwise, someone could make some ridiculously long prefix chain (apparently Intel CPUs don't error until you get past 14)
+    //this is the EIP pointed to when execution of the current opcode began in Cycle()
+    //This is used when needing to go back to the current opcode while including all prefixes
+    uint32_t beginEIP;
+    uint8_t opbyte; //current opcode (updated in cycle() and prefix opcodes)
 	protected:
 	//! Do one CPU opcode
 	/*! This should be put in the main loop, as this is what makes the CPU work.
 	*/
 	void Cycle();
-	opcode opcodes_16bit[256];
-    opcode opcodes_32bit[256];
+	opcode opcodes_hosted[256];
     //2 byte opcodes beginning with 0x0F
-    opcode opcodes_16bit_ext[256];
-    opcode opcodes_32bit_ext[256];
+    opcode opcodes_hosted_ext[256];
 	opcode *Opcodes; //current opcode mode
     opcode *Opcodes_ext; //current extended opcode mode
-	
+    groupOpcode opcodes_hosted_ext_group[256][8];
+    std::string opcodes_hosted_str[256];
+    std::string opcodes_hosted_ext_str[256];
+    std::string opcodes_hosted_ext_group_str[256][8];
+    std::string lastOpcodeStr;
+    uint32_t lastOpcode;
+
 	/*!
 	\return 0 if no interrupts are pending
 	 */
 	int CheckInterrupts();
+
+    uint32_t ReadCode32(int index);
+    uint16_t ReadCode16(int index);
+    uint8_t ReadCode8(int index);
+    uint32_t ReadCodeW(int index);
+    void ReadCode(void* buf, int index, size_t count);
+
 	public:
 	MemorySystem *Memory;
 	PortSystem *Ports;
+
+    std::string GetLastOpcodeName(){
+        return lastOpcodeStr;
+    }
+    uint32_t GetLastOpcode(){
+        return lastOpcode;
+    }
+
 	/*!
 	\param cpu_level The CPU level to use(default argument is default level)
 	\param flags special flags to control CPU (currently, there is none)
@@ -496,20 +529,13 @@ class x86CPU{
         return !AddressSize16;
     }
 
-    uint32_t GetAddressReg(int reg){ //EDX and DX has the same value, so doesn't actually matter
-        if(Use32BitAddress()){
-            return regs32[reg];
-        }else{
-            return (uint32_t)*regs16[reg];
-        }
-    }
     void ReadMemory(uint32_t address, uint32_t size, void* buffer);
     void WriteMemory(uint32_t address, uint32_t size, void* buffer);
 
 	void Stop(){DoStop=true;}
 
     //provided mainly for slightly easier debugging
-    uint8_t ReadByte(uint32_t address){
+    uint8_t ReadMachineByte(uint32_t address){
         uint8_t res;
         Memory->Read(address, 1, &res);
         return res;
@@ -528,12 +554,113 @@ class x86CPU{
         regs32[reg] = val;
     }
     std::vector<uint32_t> wherebeen;
+    void Read(void* buffer, uint32_t off, size_t count);
+    void Write(uint32_t off, void* buffer, size_t count);
 
     /*End public interface*/
 	#ifdef X86LIB_BUILD
 	private:
 	#include <opcode_def.h>
 	#endif
+
+	inline uint32_t A(uint32_t a){
+		if(AddressSize16){
+			return a & 0xFFFF;
+		}
+		return a;
+	}
+	inline uint32_t W(uint32_t val){
+		if(OperandSize16){
+			return val & 0xFFFF;
+		}
+		return val;
+	}
+
+	inline uint32_t ImmW(){
+		if(OperandSize16){
+			eip+=2;
+			return (uint32_t) ReadCode16(1-2);
+		}
+		eip+=4;
+		return ReadCode32(1-4);
+	}
+	inline uint32_t ImmA(){
+		if(AddressSize16){
+			eip+=2;
+			return (uint32_t) ReadCode16(1-2);
+		}
+		eip+=4;
+		return ReadCode32(1-4);
+	}
+
+	inline uint32_t DispW(){
+		if(AddressSize16){
+			eip+=2;
+			return (uint32_t) ReadCode16(1-2);
+		}
+		eip+=4;
+		return ReadCode32(1-4);
+	}
+
+
+    inline uint8_t Reg8(int which){
+        if(which < 4){
+            //0-3 is low bytes; al, cl, dl, bl
+            return regs32[which] & 0xFF;
+        }else{
+            //4-7 is high bytes; ah, ch, dh, bh
+            return (regs32[which - 4] & 0xFF00) >> 8;
+        }
+    }
+    inline uint16_t Reg16(int which){
+        uint32_t tmp = regs32[which];
+        return (tmp & 0xFFFF);
+    }
+
+    inline void SetReg8(int which, uint8_t val){
+        if(which < 4){
+            //0-3 is low bytes; al, cl, dl, bl
+            regs32[which] = (regs32[which] & 0xFFFFFF00) | val;
+        }else{
+            //4-7 is high bytes; ah, ch, dh, bh
+            regs32[which] = (regs32[which - 4] & 0xFFFF00FF) | (val << 8);
+        }
+    }
+    inline void SetReg16(int which, uint16_t val){
+        regs32[which] = (regs32[which] & 0xFFFF0000) | val;
+    }
+    //no real need for 32bit versions, but for consistency..
+    inline void SetReg32(int which, uint32_t val){
+        regs32[which] = val;
+    }
+    inline uint16_t Reg32(int which){
+        return regs32[which];
+    }
+
+    inline uint32_t Reg(int which){
+        if(OperandSize16){
+            return Reg16(which);
+        }else{
+            return regs32[which];
+        }
+    }
+	inline uint32_t RegA(int which){
+		if(AddressSize16){
+            return Reg16(which);
+		}else{
+			return regs32[which];
+		}
+	}
+	inline void SetReg(int which, uint32_t val){
+		if(OperandSize16){
+            SetReg16(which, val);
+		}else{
+			regs32[which] = val;
+		}
+	}
+	inline int OperandSize(){
+		return OperandSize16 ? 2 : 4;
+	}
 
 };
 

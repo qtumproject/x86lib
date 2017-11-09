@@ -33,24 +33,28 @@ This file is part of the x86Lib project.
 #include <string.h>
 #include <stdlib.h>
 #undef X86LIB_BUILD //so we don't need special makefile flags for this specific file.
-#include <x86Lib.h>
+#include <x86lib.h>
 
 using namespace std;
 using namespace x86Lib;
 
-char* fileToLoad;
 uint32_t fileLength;
 
 uint8_t *ptr_memory;
 size_t size_memory;
-void init_memory(){
+void init_memory(char* fileToLoad){
 	size_memory=0xFF000;
 	ptr_memory=new uint8_t[size_memory];
-	memset(ptr_memory,0x66,size_memory); //initialize it all to 0x66, an invalid opcode
-	ifstream file(fileToLoad, ios::binary); //open it readonly binary
-	file.seekg(0, file.end);
+	memset(ptr_memory,0xFF,size_memory); //initialize it all to 0x66, an invalid opcode
+	ifstream file(fileToLoad, ios::binary);
+	if(!file){
+		cout << "file " << fileToLoad << " does not exist" << endl;
+		exit(1);
+	}
 	fileLength = file.tellg();
-	file.seekg(0, file.beg);
+	file.seekg(0, std::ios::end);
+	fileLength = (uint32_t) (file.tellg() - (long) fileLength);
+	file.seekg(0, std::ios::beg);
 	file.read((char*)&ptr_memory[0x0000],size_memory);
 }
 bool ROMLoaded = false;
@@ -73,7 +77,7 @@ class ROMemory : public MemoryDevice{
 		if(address + count > fileLength){
 			throw new Mem_excp(address);
 		}
-		memcpy(buffer,&ptr_memory[address],count);
+		memcpy(buffer,&ptr[address],count);
 	}
 	virtual void Write(uint32_t address,int count,void *buffer){
 		throw new Mem_excp(address);
@@ -83,19 +87,22 @@ class ROMemory : public MemoryDevice{
 class RAMemory : public MemoryDevice{
 	uint8_t *ptr;
 	uint32_t size;
+	string id;
 	public:
-	RAMemory(uint32_t size_){
-		ptr = new uint8_t[size];
+	RAMemory(uint32_t size_, string id_){
 		size = size_;
+		id = id_;
+		ptr = (uint8_t*) malloc(size);
+		memset(ptr, 0, size);
 	}
 	~RAMemory(){
 		free(ptr);
 	}
 	virtual void Read(uint32_t address,int count,void *buffer){
-		memcpy(buffer,&ptr_memory[address],count);
+		memcpy(buffer,&ptr[address],count);
 	}
 	virtual void Write(uint32_t address,int count,void *buffer){
-		memcpy(&ptr_memory[address],buffer,count);
+		memcpy(&ptr[address],buffer,count);
 	}
 };
 
@@ -124,20 +131,23 @@ public:
 };
 
 MemorySystem Memory;
+RAMemory *scratchMem;
 
 volatile bool int_cause;
 volatile uint8_t int_cause_number=33;
 
 void DumpMemory(){
+	cout << "dumping memory!" << endl;
 	uint32_t i;
 	FILE *fh;
 	fh=fopen("mem_dump.bin","w");
 	uint8_t *tmp = new uint8_t[0x100000];
-	Memory.Read(0x100000, 0x100000 - 1, tmp);
+	Memory.Read(0x100000, 0x100000, tmp);
 	for(i=0;i<=0x100000;i++){
 		fputc(tmp[i],fh);
 	}
 	fclose(fh);
+	delete tmp;
 }
 
 void WritePort(uint16_t port,uint32_t val){
@@ -148,19 +158,20 @@ void WritePort(uint16_t port,uint32_t val){
 		cout << (char) val << flush;
 		break;
 		case 1: //print value of byte
-		cout << hex << (int)(uint8_t)val;
+		cout << hex << (int)(uint8_t)val << flush;
 		break;
 		case 2: //print value of word
-		cout << hex << (int)(uint16_t)val;
+		cout << hex << (int)(uint16_t)val << flush;
 		break;
 		case 3: //print value of dword
-		cout << hex << (int)(uint32_t)val;
+		cout << hex << (int)(uint32_t)val << flush;
 		break;
 		case 4: //cause an interrupt
 		int_cause=1;
 		break;
 
 		case 0xF0: //exit with val
+		cout << "exiting with code " << val << endl;
 		exit(val);
 		break;
 		case 0xF3: /*Dump memory to external file*/
@@ -211,6 +222,8 @@ void port_write(x86CPU *thiscpu,uint16_t port,int size,void *buffer){
 		val=*(uint8_t*)buffer;
 	}else if(size==2){
 		val=(uint16_t)*(uint16_t*)buffer;
+	}else if(size == 4){
+		val=(uint32_t)*(uint32_t*)buffer;
 	}else{
 		throw;
 	}
@@ -239,22 +252,29 @@ void each_opcode(x86CPU *thiscpu){
 	}
 }
 
+bool singleStep=false;
 
 int main(int argc, char* argv[]){
-	if(argc > 1){
-		fileToLoad = argv[1];
-	}else{
-		cout << "./x86test program.bin" << endl;
+	if(argc < 2){
+		cout << "./x86test program.bin [-singlestep]" << endl;
 		return 1;
 	}
+	if(argc > 2){
+		if(strcmp(argv[2], "-singlestep") == 0){
+			singleStep = true;
+		}
+	}
+
+	init_memory(argv[1]);
 	PortSystem Ports;
 	ROMemory coderom;
-	RAMemory config(0x1000);
-	RAMemory scratch(0x100000);
+	RAMemory config(0x1000, "config");
+	RAMemory scratch(0x100000, "scratch");
+	scratchMem = &scratch;
 	
-	Memory.Add(0, 0x1000, &config);
-	Memory.Add(0x1000, 0x100000, &coderom);
-	Memory.Add(0x100000, 0x200000, &scratch);
+	Memory.Add(0, 0xFFF, &config);
+	Memory.Add(0x1000, 0xFFFFF, &coderom);
+	Memory.Add(0x100000, 0x1FFFFF, &scratch);
 
 	Ports.Add(0,0xFFFF,(PortDevice*)&ports);
 	cpu=new x86CPU();
@@ -265,16 +285,28 @@ int main(int argc, char* argv[]){
 	
 	for(;;){
 		try{
-			cpu->Exec(1000);
-			if(int_cause){
-				int_cause=false;
-				cpu->Int(int_cause_number);
+			if(!singleStep){
+				cpu->Exec(1000);
+				if(int_cause){
+					int_cause=false;
+					cpu->Int(int_cause_number);
+				}
+			}else{
+				cpu->Exec(1);
+				cout <<"OPCODE: " << cpu->GetLastOpcodeName() << "; hex: 0x" << hex << cpu->GetLastOpcode() << endl;
+				cpu->DumpState(cout);
+				cout << "-------------------------------" << endl;
+				if(int_cause){
+					int_cause=false;
+					cpu->Int(int_cause_number);
+				}
 			}
 		}
 		catch(CpuPanic_excp err){
 			cout << "CPU Panic!" <<endl;
 			cout << "Message: " << err.desc << endl;
 			cout << "Code: 0x" << hex << err.code << endl;
+			cout <<"OPCODE: " << cpu->GetLastOpcodeName() << "; hex: 0x" << hex << cpu->GetLastOpcode() << endl;
 			cpu->DumpState(cout);
 			cout << endl;
 			return 1;
@@ -285,6 +317,15 @@ int main(int argc, char* argv[]){
 			cout << "Function: " << err.func << "()" <<endl;
 			cout << "Line: " << err.line << endl;
 			return 1;
+		}
+		catch(Mem_excp *err){
+			cout << "Memory Error!" <<endl;
+			cout << "Address: 0x" << hex << err->address << endl;
+			cout <<"OPCODE: " << cpu->GetLastOpcodeName() << "; hex: 0x" << hex << cpu->GetLastOpcode() << endl;
+			cpu->DumpState(cout);
+			cout << endl;
+			throw;
+			//return 1;
 		}
 	}
 	return 0;
