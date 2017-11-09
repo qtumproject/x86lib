@@ -8,29 +8,29 @@ namespace x86Lib{
 uint16_t ModRM::GetRegD(){ //This returns the register displacement value
     switch(modrm.rm){
         case 0:
-            return *this_cpu->regs16[BX]+*this_cpu->regs16[SI];
+            return this_cpu->Reg16(BX)+this_cpu->Reg16(SI);
             break;
         case 1:
-            return *this_cpu->regs16[BX]+*this_cpu->regs16[DI];
+            return this_cpu->Reg16(BX)+this_cpu->Reg16(DI);
             break;
         case 2:
             use_ss=1;
-            return *this_cpu->regs16[BP]+*this_cpu->regs16[SI];
+            return this_cpu->Reg16(BP)+this_cpu->Reg16(SI);
             break;
         case 3:
             use_ss=1;
-            return *this_cpu->regs16[BP]+*this_cpu->regs16[DI];
+            return this_cpu->Reg16(BP)+this_cpu->Reg16(DI);
             break;
         case 4:
-            return *this_cpu->regs16[SI];
+            return this_cpu->Reg16(SI);
             break;
         case 5:
-            return *this_cpu->regs16[DI];
+            return this_cpu->Reg16(DI);
         case 6: //immediate Displacement only, so no register displace..
             return 0;
             break;
         case 7:
-            return *this_cpu->regs16[BX];
+            return this_cpu->Reg16(BX);
             break;
     }
     return 0;
@@ -66,7 +66,7 @@ uint16_t ModRM::GetDisp(){
     reg=GetRegD();
     if(modrm.rm==6){ //Don't worry, it's safe...
         use_ss=1;
-        reg=*this_cpu->regs16[BP];
+        reg=this_cpu->Reg16(BP);
     }
     switch(modrm.mod){
         case 0: //no displacement
@@ -245,7 +245,7 @@ uint8_t ModRM::ReadByte(){
     op_specific=0;
     uint16_t disp=GetDisp();
     if(op_specific==1){
-        return *this_cpu->regs8[modrm.rm];
+        return this_cpu->Reg8(modrm.rm);
     }else{
         if(use_ss==1){
             return this_cpu->ReadByte(this_cpu->SS,disp);
@@ -263,7 +263,7 @@ uint16_t ModRM::ReadWord(){
     op_specific=0;
     uint16_t disp=GetDisp();
     if(op_specific==1){
-        return *this_cpu->regs16[modrm.rm];
+        return this_cpu->Reg16(modrm.rm);
     }else{
 
         if(use_ss==1){
@@ -317,7 +317,7 @@ void ModRM::WriteByte(uint8_t byte){
     op_specific=0;
     uint16_t disp=GetDisp();
     if(op_specific==1){
-        *this_cpu->regs8[modrm.rm]=byte;
+        this_cpu->SetReg8(modrm.rm, byte);
     }else{
 
         if(use_ss==1){
@@ -335,7 +335,7 @@ void ModRM::WriteWord(uint16_t word){
     op_specific=0;
     uint16_t disp=GetDisp();
     if(op_specific==1){
-        *this_cpu->regs16[modrm.rm]=word;
+        this_cpu->SetReg16(modrm.rm, word);
     }else{
 
         if(use_ss==1){
@@ -381,7 +381,7 @@ uint8_t ModRM::ReadByte32(){
     op_specific=0;
     uint32_t disp=GetDisp32();
     if(op_specific==1){
-        return *this_cpu->regs8[modrm.rm];
+        return this_cpu->Reg8(modrm.rm);
     }else{
         return this_cpu->ReadByte(this_cpu->DS,disp);
     }
@@ -393,7 +393,7 @@ uint16_t ModRM::ReadWord32(){
     uint32_t disp=GetDisp32();
     if(op_specific==1){
         //don't think this is actually possible in 32bit mode, but ok
-        return *this_cpu->regs16[modrm.rm];
+        return this_cpu->Reg16(modrm.rm);
     }else{
         return this_cpu->ReadWord(this_cpu->DS,disp);
     }
@@ -414,7 +414,7 @@ void ModRM::WriteByte32(uint8_t byte){
     op_specific=0;
     uint32_t disp=GetDisp32();
     if(op_specific==1){
-        *this_cpu->regs8[modrm.rm]=byte;
+        this_cpu->SetReg8(modrm.rm, byte);
     }else{
         this_cpu->WriteByte(this_cpu->DS,disp,byte);
     }
@@ -424,7 +424,7 @@ void ModRM::WriteWord32(uint16_t word){
     op_specific=0;
     uint32_t disp=GetDisp32();
     if(op_specific==1){
-        *this_cpu->regs16[modrm.rm]=word;
+        this_cpu->SetReg16(modrm.rm, word);
     }else{
         this_cpu->WriteWord(this_cpu->DS,disp,word);
     }

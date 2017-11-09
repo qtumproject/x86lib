@@ -8,8 +8,8 @@ void x86CPU::Push(uint32_t val){
         regs32[ESP] -= 4;
         WriteWord(cSS, regs32[ESP], val);
     }else{
-        *regs16[ESP] -= 2;
-        WriteWord(cSS, *regs16[ESP], val);
+        SetReg16(SP, Reg16(SP) - 2);
+        WriteWord(cSS, Reg16(SP), val);
     }
 }
 uint32_t x86CPU::Pop(){
@@ -18,19 +18,19 @@ uint32_t x86CPU::Pop(){
         tmp = ReadWord(cSS, regs32[ESP]);
         regs32[ESP] += 4;
     }else{
-        tmp = ReadWord(cSS, *regs16[ESP]);
-        *regs16[ESP] += 2;
+        tmp = ReadWord(cSS, Reg16(SP));
+        SetReg16(SP, Reg16(SP) + 2);
     }
     return tmp;
 }
 
 void x86CPU::SetIndex8(){ //this just makes my code look better...
     if(freg.df==0){
-        (*regs16[SI])++;
-        (*regs16[DI])++;
+        SetReg16(SI, Reg(SI) + 1);
+        SetReg16(DI, Reg(DI) + 1);
     }else{
-        (*regs16[SI])--;
-        (*regs16[DI])--;
+        SetReg16(SI, Reg(SI) - 1);
+        SetReg16(DI, Reg(DI) - 1);
     }
 }
 
@@ -43,11 +43,11 @@ void x86CPU::SetIndex(){
 }
 void x86CPU::SetIndex16(){
     if(freg.df==0){
-        (*regs16[SI])+=2;
-        (*regs16[DI])+=2;
+        SetReg16(SI, Reg(SI) + 2);
+        SetReg16(DI, Reg(DI) + 2);
     }else{
-        (*regs16[SI])-=2;
-        (*regs16[DI])-=2;
+        SetReg16(SI, Reg(SI) - 2);
+        SetReg16(DI, Reg(DI) - 2);
     }
 }
 
