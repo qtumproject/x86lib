@@ -77,7 +77,7 @@ clean:
 	rm $(CXX_VM_OBJS) $(OUTPUTS) $(CXX_TESTBENCH_OBJS)
 
 buildtest:
-	i386-elf-gcc -c testos.c -o testos.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra $(testos_CFLAGS)
-	i386-elf-gcc -T linker.ld -o testos.bin -ffreestanding -O2 -nostdlib testos.o -lgcc -Wl,--gc-sections $(testos_CFLAGS) -dead_strip
-	yasm -o testasm.bin testasm.asm
+	i386-elf-gcc -Wno-unused-function  -c testbench/testcontract.c -o testbench/testos.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra $(testos_CFLAGS)
+	i386-elf-gcc -T testbench/linker.ld -o testcontract.bin -ffreestanding -O2 -nostdlib testbench/testos.o -lgcc -Wl,--gc-sections $(testos_CFLAGS) -dead_strip
+	yasm -o test.bin testbench/test.asm
 
