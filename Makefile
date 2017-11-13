@@ -46,12 +46,12 @@ CXX_TESTBENCH_SRC = testbench/testbench.cpp
 CXX_TESTBENCH_OBJS = $(subst .cpp,.o,$(CXX_TESTBENCH_SRC))
 
 
-CXXFLAGS ?= -Wall -g3 -fexceptions -fPIC -Wall
-CXXFLAGS += -DX86LIB_BUILD -I./include
+CXXFLAGS ?= -Wall -g3 -fPIC
+CXXFLAGS += -DX86LIB_BUILD -I./include -fexceptions
 
 VERSION=1.1
 
-VM_OUTPUTS = libx86lib.a libx86lib.so.$(VERSION)
+VM_OUTPUTS = libx86lib.a
 OUTPUTS = $(VM_OUTPUTS) x86testbench 
 
 default: build
@@ -61,16 +61,13 @@ build: $(OUTPUTS)
 libx86lib.a: $(CXX_VM_OBJS)
 	ar crs libx86lib.a $(CXX_VM_OBJS)
 
-libx86lib.so.$(VERSION): $(CXX_VM_OBJS)
-	$(CXX) -shared $(CXX_VM_OBJS) -o libx86lib.so.$(VERSION)
-
 x86testbench: $(CXX_TESTBENCH_OBJS) $(VM_OUTPUTS)
 	$(CXX) $(CXXFLAGS) -static -o x86testbench $(CXX_TESTBENCH_OBJS) -lx86lib -L.
 
 $(CXX_TESTBENCH_OBJS): $(HDRS)
 	$(CXX) $(CXXFLAGS) -c $*.cpp -o $@
 
-$(CXX_VM_OBJS): $(HDRS) 
+$(CXX_VM_OBJS): $(HDRS) $(CXX_VM_SRC)
 	$(CXX) $(CXXFLAGS) -c $*.cpp -o $@
 
 clean:
