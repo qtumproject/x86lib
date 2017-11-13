@@ -64,14 +64,14 @@ libx86lib.a: $(CXX_VM_OBJS)
 x86testbench: $(CXX_TESTBENCH_OBJS) $(VM_OUTPUTS)
 	$(CXX) $(CXXFLAGS) -static -o x86testbench $(CXX_TESTBENCH_OBJS) -lx86lib -L.
 
-$(CXX_TESTBENCH_OBJS): $(HDRS)
+$(CXX_TESTBENCH_OBJS): $(HDRS) $(CXX_TESTBENCH_OBJS)
 	$(CXX) $(CXXFLAGS) -c $*.cpp -o $@
 
 $(CXX_VM_OBJS): $(HDRS) $(CXX_VM_SRC)
 	$(CXX) $(CXXFLAGS) -c $*.cpp -o $@
 
 clean:
-	rm $(CXX_VM_OBJS) $(OUTPUTS) $(CXX_TESTBENCH_OBJS)
+	rm -f $(CXX_VM_OBJS) $(OUTPUTS) $(CXX_TESTBENCH_OBJS)
 
 buildtest:
 	i386-elf-gcc -c testos.c -o testos.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra $(testos_CFLAGS)
