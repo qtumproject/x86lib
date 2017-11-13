@@ -71,7 +71,7 @@ class ROMemory : public MemoryDevice{
 		size = fileLength;
 	}
 	~ROMemory(){
-		delete ptr;
+		delete[] ptr;
 	}
 	virtual void Read(uint32_t address,int count,void *buffer){
 		if(address + count > fileLength){
@@ -147,7 +147,7 @@ void DumpMemory(){
 		fputc(tmp[i],fh);
 	}
 	fclose(fh);
-	delete tmp;
+	delete[] tmp;
 }
 
 void WritePort(uint16_t port,uint32_t val){
