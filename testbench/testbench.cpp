@@ -53,7 +53,7 @@ void init_memory(char* fileToLoad){
 	}
 	fileLength = file.tellg();
 	file.seekg(0, std::ios::end);
-	fileLength = (uint32_t) (file.tellg() - (long) fileLength);
+	fileLength = (uint32_t) (((long)file.tellg()) - (long) fileLength);
 	file.seekg(0, std::ios::beg);
 	file.read((char*)&ptr_memory[0x0000],size_memory);
 }
@@ -71,7 +71,7 @@ class ROMemory : public MemoryDevice{
 		size = fileLength;
 	}
 	~ROMemory(){
-		delete ptr;
+		delete[] ptr;
 	}
 	virtual void Read(uint32_t address,int count,void *buffer){
 		if(address + count > fileLength){
@@ -147,7 +147,7 @@ void DumpMemory(){
 		fputc(tmp[i],fh);
 	}
 	fclose(fh);
-	delete tmp;
+	delete[] tmp;
 }
 
 void WritePort(uint16_t port,uint32_t val){
