@@ -53,7 +53,7 @@ void init_memory(char* fileToLoad){
 	}
 	fileLength = file.tellg();
 	file.seekg(0, std::ios::end);
-	fileLength = (uint32_t) (file.tellg() - (long) fileLength);
+	fileLength = (uint32_t) (((long)file.tellg()) - (long) fileLength);
 	file.seekg(0, std::ios::beg);
 	file.read((char*)&ptr_memory[0x0000],size_memory);
 }
