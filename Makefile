@@ -64,7 +64,7 @@ libx86lib.a: $(CXX_VM_OBJS)
 x86testbench: $(CXX_TESTBENCH_OBJS) $(VM_OUTPUTS)
 	$(CXX) $(CXXFLAGS) -static -o x86testbench $(CXX_TESTBENCH_OBJS) -lx86lib -L.
 
-$(CXX_TESTBENCH_OBJS): $(HDRS) $(CXX_TESTBENCH_OBJS)
+$(CXX_TESTBENCH_OBJS): $(HDRS) $(CXX_TESTBENCH_SRC)
 	$(CXX) $(CXXFLAGS) -c $*.cpp -o $@
 
 $(CXX_VM_OBJS): $(HDRS) $(CXX_VM_SRC)
