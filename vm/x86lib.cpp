@@ -13,7 +13,7 @@ are met:
    documentation and/or other materials provided with the distribution.
 3. The name of the author may not be used to endorse or promote products
    derived from this software without specific prior written permission.
-   
+
 THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES,
 INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
 AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL
@@ -221,7 +221,7 @@ void x86CPU::Exec(int cyclecount){
 				case 2: //NMI
 				case 3: //breakpoint
 				case 4: //overflow
-				
+
 				case 7: //device unavailable
 				Int16(err.code);
 				eip++; //undo the decrement by Int
@@ -449,8 +449,8 @@ void x86CPU::InitOpcodes(){
     op(0x99, op_cwE); //cwd/cdq
     op(0x9A, op_call_immF);
     op(0x9B, op_wait);
-    //op(0x9C, op_pushf);
-    //op(0x9D, op_popf);
+    op(0x9C, op_pushf);
+    op(0x9D, op_popf);
     op(0x9E, op_sahf);
     op(0x9F, op_lahf);
     op(0xA0, op_mov_al_m8);
@@ -642,7 +642,7 @@ void x86CPU::InitOpcodes(){
         opx(0xC8 + i, op_bswap_rW);
     }
 
-   
+
 
 */
 
@@ -696,7 +696,7 @@ void x86CPU::InitOpcodes(){
 	InstallOp(0xE6,&x86CPU::op_out_imm8_al);
 	InstallOp(0xE7,&x86CPU::op_out_imm8_axW);
 	InstallOp(0x9A,&x86CPU::op_call_immF);
-	InstallOp(0xCB,&x86CPU::op_retf); 
+	InstallOp(0xCB,&x86CPU::op_retf);
 	//can't override these opcodes
 	//InstallOp(0xCD,&x86CPU::op_int_imm8);
 	//InstallOp(0xCF,&x86CPU::op_iret);
@@ -729,7 +729,7 @@ void x86CPU::InitOpcodes(){
 	InstallOp(0x3A,&x86CPU::op_cmp_r8_rm8);
 	InstallOp(0x3B,&x86CPU::op_cmp_rW_rmW);
 	InstallOp(0x3C,&x86CPU::op_cmp_al_imm8);
-	InstallOp(0x3D,&x86CPU::op_cmp_axW_immW); 
+	InstallOp(0x3D,&x86CPU::op_cmp_axW_immW);
 	InstallOp(0x83,&x86CPU::op_group_83);
 	InstallOp(0xFF,&x86CPU::op_group_FF);
 	InstallOp(0xE9,&x86CPU::op_jmp_relW);
