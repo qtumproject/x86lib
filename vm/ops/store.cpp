@@ -13,7 +13,7 @@ are met:
    documentation and/or other materials provided with the distribution.
 3. The name of the author may not be used to endorse or promote products
    derived from this software without specific prior written permission.
-   
+
 THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES,
 INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
 AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL
@@ -93,7 +93,7 @@ void x86CPU::op_mov_mW_axW(){
 
 void x86CPU::op_mov_rm8_imm8(){
 	ModRM rm(this);
-	
+
 	//eventually fix this so that if r is used, then invalid opcode...
 	rm.WriteByte(ReadByte(cCS,eip+rm.GetLength()));
 	eip++;
@@ -150,6 +150,14 @@ void x86CPU::op_push_ds(){
 
 void x86CPU::op_push_ss(){
     Push(0);
+}
+
+void x86CPU::op_pushf(){
+    Push(freg.data);
+}
+
+void x86CPU::op_popf(){
+    freg.data = Pop();
 }
 
 void x86CPU::op_pop_rmW(ModRM &rm){

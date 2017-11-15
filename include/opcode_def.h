@@ -13,7 +13,7 @@ are met:
    documentation and/or other materials provided with the distribution.
 3. The name of the author may not be used to endorse or promote products
    derived from this software without specific prior written permission.
-   
+
 THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES,
 INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
 AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL
@@ -57,7 +57,7 @@ For example, movsw and movsd are separate instructions but both handled by op_mo
 
 Opcodes with registers in the name can have W after them to indicate that they operate on either the 32bit or 16bit register
 
-Sizes should be specified explicitly. It should never be like `op_inc_rm`, it should be `op_inc_rmW` 
+Sizes should be specified explicitly. It should never be like `op_inc_rm`, it should be `op_inc_rmW`
 **/
 
 /**This file contains the opcode function definitions and prototypes for x86CPU**/
@@ -298,6 +298,9 @@ void op_retn_imm16();
 void op_int1();
 void op_pre_gs_override();
 void op_pre_fs_override();
+
+void op_pushf();
+void op_popf();
 
 
 /**Group Include Functions(not direct opcodes)**/
