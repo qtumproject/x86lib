@@ -14,7 +14,7 @@ are met:
 3. The name of the author may not be used to endorse or promote products
    derived from this software without specific prior written permission.
 
-THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS WR IMPLIED WARRANTIES,
+THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES,
 INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
 AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL
 THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
@@ -269,7 +269,7 @@ void op_group_D2();
 void op_group_D3();
 void op_group_D0();
 void op_group_D1();
-void op_group_C1();
+void op_group_C0();
 void op_group_C1();
 void op_lodsb();
 void op_lodsW();
@@ -356,18 +356,32 @@ void op_shr_rm8_cl(ModRM &rm);
 void op_shr_rmW_cl(ModRM &rm);
 void op_sar_rm8_cl(ModRM &rm);
 void op_sar_rmW_cl(ModRM &rm);
+void op_sar_rm8_imm8(ModRM &rm);
+void op_sar_rmW_imm8(ModRM &rm);
 void op_shl_rm8_cl(ModRM &rm);
 void op_shl_rmW_cl(ModRM &rm);
+void op_shl_rm8_imm8(ModRM &rm);
+void op_shl_rmW_imm8(ModRM &rm);
 void op_rol_rm8_cl(ModRM &rm);
 void op_rol_rmW_cl(ModRM &rm);
+void op_rol_rm8_imm8(ModRM &rm);
+void op_rol_rmW_imm8(ModRM &rm);
 void op_ror_rm8_cl(ModRM &rm);
 void op_ror_rmW_cl(ModRM &rm);
+void op_ror_rm8_imm8(ModRM &rm);
+void op_ror_rmW_imm8(ModRM &rm);
 void op_rcl_rm8_cl(ModRM &rm);
 void op_rcl_rmW_cl(ModRM &rm);
+void op_rcl_rm8_imm8(ModRM &rm);
+void op_rcl_rmW_imm8(ModRM &rm);
 void op_rcr_rm8_cl(ModRM &rm);
 void op_rcr_rmW_cl(ModRM &rm);
+void op_rcr_rm8_imm8(ModRM &rm);
+void op_rcr_rmW_imm8(ModRM &rm);
 void op_shr_rm8_1(ModRM &rm);
 void op_shr_rmW_1(ModRM &rm);
+void op_shr_rm8_imm8(ModRM &rm);
+void op_shr_rmW_imm8(ModRM &rm);
 void op_sar_rm8_1(ModRM &rm);
 void op_sar_rmW_1(ModRM &rm);
 void op_shl_rm8_1(ModRM &rm);

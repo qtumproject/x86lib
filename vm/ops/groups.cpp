@@ -445,7 +445,7 @@ void x86CPU::op_group_C0(){
 
         default:
         eip--;
-        throw CputInt_excp(UNK_IEXCP);
+		throw CpuInt_excp(UNK_IEXCP);
         break;
     }
 }
@@ -476,7 +476,7 @@ void x86CPU::op_group_C1(){
 
         default:
         eip--;
-        throw CputInt_excp(UNK_IEXCP);
+		throw CpuInt_excp(UNK_IEXCP);
         break;
     }
 }
