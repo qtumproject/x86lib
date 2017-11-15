@@ -405,8 +405,8 @@ void x86CPU::InitOpcodes(){
     	op(0x50+i, op_push_rW);
     	op(0x58+i, op_pop_rW);
     }
-    //op(0x60, op_pushaW); //186
-    //op(0x61, op_popaW); //186
+    op(0x60, op_pushaW); //186
+    op(0x61, op_popaW); //186
     //op(0x62, op_bound_rW_mW); //186
     //op(0x63, op_arpl_rmW_rW); //286 (priv?)
     //op(0x64, op_pre_fs_override); //386
