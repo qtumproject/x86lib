@@ -14,7 +14,7 @@ are met:
 3. The name of the author may not be used to endorse or promote products
    derived from this software without specific prior written permission.
 
-THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES,
+THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS WR IMPLIED WARRANTIES,
 INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
 AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL
 THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
@@ -269,6 +269,8 @@ void op_group_D2();
 void op_group_D3();
 void op_group_D0();
 void op_group_D1();
+void op_group_C1();
+void op_group_C1();
 void op_lodsb();
 void op_lodsW();
 void op_scasb();
