@@ -294,8 +294,36 @@ void x86CPU::op_movzx_r32_rmW(){
     regs32[rm.GetExtra()] = rm.ReadWord();
 }
 
+void x86CPU::op_pushaW(){
+    uint32_t tmp;
+    tmp = Reg(SP);
+    Push(Reg(AX));
+    Push(Reg(CX));
+    Push(Reg(DX));
+    Push(Reg(BX));
+    Push(tmp);
+    Push(Reg(BP));
+    Push(Reg(SI));
+    Push(Reg(DI));
+}
 
+void x86CPU::op_popaW(){
+    uint32_t ofs=0;
+    if(OperandSize16){
+       ofs = 2;
+    }else{
+       ofs = 4;
+    }
 
+    SetReg(DI,Pop());
+    SetReg(SI,Pop());
+    SetReg(BP,Pop());
+    SetReg(SP,Reg(SP)+ofs);
+    SetReg(BX,Pop());
+    SetReg(DX,Pop());
+    SetReg(CX,Pop());
+    SetReg(AX,Pop());
+}
 
 };
 

@@ -383,10 +383,14 @@ void op_not_rmW(ModRM &rm);
 void op_call_rmW(ModRM &rm);
 void op_call_mF(ModRM &rm);
 
+void op_pushaW();
+void op_popaW();
+
 void op32_mul_rm32(ModRM &rm);
 void op32_imul_rm32(ModRM &rm);
 void op32_div_rm32(ModRM &rm);
 void op32_idiv_rm32(ModRM &rm);
+
 
 //2-byte opcodes
 void op_movzx_rW_rm8();
