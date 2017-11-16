@@ -448,6 +448,7 @@ void x86CPU::op_group_C0(){
 		throw CpuInt_excp(UNK_IEXCP);
         break;
     }
+	eip++; //for imm8
 }
 
 void x86CPU::op_group_C1(){
@@ -479,6 +480,7 @@ void x86CPU::op_group_C1(){
 		throw CpuInt_excp(UNK_IEXCP);
         break;
     }
+	eip++; //for imm8
 }
 
 };
