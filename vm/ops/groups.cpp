@@ -442,6 +442,7 @@ void x86CPU::op_group_C0(){
 		break;
 		case 2:
 		op_rcl_rm8_imm8(rm);
+        break;
 
         default:
         eip--;
@@ -474,6 +475,7 @@ void x86CPU::op_group_C1(){
 		break;
 		case 2:
 		op_rcl_rmW_imm8(rm);
+        break;
 
         default:
         eip--;
