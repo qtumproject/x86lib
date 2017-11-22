@@ -401,6 +401,7 @@ class ModRM{
 	and has many functions. It completely emulates the x86 line of CPUs
 */
 class x86CPU{
+    private:
 	friend class ModRM;
 	volatile uint32_t regs32[8];
 	volatile uint16_t seg[7];

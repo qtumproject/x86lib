@@ -45,7 +45,7 @@ CXX_TESTBENCH_SRC = testbench/testbench.cpp
 
 CXX_TESTBENCH_OBJS = $(subst .cpp,.o,$(CXX_TESTBENCH_SRC))
 
-CXX_TEST_SRC = tests/test_main.cpp
+CXX_TEST_SRC = tests/test_main.cpp tests/flag_tests.cpp
 CXX_TEST_OBJS = $(subst .cpp,.o,$(CXX_TEST_SRC))
 
 
