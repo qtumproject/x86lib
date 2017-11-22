@@ -45,8 +45,12 @@ CXX_TESTBENCH_SRC = testbench/testbench.cpp
 
 CXX_TESTBENCH_OBJS = $(subst .cpp,.o,$(CXX_TESTBENCH_SRC))
 
+CXX_TEST_SRC = tests/test_main.cpp
+CXX_TEST_OBJS = $(subst .cpp,.o,$(CXX_TEST_SRC))
 
-CXXFLAGS ?= -Wall -g3 -fPIC
+
+
+CXXFLAGS ?= -Wall -fPIC
 CXXFLAGS += -DX86LIB_BUILD -I./include -fexceptions
 
 VERSION=1.1
@@ -57,6 +61,15 @@ OUTPUTS = $(VM_OUTPUTS) x86testbench
 default: build
 
 build: $(OUTPUTS)
+
+test: x86lib_tests
+	./x86lib_tests
+
+x86lib_tests: $(CXX_TEST_OBJS) $(OUTPUTS)
+	$(CXX) $(CXXFLAGS) -std=c++11 -o x86lib_tests $(CXX_TEST_OBJS) -lx86lib -L.
+
+$(CXX_TEST_OBJS): $(HDRS) $(CXX_VM_SRC) $(CXX_TEST_SRC)
+	$(CXX) $(CXXFLAGS) -std=c++11 -c $*.cpp -o $@
 
 libx86lib.a: $(CXX_VM_OBJS)
 	ar crs libx86lib.a $(CXX_VM_OBJS)
@@ -71,7 +84,7 @@ $(CXX_VM_OBJS): $(HDRS) $(CXX_VM_SRC)
 	$(CXX) $(CXXFLAGS) -c $*.cpp -o $@
 
 clean:
-	rm -f $(CXX_VM_OBJS) $(OUTPUTS) $(CXX_TESTBENCH_OBJS)
+	rm -f $(CXX_VM_OBJS) $(OUTPUTS) $(CXX_TESTBENCH_OBJS) $(CXX_TEST_OBJS) x86lib_tests
 
 buildtest:
 	i386-elf-gcc -c testos.c -o testos.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra $(testos_CFLAGS)
