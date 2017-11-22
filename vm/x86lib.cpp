@@ -473,9 +473,9 @@ void x86CPU::InitOpcodes(){
     	op(0xB0+i, op_mov_r8_imm8);
     	op(0xB8+i, op_mov_rW_immW);
     }
-    //op(0xC0, op_group_C0); //186
+    op(0xC0, op_group_C0); //186
     // C0 group: _rm8_imm8; rol, ror, rcl, rcr, shl/sal, shr, sal/shl(?), sar
-    //op(0xC1, op_group_C1); //186
+    op(0xC1, op_group_C1); //186
     // C1 group: _rmW_imm8; rol, ror, rcl, rcr, shl/sal, shr, sal/shl, sar
     op(0xC2, op_retn_imm16); //???
     op(0xC3, op_retn);
