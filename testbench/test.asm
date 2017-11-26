@@ -28,7 +28,8 @@
 
 CPU i386
 BITS 32
-ORG 0x1000
+SECTION .text progbits alloc exec nowrite address=1000
+;ORG 0x1000
 
 start:
 mov eax, 0 
