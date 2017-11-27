@@ -276,6 +276,7 @@ int main(int argc, char* argv[]){
 
 	if(doElf){
 		//load ELF32 file
+		cout << "Found .elf file extension. Attempting to load ELF file" << endl;
 		size_t codesize;
 		size_t datasize;
 		if(!loadElf(coderom.GetMemory(), &codesize, scratch.GetMemory(), &datasize, fileData, fileLength)){
@@ -284,6 +285,7 @@ int main(int argc, char* argv[]){
 		}
 	}else{
 		//load BIN file (no option to load data with bin files)
+		cout << "Attempting to load BIN file. Warning: It is not possible to load data with this" << endl;
 		memcpy(coderom.GetMemory(), fileData, fileLength);
 	}
 
