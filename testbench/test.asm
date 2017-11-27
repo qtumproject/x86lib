@@ -28,8 +28,9 @@
 
 CPU i386
 BITS 32
-SECTION .text progbits alloc exec nowrite address=1000
-;ORG 0x1000
+SECTION .text progbits alloc exec nowrite align=1
+GLOBAL start
+
 
 start:
 mov eax, 0 
@@ -43,25 +44,15 @@ mov eax, ebx
 out 0xF3, al ;dump memory API call
 
 out 0xF0, ax
+mov eax, [foo]
+out 0xF0, eax
 cli
 hlt
 
-rep lodsw
-
-;add 10 bytes of padding for reasons
-nop
-nop
-nop
-nop
-
-nop
-nop
-nop
-nop
-
-nop
-nop
-
+SECTION .data align=1
+GLOBAL foo
+foo: db 0x01
+dd 0x1032
 
 
 

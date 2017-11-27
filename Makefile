@@ -33,7 +33,7 @@ AR ?= ar
 
 
 TEST_CC ?= i386-elf-gcc
-TEST_CFLAGS ?= -fdata-sections -ffunction-sections
+TEST_CFLAGS ?= -Os -nostartfiles -nodefaultlibs -Wl,-z,norelro -Wl,--build-id=none -static
 
 
 CXX_VM_SRC = vm/x86lib.cpp vm/modrm.cpp vm/device_manager.cpp vm/cpu_helpers.cpp vm/ops/strings.cpp vm/ops/store.cpp vm/ops/maths.cpp \
@@ -76,5 +76,8 @@ clean:
 buildtest:
 	#i386-elf-gcc -c testos.c -o testos.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra $(testos_CFLAGS)
 	#i386-elf-gcc -T linker.ld -o testos.bin -ffreestanding -O2 -nostdlib testos.o -lgcc -Wl,--gc-sections $(testos_CFLAGS) -dead_strip
-	yasm -o test.elf testbench/test.asm -f elf32
+	yasm -o testbench/test.o testbench/test.asm -f elf32
+	i386-elf-gcc -T testbench/linker.ld -o test.elf -ffreestanding -nostdlib testbench/test.o -Wl,--gc-sections $(testos_CFLAGS) -dead_strip -Xlinker -Map=test.elf.map -Xlinker -n
+	strip -s -S test.elf
+
 

@@ -9,27 +9,32 @@ MEMORY
 }
 SECTIONS
 {
-  .text phys : AT(phys) {
+  . = ALIGN(4);
+  .text : AT(phys) ALIGN(4) {
+    . = ALIGN(4);
     code = .;
     *(.text.start);
     *(.text*)
     *(.rodata)
     . = ALIGN(4);
-  } > coderom
+  }
   __text_end=.;
-  .data : AT(phys + (data - code))
+  . = ALIGN(4);
+  .data : AT(scratch)
   {
+    . = ALIGN(4);
     data = .;
     *(.data)
     . = ALIGN(4);
-  } > coderom
+  } > scratchram
   __data_end=.;
   __binary_end = .;
-  .bss : AT(scratch)
+  .bss : AT(scratch + (bss - data))
   {
     bss = .;
     *(.bss)
     . = ALIGN(4);
   } > scratchram
 }
+
 
