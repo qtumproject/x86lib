@@ -114,7 +114,7 @@ bool loadElf(char* code, size_t* codeSize, char* data, size_t* dataSize, char* r
             cout << "Address: 0x" << hex << phdr->p_vaddr << ", Size: 0x" << hex << phdr->p_memsz << endl;
             return false;
         }
-        cout << "Loaded segment #" << i << "at address 0x" << hex << phdr->p_vaddr << " of size 0x" << hex << phdr->p_memsz << endl;
+        cout << "Loaded segment #" << i << " at address 0x" << hex << phdr->p_vaddr << " of size 0x" << hex << phdr->p_memsz << endl;
     }
     return true;
 }

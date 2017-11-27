@@ -40,26 +40,6 @@ This file is part of the x86Lib project.
 using namespace std;
 using namespace x86Lib;
 
-uint32_t fileLength;
-
-uint8_t *ptr_memory;
-size_t size_memory;
-void init_memory(char* fileToLoad){
-	size_memory=0xFF000;
-	ptr_memory=new uint8_t[size_memory];
-	memset(ptr_memory,0xFF,size_memory); //initialize it all to 0x66, an invalid opcode
-	ifstream file(fileToLoad, ios::binary);
-	if(!file){
-		cout << "file " << fileToLoad << " does not exist" << endl;
-		exit(1);
-	}
-	fileLength = file.tellg();
-	file.seekg(0, std::ios::end);
-	fileLength = (uint32_t) (((long)file.tellg()) - (long) fileLength);
-	file.seekg(0, std::ios::beg);
-	file.read((char*)&ptr_memory[0x0000],size_memory);
-}
-
 class RAMemory : public MemoryDevice{
 	protected:
 	char *ptr;
@@ -247,7 +227,7 @@ bool singleStep=false;
 
 int main(int argc, char* argv[]){
 	if(argc < 2){
-		cout << "./x86test program.bin [-singlestep]" << endl;
+		cout << "./x86test {program.elf | program.bin} [-singlestep]" << endl;
 		return 1;
 	}
 	if(argc > 2){
@@ -268,8 +248,9 @@ int main(int argc, char* argv[]){
 	Memory.Add(0x100000, 0x1FFFFF, &scratch);
 
 	int maxSize=0x10000;
-	char* filedata=new char[maxSize];
-	ifstream file(argv[1], ios::binary);
+	char* fileData=new char[maxSize];
+	string fileName = argv[1];
+	ifstream file(fileName.c_str(), ios::binary);
 	if(!file){
 		cout << "file " << argv[1] << " does not exist" << endl;
 		exit(1);
@@ -278,13 +259,32 @@ int main(int argc, char* argv[]){
 	file.seekg(0, std::ios::end);
 	fileLength = (uint32_t) (((long)file.tellg()) - (long) fileLength);
 	file.seekg(0, std::ios::beg);
-	file.read(filedata, maxSize);
-	cout << "first byte: 0x" << hex << (int) filedata[0] << ", file size: " << fileLength << endl;
-	size_t codesize;
-	size_t datasize;
-	if(!loadElf(coderom.GetMemory(), &codesize, scratch.GetMemory(), &datasize, filedata, fileLength)){
-		cout << "error loading ELF" << endl;
-		return -1;
+	file.read(fileData, maxSize);
+
+	memset(coderom.GetMemory(), 0x66, 0x1000);
+	memset(scratch.GetMemory(), 0x00, 0x100000);
+
+	bool doElf = false;
+	string::size_type extensionIndex;
+	extensionIndex = fileName.rfind('.');
+	if(extensionIndex != string::npos){
+		string extension = fileName.substr(extensionIndex + 1);
+		if(extension == "elf"){
+			doElf = true;
+		}
+	} //else no extension
+
+	if(doElf){
+		//load ELF32 file
+		size_t codesize;
+		size_t datasize;
+		if(!loadElf(coderom.GetMemory(), &codesize, scratch.GetMemory(), &datasize, fileData, fileLength)){
+			cout << "error loading ELF" << endl;
+			return -1;
+		}
+	}else{
+		//load BIN file (no option to load data with bin files)
+		memcpy(coderom.GetMemory(), fileData, fileLength);
 	}
 
 
