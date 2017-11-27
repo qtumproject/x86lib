@@ -261,7 +261,6 @@ typedef struct
 #define MAX_DATA_SIZE 0x1000
 #define MAX_SECTIONS 16
 
-bool loadElf(char* code, size_t* codeSize, char* data, char* raw, size_t size);
-
+bool loadElf(char* code, size_t* codeSize, char* data, size_t* dataSize, char* raw, size_t size);
 
 #endif

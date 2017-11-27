@@ -78,6 +78,6 @@ buildtest:
 	#i386-elf-gcc -T linker.ld -o testos.bin -ffreestanding -O2 -nostdlib testos.o -lgcc -Wl,--gc-sections $(testos_CFLAGS) -dead_strip
 	yasm -o testbench/test.o testbench/test.asm -f elf32
 	i386-elf-gcc -T testbench/linker.ld -o test.elf -ffreestanding -nostdlib testbench/test.o -Wl,--gc-sections $(testos_CFLAGS) -dead_strip -Xlinker -Map=test.elf.map -Xlinker -n
-	strip -s -S test.elf
+	#strip -s -S test.elf
 
 

@@ -3,23 +3,31 @@
 #include <string.h>
 #include "elf.h"
 
+#include <iostream>
+
 using namespace std;
 
 
 bool validateElf(Elf32_Ehdr* hdr){
     //check if valid ELF file
+
     if(hdr->e_ident[EI_MAG0] != ELFMAG0) {
+        cout << "mmmm1" << endl;
         return false;
     }
     if(hdr->e_ident[EI_MAG1] != ELFMAG1) {
+        cout << "mmmm2" << endl;
         return false;
     }
     if(hdr->e_ident[EI_MAG2] != ELFMAG2) {
+        cout << "mmmm3" << endl;
         return false;
     }
     if(hdr->e_ident[EI_MAG3] != ELFMAG3) {
+        cout << "mmmm4" << endl;
         return false;
     }
+    cout << "magic valid" << endl;
     //now check if valid to be loaded into Qtum's x86 VM
     //if(!elf_check_file(hdr)) {
     //    return false;
@@ -51,7 +59,7 @@ bool validateElf(Elf32_Ehdr* hdr){
 //code is memory buffer available for readonly data
 //data is memory buffer available for readwrite data
 //code is 0x1000, data is 0x100000
-bool loadElf(char* code, size_t* codeSize, char* data, char* raw, size_t size){
+bool loadElf(char* code, size_t* codeSize, char* data, size_t* dataSize, char* raw, size_t size){
     if(size < sizeof(Elf32_Ehdr)){
         return false;
     }
@@ -61,56 +69,55 @@ bool loadElf(char* code, size_t* codeSize, char* data, char* raw, size_t size){
         return false;
     }
 
-    bool codeProcessed;
-    for(int i=1;i<MAX_SECTIONS;i++){ //1st section is undefined
-        if(hdr->e_shoff + (hdr->e_shentsize * i) + sizeof(Elf32_Shdr) < size){
+    for(int i=0;i<MAX_SECTIONS;i++){
+        if(hdr->e_phoff + (hdr->e_phentsize * i) + sizeof(Elf32_Phdr) < size){
+            cout << "Not enough room in file to load program header #" << i << endl;
             return false;
         }
-        Elf32_Shdr *section = (Elf32_Shdr*) &raw[hdr->e_shoff + (hdr->e_shentsize * i)];
-
-        if(section->sh_type == SHT_PROGBITS && 
-            (section->sh_flags & SHF_EXECINSTR && section->sh_flags & SHF_ALLOC)){
-            //.text and readonly bits
-            if(section->sh_addr != CODE_ADDRESS || codeProcessed){
-                //Only allow 1 section to load into code address
-                return false;
-            }
-            if(section->sh_addr + section->sh_size > CODE_ADDRESS + MAX_CODE_SIZE){
-                //error if trying to load code outside of code area
-                return false;
-            }
-            if(section->sh_offset + section->sh_size > size){
-                return false;
-            }
-            memcpy(code, &raw[section->sh_offset], section->sh_size);
-            *codeSize = section->sh_size;
-            codeProcessed=true;
-        }else if(section->sh_type == SHT_PROGBITS && 
-            (section->sh_flags & SHF_WRITE && section->sh_flags & SHF_ALLOC)){
-            //.data and readwrite bits
-            if(section->sh_addr < DATA_ADDRESS || 
-                section->sh_addr + section->sh_size > DATA_ADDRESS + MAX_DATA_SIZE){
-                //error if trying to load data outside of data area
-                //TODO: we could allow for this to do allocation or something.. 
-                return false;
-            }
-            if(section->sh_offset + section->sh_size > size){
-                return false;
-            }
-            memcpy(&data[section->sh_addr], &raw[section->sh_offset], section->sh_size);
-        }else if(section->sh_type == SHT_NOBITS && 
-            (section->sh_flags & SHF_WRITE && section->sh_flags & SHF_ALLOC)){
-            //bss.. 
-            if(section->sh_addr < DATA_ADDRESS || 
-                section->sh_addr + section->sh_size > DATA_ADDRESS + MAX_DATA_SIZE){
-                //Even though we load no data, if this is triggered then .bss is 
-                //located in an area of memory that is not available, so error.
-                return false;
-            }
-            //anything to do here?
-        }else{
-            //ignore unknown sections
+        Elf32_Phdr *phdr = (Elf32_Phdr*) &raw[hdr->e_phoff + (hdr->e_phentsize * i)];
+        if(phdr->p_type != PT_LOAD){
+            cout << "Ignoring non PT_LOAD program section #" << i << " of type " << phdr->p_type << endl; 
+            continue;
         }
+        if(phdr->p_filesz != phdr->p_memsz){
+            cout << "Program segment #" << i << " has a filesz that does not match memsz. Unsure what to do" << endl;
+            return false;
+        }
+        if(phdr -> p_vaddr != phdr->p_paddr){
+            cout << "Program segment #" << i << " has a vaddr that does not match paddr. Unsure what to do" << endl;
+        }
+        if(phdr->p_offset + phdr->p_filesz > size){
+            cout << "Program segment #" << i << " loads more data from file than exists" << endl;
+            return false;
+        }
+        if(phdr->p_vaddr >= CODE_ADDRESS && phdr->p_vaddr < CODE_ADDRESS + MAX_CODE_SIZE){
+            //code segment
+            if(phdr->p_flags & PF_W){
+                cout << "Program segment #" << i << "tries to load writeable data to a readonly memory area" << endl;
+                return false;
+            }
+            size_t segsize = (phdr->p_vaddr - CODE_ADDRESS) + phdr->p_memsz;
+            if(segsize > *codeSize){
+                *codeSize = segsize;
+            }
+            memcpy(&code[phdr->p_vaddr - CODE_ADDRESS], &raw[phdr->p_offset], phdr->p_memsz);
+        }else if(phdr->p_vaddr >= DATA_ADDRESS && phdr->p_vaddr < DATA_ADDRESS + MAX_DATA_SIZE){
+            //data segment
+            if(!(phdr->p_flags & PF_W)){
+                cout << "Warning: Program segment #" << i << "Loads readonly data into readwrite memory" << endl;
+                cout << "It may be cheaper in gas costs to relocate this data into readonly memory" << endl;
+            }
+            size_t segsize = (phdr->p_vaddr - DATA_ADDRESS) + phdr->p_memsz;
+            if(segsize > *dataSize){
+                *dataSize = segsize;
+            }
+            memcpy(&data[phdr->p_vaddr - DATA_ADDRESS], &raw[phdr->p_offset], phdr->p_memsz);
+        }else{
+            cout << "Program segment #" << i << " loads into an invalid address or occupies more space than available" << endl;
+            cout << "Address: 0x" << hex << phdr->p_vaddr << ", Size: 0x" << hex << phdr->p_memsz << endl;
+            return false;
+        }
+        cout << "Loaded segment #" << i << "at address 0x" << hex << phdr->p_vaddr << " of size 0x" << hex << phdr->p_memsz << endl;
     }
     return true;
 }
