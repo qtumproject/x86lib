@@ -12,22 +12,17 @@ bool validateElf(Elf32_Ehdr* hdr){
     //check if valid ELF file
 
     if(hdr->e_ident[EI_MAG0] != ELFMAG0) {
-        cout << "mmmm1" << endl;
         return false;
     }
     if(hdr->e_ident[EI_MAG1] != ELFMAG1) {
-        cout << "mmmm2" << endl;
         return false;
     }
     if(hdr->e_ident[EI_MAG2] != ELFMAG2) {
-        cout << "mmmm3" << endl;
         return false;
     }
     if(hdr->e_ident[EI_MAG3] != ELFMAG3) {
-        cout << "mmmm4" << endl;
         return false;
     }
-    cout << "magic valid" << endl;
     //now check if valid to be loaded into Qtum's x86 VM
     //if(!elf_check_file(hdr)) {
     //    return false;
@@ -69,9 +64,11 @@ bool loadElf(char* code, size_t* codeSize, char* data, size_t* dataSize, char* r
         return false;
     }
 
-    for(int i=0;i<MAX_SECTIONS;i++){
-        if(hdr->e_phoff + (hdr->e_phentsize * i) + sizeof(Elf32_Phdr) < size){
+    for(int i=0;i<hdr->e_phnum;i++){
+        if(hdr->e_phoff + (hdr->e_phentsize * i) + sizeof(Elf32_Phdr) > size){
             cout << "Not enough room in file to load program header #" << i << endl;
+            cout << "size: 0x" << hex << size << ", offset: 0x" << hex << hdr->e_phoff << 
+                " sizeof header: 0x" << hex << sizeof(Elf32_Phdr) << " phentsize: 0x" << hex << hdr->e_phentsize << endl; 
             return false;
         }
         Elf32_Phdr *phdr = (Elf32_Phdr*) &raw[hdr->e_phoff + (hdr->e_phentsize * i)];

@@ -278,8 +278,8 @@ int main(int argc, char* argv[]){
 	file.seekg(0, std::ios::end);
 	fileLength = (uint32_t) (((long)file.tellg()) - (long) fileLength);
 	file.seekg(0, std::ios::beg);
-	file.read(filedata, size_memory);
-
+	file.read(filedata, maxSize);
+	cout << "first byte: 0x" << hex << (int) filedata[0] << ", file size: " << fileLength << endl;
 	size_t codesize;
 	size_t datasize;
 	if(!loadElf(coderom.GetMemory(), &codesize, scratch.GetMemory(), &datasize, filedata, fileLength)){
