@@ -44,7 +44,11 @@ bool validateElf(Elf32_Ehdr* hdr){
     }
     //qtum rules:
     if(hdr->e_entry != CODE_ADDRESS){
-        return false;
+        //if entry point is not code address, then we will insert a JMP instruction to go there
+        if(hdr->e_entry < CODE_ADDRESS + 5){
+            cout << "Not enough room to insert JMP instruction. Please use a .text load address of at least 0x1005" << endl;
+            return false;
+        }
     }
     return true;
 }
@@ -116,6 +120,15 @@ bool loadElf(char* code, size_t* codeSize, char* data, size_t* dataSize, char* r
         }
         cout << "Loaded segment #" << i << " at address 0x" << hex << phdr->p_vaddr << " of size 0x" << hex << phdr->p_memsz << endl;
     }
+
+    if(hdr->e_entry != CODE_ADDRESS){
+        cout << "NOTE: inserting JMP instruction to go to ELF entry point" << endl;
+        code[0] = 0xE9; //jmp rel32
+        uint32_t entry = hdr->e_entry;
+        entry -= CODE_ADDRESS; //make a relative address to code[0]
+        memcpy(&code[1], &entry, sizeof(uint32_t));
+    }
+
     return true;
 }
 

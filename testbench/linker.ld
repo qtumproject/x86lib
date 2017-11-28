@@ -1,6 +1,6 @@
 OUTPUT_FORMAT("elf32-i386")
 ENTRY(start)
-phys = 0x1000;
+phys = 0x1008;
 scratch = 0x100000;
 MEMORY
 {
