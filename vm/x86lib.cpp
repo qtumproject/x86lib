@@ -88,12 +88,12 @@ void x86CPU::Reset(){
 void x86CPU::SaveState(x86SaveData *save){
 	uint32_t i;
 	for(i=0;i<8;i++){
-		save->reg32[i]=regs32[i];
+		save->regs32[i]=regs32[i];
 	}
 	for(i=0;i<7;i++){
 		save->seg[i]=seg[i];
 	}
-	save->freg=freg.data;
+	save->freg=freg;
 	save->eip=eip;
 	save->seg_route[cES]=ES;
 	save->seg_route[cCS]=CS;
@@ -101,21 +101,18 @@ void x86CPU::SaveState(x86SaveData *save){
 	save->seg_route[cSS]=SS;
 	save->seg_route[cFS]=FS;
 	save->seg_route[cGS]=GS;
-	save->cpu_level=cpu_level;
-    save->opcode_mode = OPCODE_HOSTED_32;
 }
 
 void x86CPU::LoadState(x86SaveData &load){
 	uint32_t i;
-	cpu_level=load.cpu_level;
 	Reset();
 	for(i=0;i<8;i++){
-		regs32[i]=load.reg32[i];
+		regs32[i]=load.regs32[i];
 	}
 	for(i=0;i<7;i++){
 		seg[i]=load.seg[i];
 	}
-	freg.data=load.freg;
+	freg=load.freg;
 	eip=load.eip;
 	ES=load.seg_route[cES];
 	CS=load.seg_route[cCS];
@@ -123,7 +120,6 @@ void x86CPU::LoadState(x86SaveData &load){
 	SS=load.seg_route[cSS];
 	GS=load.seg_route[cGS];
 	FS=load.seg_route[cFS];
-    Opcodes = opcodes_hosted;
 }
 
 
