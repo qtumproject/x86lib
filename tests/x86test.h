@@ -119,6 +119,25 @@ struct x86Checkpoint{
     void SetIF(){
         regs.freg.bits._if = 1;
     }
+    //unsets
+    void UnsetCF(){
+        regs.freg.bits.cf = 0;
+    }
+    void UnsetPF(){
+        regs.freg.bits.pf = 0;
+    }
+    void UnsetAF(){
+        regs.freg.bits.af = 0;
+    }
+    void UnsetZF(){
+        regs.freg.bits.zf = 0;
+    }
+    void UnsetSF(){
+        regs.freg.bits.sf = 0;
+    }
+    void UnsetIF(){
+        regs.freg.bits._if = 0;
+    }
 };
 
 class TestPorts : public PortDevice{
