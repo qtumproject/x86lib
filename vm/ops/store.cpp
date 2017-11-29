@@ -286,8 +286,15 @@ void x86CPU::op_movzx_r32_rmW(){
     regs32[rm.GetExtra()] = rm.ReadWord();
 }
 
+void x86CPU::op_leave(){
+    SetReg(ESP, Reg(EBP));
+    SetReg(EBP, Pop());
+}
 
-
+void x86CPU::op_movsx_rW_rm8(){
+    ModRM rm(this);
+    SetReg(rm.GetExtra(), SignExtend8to32(rm.ReadByte()));
+}
 
 };
 

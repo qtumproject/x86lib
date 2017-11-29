@@ -126,6 +126,7 @@ void WritePort(uint16_t port,uint32_t val){
 	functions to try out...*/
 	switch(port){
 		case 0: //print ascii char of val
+		cout << "printing.. "<< (int) val << endl;
 		cout << (char) val << flush;
 		break;
 		case 1: //print value of byte
@@ -224,6 +225,7 @@ void each_opcode(x86CPU *thiscpu){
 }
 
 bool singleStep=false;
+bool singleStepShort=false;
 
 int main(int argc, char* argv[]){
 	if(argc < 2){
@@ -233,6 +235,10 @@ int main(int argc, char* argv[]){
 	if(argc > 2){
 		if(strcmp(argv[2], "-singlestep") == 0){
 			singleStep = true;
+		}
+		if(strcmp(argv[2], "-singlestep-short") == 0){
+			singleStep = true;
+			singleStepShort=true;
 		}
 	}
 
@@ -310,8 +316,12 @@ int main(int argc, char* argv[]){
 			}else{
 				cpu->Exec(1);
 				cout <<"OPCODE: " << cpu->GetLastOpcodeName() << "; hex: 0x" << hex << cpu->GetLastOpcode() << endl;
-				cpu->DumpState(cout);
-				cout << "-------------------------------" << endl;
+				if(singleStepShort){
+					cout << "EIP: 0x" << cpu->GetLocation() << endl;
+				}else{
+					cpu->DumpState(cout);
+					cout << "-------------------------------" << endl;
+				}
 				if(int_cause){
 					int_cause=false;
 					cpu->Int(int_cause_number);

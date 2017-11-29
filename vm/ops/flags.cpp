@@ -75,7 +75,9 @@ void x86CPU::op_jcc_rel8(){
     int cc = opbyte-0x70;
     uint8_t rel = ReadCode8(1);
     if(jcc(cc, freg)){
+        eip += 2;
         Jmp_near8(rel);
+        eip--;
     }else{
         eip++;
     }
@@ -85,7 +87,9 @@ void x86CPU::op_jcc_relW(){
     int cc = opbyte-0x80;
     uint32_t rel = ReadCodeW(1);
     if(jcc(cc, freg)){
+        eip += OperandSize() + 1;
         Jmp_nearW(rel);
+        eip--;
     }else{
         eip+=OperandSize(); //1 to move past current opcode
     }

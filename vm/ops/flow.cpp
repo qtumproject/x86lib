@@ -35,12 +35,14 @@ using namespace std;
 
 void x86CPU::op_jmp_rel8(){
     uint8_t rel = ReadCode8(1);
+    eip += 2;
 	Jmp_near8(rel);
 	eip--;
 }
 
 void x86CPU::op_jmp_relW(){
     uint32_t rel = ReadCodeW(1);
+    eip += OperandSize() + 1;
 	//+ operand to move past immediate, and +1 to move past current opcode
     Jmp_nearW(rel);
     eip--;
@@ -69,6 +71,7 @@ void x86CPU::op_jmp_mF(ModRM &rm){
 void x86CPU::op_jcxzW_rel8(){
     uint8_t rel = ReadCode8(1);
 	if(Reg(ECX)==0){
+        eip++;
 		Jmp_near8(rel);
         eip--;
 	}else{
@@ -82,8 +85,8 @@ void x86CPU::op_jcxzW_rel8(){
 void x86CPU::op_call_relW(){
     uint32_t tmp = ReadCodeW(1);
 	//increment eip to move beyond relW and then +1 to increment past current opcode byte
-	//eip+=(OperandSize16 ? 2 : 4) + 1;
-	Push(eip + (OperandSize16 ? 2 : 4) + 1);
+	eip+=(OperandSize16 ? 2 : 4) + 1;
+	Push(eip); //+ (OperandSize16 ? 2 : 4) + 1);
 	Jmp_nearW(tmp);
     eip--;
 }

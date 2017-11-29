@@ -484,7 +484,7 @@ void x86CPU::InitOpcodes(){
     op(0xC6, op_mov_rm8_imm8);
     op(0xC7, op_mov_rmW_immW);
     //op(0xC8, op_enter); //186
-    //op(0xC9, op_leave); //186
+    op(0xC9, op_leave); //186
     op(0xCA, op_retf_imm16); //???
     op(0xCB, op_retf);
     op(0xCC, op_int3);
@@ -549,6 +549,9 @@ void x86CPU::InitOpcodes(){
 
 
     //note: All 0x0F "extended" opcodes begin at 286+, so compatibility will only be noted if above 286 level
+
+    
+    opx(0xBE, op_movsx_rW_rm8); //386
 /* commenting all these out for now
 
     opxg(0x00, 0, op_naG); //sldt
@@ -633,7 +636,6 @@ void x86CPU::InitOpcodes(){
     opx(0xBB, op_btc_rmW_rW); //386
     opx(0xBC, op_bsf_rW_rmW); //386
     opx(0xBD, op_bsr_rW_rmW); //386
-    opx(0xBE, op_movsx_rW_rm8); //386
     opx(0xBF, op_movsx_rW_rm16); //386
     opx(0xC0, op_xadd_rm8_r8); //486
     opx(0xC1, op_xadd_rmW_rW); //486
