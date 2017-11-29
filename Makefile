@@ -27,13 +27,13 @@
 #This file is part of the x86Lib project.
 
 
-HDRS =  include/config.h include/opcode_def.h include/x86lib.h include/x86lib_internal.h
+HDRS =  include/config.h include/opcode_def.h include/x86lib.h include/x86lib_internal.h testbench/elf.h
 CXX ?= g++
 AR ?= ar
 
 
 TEST_CC ?= i386-elf-gcc
-TEST_CFLAGS ?= -fdata-sections -ffunction-sections
+TEST_CFLAGS ?= -Os -nostartfiles -nodefaultlibs -Wl,-z,norelro -Wl,--build-id=none -static
 
 
 CXX_VM_SRC = vm/x86lib.cpp vm/modrm.cpp vm/device_manager.cpp vm/cpu_helpers.cpp vm/ops/strings.cpp vm/ops/store.cpp vm/ops/maths.cpp \
@@ -41,7 +41,7 @@ CXX_VM_SRC = vm/x86lib.cpp vm/modrm.cpp vm/device_manager.cpp vm/cpu_helpers.cpp
 
 CXX_VM_OBJS = $(subst .cpp,.o,$(CXX_VM_SRC))
 
-CXX_TESTBENCH_SRC = testbench/testbench.cpp
+CXX_TESTBENCH_SRC = testbench/testbench.cpp testbench/elfloader.cpp
 
 CXX_TESTBENCH_OBJS = $(subst .cpp,.o,$(CXX_TESTBENCH_SRC))
 
@@ -87,7 +87,10 @@ clean:
 	rm -f $(CXX_VM_OBJS) $(OUTPUTS) $(CXX_TESTBENCH_OBJS) $(CXX_TEST_OBJS) x86lib_tests
 
 buildtest:
-	i386-elf-gcc -c testos.c -o testos.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra $(testos_CFLAGS)
-	i386-elf-gcc -T linker.ld -o testos.bin -ffreestanding -O2 -nostdlib testos.o -lgcc -Wl,--gc-sections $(testos_CFLAGS) -dead_strip
-	yasm -o testasm.bin testasm.asm
+	#i386-elf-gcc -c testos.c -o testos.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra $(testos_CFLAGS)
+	#i386-elf-gcc -T linker.ld -o testos.bin -ffreestanding -O2 -nostdlib testos.o -lgcc -Wl,--gc-sections $(testos_CFLAGS) -dead_strip
+	yasm -o testbench/test.o testbench/test.asm -f elf32
+	i386-elf-gcc -T testbench/linker.ld -o test.elf -ffreestanding -nostdlib testbench/test.o -Wl,--gc-sections $(testos_CFLAGS) -dead_strip -Xlinker -Map=test.elf.map -Xlinker -n
+	#strip -s -S test.elf
+
 

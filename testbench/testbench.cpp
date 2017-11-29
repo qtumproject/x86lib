@@ -35,67 +35,24 @@ This file is part of the x86Lib project.
 #undef X86LIB_BUILD //so we don't need special makefile flags for this specific file.
 #include <x86lib.h>
 
+#include "elf.h"
+
 using namespace std;
 using namespace x86Lib;
 
-uint32_t fileLength;
-
-uint8_t *ptr_memory;
-size_t size_memory;
-void init_memory(char* fileToLoad){
-	size_memory=0xFF000;
-	ptr_memory=new uint8_t[size_memory];
-	memset(ptr_memory,0xFF,size_memory); //initialize it all to 0x66, an invalid opcode
-	ifstream file(fileToLoad, ios::binary);
-	if(!file){
-		cout << "file " << fileToLoad << " does not exist" << endl;
-		exit(1);
-	}
-	fileLength = file.tellg();
-	file.seekg(0, std::ios::end);
-	fileLength = (uint32_t) (((long)file.tellg()) - (long) fileLength);
-	file.seekg(0, std::ios::beg);
-	file.read((char*)&ptr_memory[0x0000],size_memory);
-}
-bool ROMLoaded = false;
-class ROMemory : public MemoryDevice{
-	uint8_t *ptr;
-	uint32_t size;
-	public:
-	ROMemory(){
-		if(ROMLoaded){
-			throw new std::runtime_error("can't load two ROM memories");
-		}
-		ROMLoaded = true;
-		ptr = ptr_memory;
-		size = fileLength;
-	}
-	~ROMemory(){
-		delete[] ptr;
-	}
-	virtual void Read(uint32_t address,int count,void *buffer){
-		if(address + count > fileLength){
-			throw new Mem_excp(address);
-		}
-		memcpy(buffer,&ptr[address],count);
-	}
-	virtual void Write(uint32_t address,int count,void *buffer){
-		throw new Mem_excp(address);
-	}
-};
-
 class RAMemory : public MemoryDevice{
-	uint8_t *ptr;
+	protected:
+	char *ptr;
 	uint32_t size;
 	string id;
 	public:
 	RAMemory(uint32_t size_, string id_){
 		size = size_;
 		id = id_;
-		ptr = (uint8_t*) malloc(size);
+		ptr = (char*) malloc(size);
 		memset(ptr, 0, size);
 	}
-	~RAMemory(){
+	virtual ~RAMemory(){
 		free(ptr);
 	}
 	virtual void Read(uint32_t address,int count,void *buffer){
@@ -103,6 +60,20 @@ class RAMemory : public MemoryDevice{
 	}
 	virtual void Write(uint32_t address,int count,void *buffer){
 		memcpy(&ptr[address],buffer,count);
+	}
+	virtual char* GetMemory(){
+		return ptr;
+	}
+};
+
+class ROMemory : public RAMemory{
+	public:
+	ROMemory(uint32_t size_, string id_)
+		: RAMemory(size_, id_){
+	}
+
+	virtual void Write(uint32_t address,int count,void *buffer){
+		throw new Mem_excp(address);
 	}
 };
 
@@ -155,6 +126,7 @@ void WritePort(uint16_t port,uint32_t val){
 	functions to try out...*/
 	switch(port){
 		case 0: //print ascii char of val
+		cout << "printing.. "<< (int) val << endl;
 		cout << (char) val << flush;
 		break;
 		case 1: //print value of byte
@@ -253,28 +225,78 @@ void each_opcode(x86CPU *thiscpu){
 }
 
 bool singleStep=false;
+bool singleStepShort=false;
 
 int main(int argc, char* argv[]){
 	if(argc < 2){
-		cout << "./x86test program.bin [-singlestep]" << endl;
+		cout << "./x86test {program.elf | program.bin} [-singlestep]" << endl;
 		return 1;
 	}
 	if(argc > 2){
 		if(strcmp(argv[2], "-singlestep") == 0){
 			singleStep = true;
 		}
+		if(strcmp(argv[2], "-singlestep-short") == 0){
+			singleStep = true;
+			singleStepShort=true;
+		}
 	}
 
-	init_memory(argv[1]);
+	//init_memory(argv[1]);
 	PortSystem Ports;
-	ROMemory coderom;
+	ROMemory coderom(0x1000, "code");
 	RAMemory config(0x1000, "config");
 	RAMemory scratch(0x100000, "scratch");
+	RAMemory stack(0x1000, "stack");
 	scratchMem = &scratch;
 	
-	Memory.Add(0, 0xFFF, &config);
+	Memory.Add(0x5, 0xFFF, &config);
 	Memory.Add(0x1000, 0xFFFFF, &coderom);
 	Memory.Add(0x100000, 0x1FFFFF, &scratch);
+	Memory.Add(0x200000, 0x201000, &stack);
+
+	int maxSize=0x10000;
+	char* fileData=new char[maxSize];
+	string fileName = argv[1];
+	ifstream file(fileName.c_str(), ios::binary);
+	if(!file){
+		cout << "file " << argv[1] << " does not exist" << endl;
+		exit(1);
+	}
+	int fileLength = file.tellg();
+	file.seekg(0, std::ios::end);
+	fileLength = (uint32_t) (((long)file.tellg()) - (long) fileLength);
+	file.seekg(0, std::ios::beg);
+	file.read(fileData, maxSize);
+
+	memset(coderom.GetMemory(), 0x66, 0x1000);
+	memset(scratch.GetMemory(), 0x00, 0x100000);
+
+	bool doElf = false;
+	string::size_type extensionIndex;
+	extensionIndex = fileName.rfind('.');
+	if(extensionIndex != string::npos){
+		string extension = fileName.substr(extensionIndex + 1);
+		if(extension == "elf"){
+			doElf = true;
+		}
+	} //else no extension
+
+	if(doElf){
+		//load ELF32 file
+		cout << "Found .elf file extension. Attempting to load ELF file" << endl;
+		size_t codesize;
+		size_t datasize;
+		if(!loadElf(coderom.GetMemory(), &codesize, scratch.GetMemory(), &datasize, fileData, fileLength)){
+			cout << "error loading ELF" << endl;
+			return -1;
+		}
+	}else{
+		//load BIN file (no option to load data with bin files)
+		cout << "Attempting to load BIN file. Warning: It is not possible to load data with this" << endl;
+		memcpy(coderom.GetMemory(), fileData, fileLength);
+	}
+
 
 	Ports.Add(0,0xFFFF,(PortDevice*)&ports);
 	cpu=new x86CPU();
@@ -294,8 +316,12 @@ int main(int argc, char* argv[]){
 			}else{
 				cpu->Exec(1);
 				cout <<"OPCODE: " << cpu->GetLastOpcodeName() << "; hex: 0x" << hex << cpu->GetLastOpcode() << endl;
-				cpu->DumpState(cout);
-				cout << "-------------------------------" << endl;
+				if(singleStepShort){
+					cout << "EIP: 0x" << cpu->GetLocation() << endl;
+				}else{
+					cpu->DumpState(cout);
+					cout << "-------------------------------" << endl;
+				}
 				if(int_cause){
 					int_cause=false;
 					cpu->Int(int_cause_number);

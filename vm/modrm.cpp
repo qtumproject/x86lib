@@ -48,10 +48,13 @@ uint32_t ModRM::GetRegD32(){ //This returns the register displacement value
             return this_cpu->regs32[EBX];
             break;
         case 4:
-            //TODO SIB
+            // SIB
             return 0;
             break;
         case 5: //immediate Displacement only, so no register displace..
+            if(modrm.mod != 0){
+                return this_cpu->regs32[EBP];
+            }
             return 0;
         case 6:
             return this_cpu->regs32[ESI];

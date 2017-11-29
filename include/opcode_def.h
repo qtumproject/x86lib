@@ -13,7 +13,7 @@ are met:
    documentation and/or other materials provided with the distribution.
 3. The name of the author may not be used to endorse or promote products
    derived from this software without specific prior written permission.
-   
+
 THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES,
 INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
 AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL
@@ -57,7 +57,7 @@ For example, movsw and movsd are separate instructions but both handled by op_mo
 
 Opcodes with registers in the name can have W after them to indicate that they operate on either the 32bit or 16bit register
 
-Sizes should be specified explicitly. It should never be like `op_inc_rm`, it should be `op_inc_rmW` 
+Sizes should be specified explicitly. It should never be like `op_inc_rm`, it should be `op_inc_rmW`
 **/
 
 /**This file contains the opcode function definitions and prototypes for x86CPU**/
@@ -269,6 +269,8 @@ void op_group_D2();
 void op_group_D3();
 void op_group_D0();
 void op_group_D1();
+void op_group_C0();
+void op_group_C1();
 void op_lodsb();
 void op_lodsW();
 void op_scasb();
@@ -277,6 +279,8 @@ void op_stosb();
 void op_stosW();
 void op_wait();
 void op_xlatb();
+void op_leave();
+void op_movsx_rW_rm8();
 
 void op_in_al_dx();
 void op_in_axW_dx();
@@ -298,6 +302,9 @@ void op_retn_imm16();
 void op_int1();
 void op_pre_gs_override();
 void op_pre_fs_override();
+
+void op_pushf();
+void op_popf();
 
 
 /**Group Include Functions(not direct opcodes)**/
@@ -351,18 +358,32 @@ void op_shr_rm8_cl(ModRM &rm);
 void op_shr_rmW_cl(ModRM &rm);
 void op_sar_rm8_cl(ModRM &rm);
 void op_sar_rmW_cl(ModRM &rm);
+void op_sar_rm8_imm8(ModRM &rm);
+void op_sar_rmW_imm8(ModRM &rm);
 void op_shl_rm8_cl(ModRM &rm);
 void op_shl_rmW_cl(ModRM &rm);
+void op_shl_rm8_imm8(ModRM &rm);
+void op_shl_rmW_imm8(ModRM &rm);
 void op_rol_rm8_cl(ModRM &rm);
 void op_rol_rmW_cl(ModRM &rm);
+void op_rol_rm8_imm8(ModRM &rm);
+void op_rol_rmW_imm8(ModRM &rm);
 void op_ror_rm8_cl(ModRM &rm);
 void op_ror_rmW_cl(ModRM &rm);
+void op_ror_rm8_imm8(ModRM &rm);
+void op_ror_rmW_imm8(ModRM &rm);
 void op_rcl_rm8_cl(ModRM &rm);
 void op_rcl_rmW_cl(ModRM &rm);
+void op_rcl_rm8_imm8(ModRM &rm);
+void op_rcl_rmW_imm8(ModRM &rm);
 void op_rcr_rm8_cl(ModRM &rm);
 void op_rcr_rmW_cl(ModRM &rm);
+void op_rcr_rm8_imm8(ModRM &rm);
+void op_rcr_rmW_imm8(ModRM &rm);
 void op_shr_rm8_1(ModRM &rm);
 void op_shr_rmW_1(ModRM &rm);
+void op_shr_rm8_imm8(ModRM &rm);
+void op_shr_rmW_imm8(ModRM &rm);
 void op_sar_rm8_1(ModRM &rm);
 void op_sar_rmW_1(ModRM &rm);
 void op_shl_rm8_1(ModRM &rm);
@@ -380,10 +401,14 @@ void op_not_rmW(ModRM &rm);
 void op_call_rmW(ModRM &rm);
 void op_call_mF(ModRM &rm);
 
+void op_pushaW();
+void op_popaW();
+
 void op32_mul_rm32(ModRM &rm);
 void op32_imul_rm32(ModRM &rm);
 void op32_div_rm32(ModRM &rm);
 void op32_idiv_rm32(ModRM &rm);
+
 
 //2-byte opcodes
 void op_movzx_rW_rm8();
