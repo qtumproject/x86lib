@@ -327,14 +327,12 @@ void x86CPU::op_movsx_rW_rm8(){
     SetReg(rm.GetExtra(), SignExtend8to32(rm.ReadByte()));
 }
 
-    SetReg(DI,Pop());
-    SetReg(SI,Pop());
-    SetReg(BP,Pop());
-    SetReg(SP,Reg(SP)+ofs);
-    SetReg(BX,Pop());
-    SetReg(DX,Pop());
-    SetReg(CX,Pop());
-    SetReg(AX,Pop());
+void x86CPU::op_pushf(){
+    Push(freg.data);
+}
+
+void x86CPU::op_popf(){
+    freg.data = Pop();
 }
 
 };
