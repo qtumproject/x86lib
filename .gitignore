@@ -13,3 +13,4 @@ libx86lib.a
 libx86lib.so.*
 x86lib_tests
 x86testbench
+tmp_generated.asm
