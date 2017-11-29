@@ -279,6 +279,8 @@ void op_stosb();
 void op_stosW();
 void op_wait();
 void op_xlatb();
+void op_leave();
+void op_movsx_rW_rm8();
 
 void op_in_al_dx();
 void op_in_axW_dx();

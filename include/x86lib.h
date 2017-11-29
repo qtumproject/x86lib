@@ -533,6 +533,9 @@ class x86CPU{
     void WriteMemory(uint32_t address, uint32_t size, void* buffer);
 
 	void Stop(){DoStop=true;}
+    uint32_t GetLocation(){
+        return eip;
+    }
 
     //provided mainly for slightly easier debugging
     uint8_t ReadMachineByte(uint32_t address){

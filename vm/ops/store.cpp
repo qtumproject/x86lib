@@ -93,7 +93,7 @@ void x86CPU::op_mov_mW_axW(){
 
 void x86CPU::op_mov_rm8_imm8(){
 	ModRM rm(this);
-
+	
 	//eventually fix this so that if r is used, then invalid opcode...
 	rm.WriteByte(ReadByte(cCS,eip+rm.GetLength()));
 	eip++;
@@ -150,14 +150,6 @@ void x86CPU::op_push_ds(){
 
 void x86CPU::op_push_ss(){
     Push(0);
-}
-
-void x86CPU::op_pushf(){
-    Push(freg.data);
-}
-
-void x86CPU::op_popf(){
-    freg.data = Pop();
 }
 
 void x86CPU::op_pop_rmW(ModRM &rm){
@@ -323,6 +315,24 @@ void x86CPU::op_popaW(){
     SetReg(DX,Pop());
     SetReg(CX,Pop());
     SetReg(AX,Pop());
+}
+
+void x86CPU::op_leave(){
+    SetReg(ESP, Reg(EBP));
+    SetReg(EBP, Pop());
+}
+
+void x86CPU::op_movsx_rW_rm8(){
+    ModRM rm(this);
+    SetReg(rm.GetExtra(), SignExtend8to32(rm.ReadByte()));
+}
+
+void x86CPU::op_pushf(){
+    Push(freg.data);
+}
+
+void x86CPU::op_popf(){
+    freg.data = Pop();
 }
 
 };
