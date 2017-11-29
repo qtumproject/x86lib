@@ -40,43 +40,6 @@ This file is part of the x86Lib project.
 using namespace std;
 using namespace x86Lib;
 
-class RAMemory : public MemoryDevice{
-	protected:
-	char *ptr;
-	uint32_t size;
-	string id;
-	public:
-	RAMemory(uint32_t size_, string id_){
-		size = size_;
-		id = id_;
-		ptr = (char*) malloc(size);
-		memset(ptr, 0, size);
-	}
-	virtual ~RAMemory(){
-		free(ptr);
-	}
-	virtual void Read(uint32_t address,int count,void *buffer){
-		memcpy(buffer,&ptr[address],count);
-	}
-	virtual void Write(uint32_t address,int count,void *buffer){
-		memcpy(&ptr[address],buffer,count);
-	}
-	virtual char* GetMemory(){
-		return ptr;
-	}
-};
-
-class ROMemory : public RAMemory{
-	public:
-	ROMemory(uint32_t size_, string id_)
-		: RAMemory(size_, id_){
-	}
-
-	virtual void Write(uint32_t address,int count,void *buffer){
-		throw new Mem_excp(address);
-	}
-};
-
 class MapMemory : public MemoryDevice{
     bool range(uint32_t val, uint32_t min, uint32_t len){
         return val >= min && val < min+len;

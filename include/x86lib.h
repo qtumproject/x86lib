@@ -34,6 +34,7 @@ This file is part of the x86Lib project.
 #include <vector>
 #include <stdint.h>
 #include <string>
+#include <cstring>
 
 #ifdef X86LIB_BUILD
 #include <x86lib_internal.h>
@@ -244,23 +245,79 @@ class PortSystem{
 };
 
 
+class RAMemory : public MemoryDevice{
+    protected:
+    char *ptr;
+    uint32_t size;
+    std::string id;
+    public:
+    RAMemory(uint32_t size_, std::string id_){
+        size = size_;
+        id = id_;
+        ptr = new char[size];;
+        std::memset(ptr, 0, size);
+    }
+    virtual ~RAMemory(){
+        delete[] ptr;
+    }
+    virtual void Read(uint32_t address,int count,void *buffer){
+        std::memcpy(buffer,&ptr[address],count);
+    }
+    virtual void Write(uint32_t address,int count,void *buffer){
+        std::memcpy(&ptr[address],buffer,count);
+    }
+    virtual char* GetMemory(){
+        return ptr;
+    }
+};
+
+class ROMemory : public RAMemory{
+    public:
+    ROMemory(uint32_t size_, std::string id_)
+        : RAMemory(size_, id_){
+    }
+
+    virtual void Write(uint32_t address,int count,void *buffer){
+        throw new Mem_excp(address);
+    }
+};
+
+
+typedef union {
+    struct{
+        unsigned char cf:1;
+        unsigned char r0:1;
+        unsigned char pf:1;
+        unsigned char r1:1;
+        unsigned char af:1;
+        unsigned char r2:1;
+        unsigned char zf:1;
+        unsigned char sf:1;
+        unsigned char tf:1;
+        unsigned char _if:1;
+        unsigned char df:1;
+        unsigned char of:1;
+        unsigned char iopl:2; //not yet used
+        unsigned char nt:1;
+        unsigned char r3:1;
+        unsigned int upper:16;
+    }__attribute__((packed))bits; //this is a better representation of flags(much easier to use)
+    uint32_t data;
+} FLAGS;
+
 
 //! The struct used to save the current state of x86CPU
 struct x86SaveData{
 	//! General registers
-	uint32_t reg32[8];
+	uint32_t regs32[8];
 	//! Segment registers
 	uint16_t seg[7];
 	//! Segment register routing(in case of segment overrides)
 	uint8_t seg_route[7];
 	//! Instruction pointer
 	uint32_t eip;
-	//! Which opcode map is currently in use
-	uint32_t opcode_mode;
 	//! Flags register
-	uint32_t freg;
-	//! CPU level
-	uint32_t cpu_level;
+	FLAGS freg;
 };
 
 };
@@ -305,28 +362,6 @@ static const int cFS=4;
 static const int cGS=5;
 static const int cIS=6; //this is an imaginary segment only used for direct segment overrides
 //for instance it would be used in mov [1000:bx],ax
-
-typedef union {
-    struct{
-        unsigned char cf:1;
-        unsigned char r0:1;
-        unsigned char pf:1;
-        unsigned char r1:1;
-        unsigned char af:1;
-        unsigned char r2:1;
-        unsigned char zf:1;
-        unsigned char sf:1;
-        unsigned char tf:1;
-        unsigned char _if:1;
-        unsigned char df:1;
-        unsigned char of:1;
-        unsigned char iopl:2; //not yet used
-        unsigned char nt:1;
-        unsigned char r3:1;
-        unsigned int upper:16;
-    }__attribute__((packed))bits; //this is a better representation of flags(much easier to use)
-    uint32_t data;
-} FLAGS;
 
 
 namespace x86Lib{
@@ -403,19 +438,19 @@ class ModRM{
 class x86CPU{
     private:
 	friend class ModRM;
-	volatile uint32_t regs32[8];
-	volatile uint16_t seg[7];
-	volatile uint32_t eip;
-	volatile FLAGS freg;
+	uint32_t regs32[8];
+	uint16_t seg[7];
+	uint32_t eip;
+	FLAGS freg;
     //These variables should be used instead of cES etc when the segment register can not be overridden
-	volatile uint8_t ES;
-	volatile uint8_t CS;
-	volatile uint8_t SS;
-	volatile uint8_t DS;
-	volatile uint8_t FS;
-	volatile uint8_t GS;
-	volatile bool string_compares; //TODO can jump to string instruction and corrupt this
-	volatile uint8_t cli_count; //Whenever this is 1, an STI is done.
+	uint8_t ES;
+	uint8_t CS;
+	uint8_t SS;
+	uint8_t DS;
+	uint8_t FS;
+	uint8_t GS;
+	bool string_compares; //TODO can jump to string instruction and corrupt this
+	uint8_t cli_count; //Whenever this is 1, an STI is done.
 	volatile bool int_pending;
 	volatile uint8_t int_number;
 	uint32_t cpu_level;
@@ -536,6 +571,9 @@ class x86CPU{
 	void Stop(){DoStop=true;}
     uint32_t GetLocation(){
         return eip;
+    }
+    void SetLocation(uint32_t pos){
+        eip = pos;
     }
 
     //provided mainly for slightly easier debugging

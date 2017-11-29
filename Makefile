@@ -27,7 +27,7 @@
 #This file is part of the x86Lib project.
 
 
-HDRS =  include/config.h include/opcode_def.h include/x86lib.h include/x86lib_internal.h testbench/elf.h
+HDRS =  include/config.h include/opcode_def.h include/x86lib.h include/x86lib_internal.h testbench/elf.h tests/x86test.h
 CXX ?= g++
 AR ?= ar
 
@@ -45,7 +45,7 @@ CXX_TESTBENCH_SRC = testbench/testbench.cpp testbench/elfloader.cpp
 
 CXX_TESTBENCH_OBJS = $(subst .cpp,.o,$(CXX_TESTBENCH_SRC))
 
-CXX_TEST_SRC = tests/test_main.cpp tests/flag_tests.cpp
+CXX_TEST_SRC = tests/test_main.cpp tests/flag_tests.cpp tests/test_helpers.cpp
 CXX_TEST_OBJS = $(subst .cpp,.o,$(CXX_TEST_SRC))
 
 
