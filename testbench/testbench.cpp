@@ -241,11 +241,13 @@ int main(int argc, char* argv[]){
 	ROMemory coderom(0x1000, "code");
 	RAMemory config(0x1000, "config");
 	RAMemory scratch(0x100000, "scratch");
+	RAMemory stack(0x1000, "stack");
 	scratchMem = &scratch;
 	
 	Memory.Add(0, 0xFFF, &config);
 	Memory.Add(0x1000, 0xFFFFF, &coderom);
 	Memory.Add(0x100000, 0x1FFFFF, &scratch);
+	Memory.Add(0x200000, 0x201000, &stack);
 
 	int maxSize=0x10000;
 	char* fileData=new char[maxSize];

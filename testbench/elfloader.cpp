@@ -80,10 +80,6 @@ bool loadElf(char* code, size_t* codeSize, char* data, size_t* dataSize, char* r
             cout << "Ignoring non PT_LOAD program section #" << i << " of type " << phdr->p_type << endl; 
             continue;
         }
-        if(phdr->p_filesz != phdr->p_memsz){
-            cout << "Program segment #" << i << " has a filesz that does not match memsz. Unsure what to do" << endl;
-            return false;
-        }
         if(phdr -> p_vaddr != phdr->p_paddr){
             cout << "Program segment #" << i << " has a vaddr that does not match paddr. Unsure what to do" << endl;
         }
@@ -91,28 +87,28 @@ bool loadElf(char* code, size_t* codeSize, char* data, size_t* dataSize, char* r
             cout << "Program segment #" << i << " loads more data from file than exists" << endl;
             return false;
         }
-        if(phdr->p_vaddr >= CODE_ADDRESS && phdr->p_vaddr < CODE_ADDRESS + MAX_CODE_SIZE){
+        if(phdr->p_vaddr >= CODE_ADDRESS && phdr->p_vaddr + phdr->p_memsz < CODE_ADDRESS + MAX_CODE_SIZE){
             //code segment
             if(phdr->p_flags & PF_W){
                 cout << "Program segment #" << i << "tries to load writeable data to a readonly memory area" << endl;
                 return false;
             }
-            size_t segsize = (phdr->p_vaddr - CODE_ADDRESS) + phdr->p_memsz;
+            size_t segsize = (phdr->p_vaddr - CODE_ADDRESS) + phdr->p_filesz;
             if(segsize > *codeSize){
                 *codeSize = segsize;
             }
-            memcpy(&code[phdr->p_vaddr - CODE_ADDRESS], &raw[phdr->p_offset], phdr->p_memsz);
-        }else if(phdr->p_vaddr >= DATA_ADDRESS && phdr->p_vaddr < DATA_ADDRESS + MAX_DATA_SIZE){
+            memcpy(&code[phdr->p_vaddr - CODE_ADDRESS], &raw[phdr->p_offset], phdr->p_filesz);
+        }else if(phdr->p_vaddr >= DATA_ADDRESS && phdr->p_vaddr + phdr->p_memsz < DATA_ADDRESS + MAX_DATA_SIZE){
             //data segment
             if(!(phdr->p_flags & PF_W)){
                 cout << "Warning: Program segment #" << i << "Loads readonly data into readwrite memory" << endl;
                 cout << "It may be cheaper in gas costs to relocate this data into readonly memory" << endl;
             }
-            size_t segsize = (phdr->p_vaddr - DATA_ADDRESS) + phdr->p_memsz;
+            size_t segsize = (phdr->p_vaddr - DATA_ADDRESS) + phdr->p_filesz;
             if(segsize > *dataSize){
                 *dataSize = segsize;
             }
-            memcpy(&data[phdr->p_vaddr - DATA_ADDRESS], &raw[phdr->p_offset], phdr->p_memsz);
+            memcpy(&data[phdr->p_vaddr - DATA_ADDRESS], &raw[phdr->p_offset], phdr->p_filesz);
         }else{
             cout << "Program segment #" << i << " loads into an invalid address or occupies more space than available" << endl;
             cout << "Address: 0x" << hex << phdr->p_vaddr << ", Size: 0x" << hex << phdr->p_memsz << endl;
@@ -122,10 +118,19 @@ bool loadElf(char* code, size_t* codeSize, char* data, size_t* dataSize, char* r
     }
 
     if(hdr->e_entry != CODE_ADDRESS){
-        cout << "NOTE: inserting JMP instruction to go to ELF entry point" << endl;
+        cout << "NOTE: inserting JMP instruction to go to ELF entry point @ 0x" << hex << hdr->e_entry << endl;
         code[0] = 0xE9; //jmp rel32
-        uint32_t entry = hdr->e_entry;
+        int32_t entry = hdr->e_entry;
         entry -= CODE_ADDRESS; //make a relative address to code[0]
+        entry -= 5; //account for size of JMP rel32 instruction
+        if(entry < 0){
+            cout << "Entry point is negative!" << endl;
+            return false;
+        }
+        if(entry > 1000){
+            cout << "Entry point might be insane!" << endl;
+            return false;
+        }
         memcpy(&code[1], &entry, sizeof(uint32_t));
     }
 

@@ -74,7 +74,7 @@ void x86CPU::Reset(){
 	eip=0x1000;
 	seg[cCS]=0;
 	freg.data=0;
-    regs32[ESP] = 0x1FF000; //set stack to reasonable address for Qtum
+    regs32[ESP] = 0x200800; //set stack to reasonable address for Qtum
 	string_compares=0;
 	int_pending=0;
 	cli_count=0;
