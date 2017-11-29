@@ -13,7 +13,7 @@ are met:
    documentation and/or other materials provided with the distribution.
 3. The name of the author may not be used to endorse or promote products
    derived from this software without specific prior written permission.
-   
+
 THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES,
 INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
 AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL
@@ -286,6 +286,37 @@ void x86CPU::op_movzx_r32_rmW(){
     regs32[rm.GetExtra()] = rm.ReadWord();
 }
 
+void x86CPU::op_pushaW(){
+    uint32_t tmp;
+    tmp = Reg(SP);
+    Push(Reg(AX));
+    Push(Reg(CX));
+    Push(Reg(DX));
+    Push(Reg(BX));
+    Push(tmp);
+    Push(Reg(BP));
+    Push(Reg(SI));
+    Push(Reg(DI));
+}
+
+void x86CPU::op_popaW(){
+    uint32_t ofs=0;
+    if(OperandSize16){
+       ofs = 2;
+    }else{
+       ofs = 4;
+    }
+
+    SetReg(DI,Pop());
+    SetReg(SI,Pop());
+    SetReg(BP,Pop());
+    SetReg(SP,Reg(SP)+ofs);
+    SetReg(BX,Pop());
+    SetReg(DX,Pop());
+    SetReg(CX,Pop());
+    SetReg(AX,Pop());
+}
+
 void x86CPU::op_leave(){
     SetReg(ESP, Reg(EBP));
     SetReg(EBP, Pop());
@@ -294,6 +325,16 @@ void x86CPU::op_leave(){
 void x86CPU::op_movsx_rW_rm8(){
     ModRM rm(this);
     SetReg(rm.GetExtra(), SignExtend8to32(rm.ReadByte()));
+}
+
+    SetReg(DI,Pop());
+    SetReg(SI,Pop());
+    SetReg(BP,Pop());
+    SetReg(SP,Reg(SP)+ofs);
+    SetReg(BX,Pop());
+    SetReg(DX,Pop());
+    SetReg(CX,Pop());
+    SetReg(AX,Pop());
 }
 
 };

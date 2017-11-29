@@ -104,6 +104,7 @@ void x86CPU::op_loopcc_rel8(){ //handles loop, loopne, and loope
     if((Reg(ECX)!=0) &&
      		(opbyte == 0xE2 || (freg.bits.zf==(opbyte & 0x1)))){
         Jmp_near8(rel);
+        eip--;
     }
 }
 

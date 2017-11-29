@@ -13,7 +13,7 @@ are met:
    documentation and/or other materials provided with the distribution.
 3. The name of the author may not be used to endorse or promote products
    derived from this software without specific prior written permission.
-   
+
 THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES,
 INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
 AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL
@@ -181,7 +181,7 @@ void x86CPU::op_group_F6(){
 		case 2:
 		op_not_rm8(rm);
 		break;
-		
+
 		default:
 		eip--;
 		throw CpuInt_excp(UNK_IEXCP);
@@ -419,6 +419,71 @@ void x86CPU::op_group_D3(){
 	}
 }
 
+void x86CPU::op_group_C0(){
+    ModRM rm(this);
+    switch(rm.GetExtra()){
+        case 7:
+		op_sar_rm8_imm8(rm);
+		break;
+		case 4:
+		op_shl_rm8_imm8(rm);
+		break;
+		case 5:
+		op_shr_rm8_imm8(rm);
+		break;
+		case 0:
+		op_rol_rm8_imm8(rm);
+		break;
+		case 1:
+		op_ror_rm8_imm8(rm);
+		break;
+		case 3:
+		op_rcr_rm8_imm8(rm);
+		break;
+		case 2:
+		op_rcl_rm8_imm8(rm);
+        break;
+
+        default:
+        eip--;
+		throw CpuInt_excp(UNK_IEXCP);
+        break;
+    }
+	eip++; //for imm8
+}
+
+void x86CPU::op_group_C1(){
+    ModRM rm(this);
+    switch(rm.GetExtra()){
+        case 7:
+		op_sar_rmW_imm8(rm);
+		break;
+		case 4:
+		op_shl_rmW_imm8(rm);
+		break;
+		case 5:
+		op_shr_rmW_imm8(rm);
+		break;
+		case 0:
+		op_rol_rmW_imm8(rm);
+		break;
+		case 1:
+		op_ror_rmW_imm8(rm);
+		break;
+		case 3:
+		op_rcr_rmW_imm8(rm);
+		break;
+		case 2:
+		op_rcl_rmW_imm8(rm);
+        break;
+
+        default:
+        eip--;
+		throw CpuInt_excp(UNK_IEXCP);
+        break;
+    }
+	eip++; //for imm8
+}
 
 };
 
