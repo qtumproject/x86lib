@@ -122,7 +122,7 @@ bool loadElf(char* code, size_t* codeSize, char* data, size_t* dataSize, char* r
         code[0] = 0xE9; //jmp rel32
         int32_t entry = hdr->e_entry;
         entry -= CODE_ADDRESS; //make a relative address to code[0]
-        entry -= 5; //account for size of JMP rel32 instruction
+        //entry -= 5; //account for size of JMP rel32 instruction
         if(entry < 0){
             cout << "Entry point is negative!" << endl;
             return false;
