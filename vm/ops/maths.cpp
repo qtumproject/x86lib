@@ -31,44 +31,39 @@ This file is part of the x86Lib project.
 namespace x86Lib{
 using namespace std;
 
+//see http://stackoverflow.com/questions/4513746/explain-how-the-af-flag-works-in-an-x86-instructions
+#define CalculateSubAF(base, subt) freg.bits.af = ((base&0x0F) - (subt&0x0F) > 15)
+
 uint8_t x86CPU::Sub8(uint8_t base,uint8_t subt){
     uint8_t result = base - subt;
     if(subt>base){freg.bits.cf=1;}else{freg.bits.cf=0;}
-    CalculateOF8(result, base, subt);
+    CalculateOF8(result, base, -subt);
     CalculateZF(result);
     CalculatePF(result); //do pf
     CalculateSF8(result); //do sf
-	base&=0xF;
-	subt&=0xF;
-    freg.bits.af = (((base-subt) & ~0xf) != 0); //thank you http://stackoverflow.com/questions/4513746/explain-how-the-af-flag-works-in-an-x86-instructions
+    CalculateSubAF(base, subt);
     return result;
 }
 
 uint16_t x86CPU::Sub16(uint16_t base,uint16_t subt){
     uint16_t result = base - subt;
     if(subt>base){freg.bits.cf=1;}else{freg.bits.cf=0;}
-    CalculateOF16(result, base, subt);
+    CalculateOF16(result, base, -subt);
     CalculateZF(result);
     CalculatePF(result); //do pf
     CalculateSF16(result); //do sf
-    //do af
-    base&=0xF;
-    subt&=0xF;
-    freg.bits.af = (((base-subt) & ~0xf) != 0); //thank you http://stackoverflow.com/questions/4513746/explain-how-the-af-flag-works-in-an-x86-instructions
+    CalculateSubAF(base, subt);
     return result;
 }
 
 uint32_t x86CPU::Sub32(uint32_t base,uint32_t subt){
     uint32_t result = base - subt;
     if(subt>base){freg.bits.cf=1;}else{freg.bits.cf=0;}
-    CalculateOF32(result, base, subt);
+    CalculateOF32(result, base, -subt);
     CalculateZF(result);
     CalculatePF(result); //do pf
     CalculateSF32(result); //do sf
-    //do af
-    base&=0xF;
-    subt&=0xF;
-    freg.bits.af = (((base-subt) & ~0xf) != 0); //thank you http://stackoverflow.com/questions/4513746/explain-how-the-af-flag-works-in-an-x86-instructions
+    CalculateSubAF(base, subt);
     return result;
 }
 uint32_t x86CPU::SubW(uint32_t base,uint32_t subt){
@@ -79,6 +74,8 @@ uint32_t x86CPU::SubW(uint32_t base,uint32_t subt){
 	}
 }
 
+#define CalculateAddAF(base, adder) freg.bits.af = ((base&0x0F)+(adder&0x0F) > 15)
+
 uint8_t x86CPU::Add8(uint8_t base,uint8_t adder){
     uint8_t result = base + adder;
     freg.bits.cf = (result < min(base, adder));
@@ -86,10 +83,7 @@ uint8_t x86CPU::Add8(uint8_t base,uint8_t adder){
     CalculateZF(result);
     CalculatePF(result); //do pf
     CalculateSF8(result); //do sf
-    //do af
-	base&=0x0F;
-	adder&=0x0F;
-    freg.bits.af = (base+adder > 15);
+    CalculateAddAF(base, adder);
     return result;
 }
 
@@ -100,10 +94,7 @@ uint16_t x86CPU::Add16(uint16_t base,uint16_t adder){
     CalculateZF(result);
     CalculatePF(result); //do pf
     CalculateSF16(result); //do sf
-    //do af
-    base&=0x0F;
-    adder&=0x0F;
-    freg.bits.af = (base+adder > 15);
+    CalculateAddAF(base, adder);
     return result;
 }
 
@@ -114,10 +105,7 @@ uint32_t x86CPU::Add32(uint32_t base,uint32_t adder){
     CalculateZF(result);
     CalculatePF(result); //do pf
     CalculateSF32(result); //do sf
-    //do af
-    base&=0x0F;
-    adder&=0x0F;
-    freg.bits.af = (base+adder > 15);
+    CalculateAddAF(base, adder);
     return result;
 }
 
