@@ -32,7 +32,7 @@ namespace x86Lib{
 using namespace std;
 
 //see http://stackoverflow.com/questions/4513746/explain-how-the-af-flag-works-in-an-x86-instructions
-#define CalculateSubAF(base, subt) freg.bits.af = ((base&0x0F) - (subt&0x0F) > 15)
+#define CalculateSubAF(base, subt) freg.bits.af = ((int32_t)(base&0x0F) - (int32_t)(subt&0x0F) < 0)
 
 uint8_t x86CPU::Sub8(uint8_t base,uint8_t subt){
     uint8_t result = base - subt;

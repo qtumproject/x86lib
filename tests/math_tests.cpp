@@ -68,9 +68,21 @@ TEST_CASE("Sub", "[math ops]"){
 
     REQUIRE(cpu.Sub8(0xFA, 0xFF) == 0xFB); //signed: -6 - -1 = -5 = 0xFB
     REQUIRE(cpu.freg.bits.cf == 1);
-    REQUIRE(cpu.freg.bits.af == 0); // A - F = 0xFB
+    REQUIRE(cpu.freg.bits.af == 1); // A - F = 0xFB
     REQUIRE(cpu.freg.bits.zf == 0);
     REQUIRE(cpu.freg.bits.of == 0);
+
+    REQUIRE(cpu.Sub8(0xFE, 0xFF) == 0xFF); //signed: -2 - -1 = -1
+    REQUIRE(cpu.freg.bits.cf == 1);
+    REQUIRE(cpu.freg.bits.af == 1); // E - F
+    REQUIRE(cpu.freg.bits.zf == 0);
+    REQUIRE(cpu.freg.bits.of == 0);
+
+    REQUIRE(cpu.Sub8(-120, 50) == 0x56); //signed: -120 - 50 = -170
+    REQUIRE(cpu.freg.bits.cf == 0);
+    REQUIRE(cpu.freg.bits.af == 0); // 8 - 2 = 6
+    REQUIRE(cpu.freg.bits.zf == 0);
+    REQUIRE(cpu.freg.bits.of == 1);
 }
 
 
