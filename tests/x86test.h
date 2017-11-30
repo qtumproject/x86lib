@@ -104,6 +104,9 @@ struct x86Checkpoint{
     void SetCF(){
         regs.freg.bits.cf = 1;
     }
+    void SetOF(){
+        regs.freg.bits.of = 1;
+    }
     void SetPF(){
         regs.freg.bits.pf = 1;
     }
@@ -122,6 +125,9 @@ struct x86Checkpoint{
     //unsets
     void UnsetCF(){
         regs.freg.bits.cf = 0;
+    }
+    void UnsetOF(){
+        regs.freg.bits.of = 0;
     }
     void UnsetPF(){
         regs.freg.bits.pf = 0;
