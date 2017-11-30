@@ -31,17 +31,11 @@ This file is part of the x86Lib project.
 namespace x86Lib{
 using namespace std;
 
-
 uint8_t x86CPU::Sub8(uint8_t base,uint8_t subt){
-    int8_t result;
+    uint8_t result = base - subt;
     if(subt>base){freg.bits.cf=1;}else{freg.bits.cf=0;}
-    if((int16_t)base-subt>127 || (int16_t)base-subt<-127){
-            freg.bits.of=1;
-        }else{
-            freg.bits.of=0;
-        }
-    result=base-subt;
-    if(result==0){freg.bits.zf=1;}else{freg.bits.zf=0;}
+    CalculateOF8(result, base, subt);
+    CalculateZF(result);
     CalculatePF(result); //do pf
     CalculateSF8(result); //do sf
 	base&=0xF;
@@ -51,44 +45,31 @@ uint8_t x86CPU::Sub8(uint8_t base,uint8_t subt){
 }
 
 uint16_t x86CPU::Sub16(uint16_t base,uint16_t subt){
-    int16_t result;
-    uint16_t mirror;
+    uint16_t result = base - subt;
     if(subt>base){freg.bits.cf=1;}else{freg.bits.cf=0;}
-    if((int32_t)base-subt>32767 || (int32_t)base-subt<-32767){
-            freg.bits.of=1;
-        }else{
-            freg.bits.of=0;
-        }
-    mirror=base-subt;
-    result=mirror;
-    if(result==0){freg.bits.zf=1;}else{freg.bits.zf=0;}
+    CalculateOF16(result, base, subt);
+    CalculateZF(result);
     CalculatePF(result); //do pf
     CalculateSF16(result); //do sf
-	base&=0xF;
-	subt&=0xF;
-    freg.bits.af = (((base-subt) & ~0xf) != 0);
-    return mirror;
+    //do af
+    base&=0xF;
+    subt&=0xF;
+    freg.bits.af = (((base-subt) & ~0xf) != 0); //thank you http://stackoverflow.com/questions/4513746/explain-how-the-af-flag-works-in-an-x86-instructions
+    return result;
 }
 
 uint32_t x86CPU::Sub32(uint32_t base,uint32_t subt){
-    int32_t result;
-    uint32_t mirror;
-    int64_t result64 = (int64_t) base - (int64_t) subt;
-    mirror=base-subt;
-    result=mirror;
+    uint32_t result = base - subt;
     if(subt>base){freg.bits.cf=1;}else{freg.bits.cf=0;}
-    if(result64 > INT32_MAX || result64 < INT32_MIN){
-        freg.bits.of=1;
-    }else{
-        freg.bits.of=0;
-    }
-    if(result==0){freg.bits.zf=1;}else{freg.bits.zf=0;}
+    CalculateOF32(result, base, subt);
+    CalculateZF(result);
     CalculatePF(result); //do pf
     CalculateSF32(result); //do sf
+    //do af
     base&=0xF;
     subt&=0xF;
-    freg.bits.af = (((base-subt) & ~0xf) != 0);
-    return mirror;
+    freg.bits.af = (((base-subt) & ~0xf) != 0); //thank you http://stackoverflow.com/questions/4513746/explain-how-the-af-flag-works-in-an-x86-instructions
+    return result;
 }
 uint32_t x86CPU::SubW(uint32_t base,uint32_t subt){
 	if(OperandSize16){
@@ -99,57 +80,44 @@ uint32_t x86CPU::SubW(uint32_t base,uint32_t subt){
 }
 
 uint8_t x86CPU::Add8(uint8_t base,uint8_t adder){
-    int8_t result;
-    if(adder+base>255){freg.bits.cf=1;}else{freg.bits.cf=0;}
-    if((int16_t)base+adder>127 || (int16_t)base+adder<-127){
-            freg.bits.of=1;
-        }else{
-            freg.bits.of=0;
-        }
-    result=base+adder;
-    if(result==0){freg.bits.zf=1;}else{freg.bits.zf=0;}
+    uint8_t result = base + adder;
+    freg.bits.cf = (result < min(base, adder));
+    CalculateOF8(result, base, adder);
+    CalculateZF(result);
     CalculatePF(result); //do pf
     CalculateSF8(result); //do sf
+    //do af
 	base&=0x0F;
 	adder&=0x0F;
-    freg.bits.af = ((int16_t)base+adder > 15);
+    freg.bits.af = (base+adder > 15);
     return result;
 }
 
 uint16_t x86CPU::Add16(uint16_t base,uint16_t adder){
-    int16_t result;
-    if((uint32_t)adder+base>(uint32_t)65535){freg.bits.cf=1;}else{freg.bits.cf=0;}
-    if((int32_t)base+adder>32767 || (int32_t)base+adder<-32767){
-            freg.bits.of=1;
-        }else{
-            freg.bits.of=0;
-        }
-    result=base+adder;
-    if(result==0){freg.bits.zf=1;}else{freg.bits.zf=0;}
+    uint16_t result = base + adder;
+    freg.bits.cf = (result < min(base, adder));
+    CalculateOF16(result, base, adder);
+    CalculateZF(result);
     CalculatePF(result); //do pf
     CalculateSF16(result); //do sf
-	base&=0x0F;
-	adder&=0x0F;
-    freg.bits.af = ((int16_t)base+adder > 15);
+    //do af
+    base&=0x0F;
+    adder&=0x0F;
+    freg.bits.af = (base+adder > 15);
     return result;
 }
 
 uint32_t x86CPU::Add32(uint32_t base,uint32_t adder){
-    int32_t result;
-    result=(int32_t)(base+adder);
-    int64_t result64 = (int64_t) base + (int64_t) adder;
-    if((uint64_t)adder+base>(uint64_t)UINT32_MAX){freg.bits.cf=1;}else{freg.bits.cf=0;}
-    if(result64 > INT32_MAX || result64 < INT32_MIN){
-        freg.bits.of=1;
-    }else{
-        freg.bits.of=0;
-    }
-    if(result==0){freg.bits.zf=1;}else{freg.bits.zf=0;}
+    uint32_t result = base + adder;
+    freg.bits.cf = (result < min(base, adder));
+    CalculateOF32(result, base, adder);
+    CalculateZF(result);
     CalculatePF(result); //do pf
     CalculateSF32(result); //do sf
+    //do af
     base&=0x0F;
     adder&=0x0F;
-    freg.bits.af = result > 15;
+    freg.bits.af = (base+adder > 15);
     return result;
 }
 
@@ -169,11 +137,7 @@ uint8_t x86CPU::And8(uint8_t base,uint8_t mask){
 	base=base&mask;
 	CalculatePF(base);
 	CalculateSF8(base);
-	if(base==0){
-		freg.bits.zf=1;
-	}else{
-		freg.bits.zf=0;
-	}
+    CalculateZF(base);
 	return base;
 }
 
@@ -183,11 +147,7 @@ uint16_t x86CPU::And16(uint16_t base,uint16_t mask){
 	base=base&mask;
 	CalculatePF(base);
 	CalculateSF16(base);
-	if(base==0){
-		freg.bits.zf=1;
-	}else{
-		freg.bits.zf=0;
-	}
+    CalculateZF(base);
 	return base;
 }
 
@@ -197,11 +157,7 @@ uint32_t x86CPU::And32(uint32_t base,uint32_t mask){
     base=base&mask;
     CalculatePF(base);
     CalculateSF32(base);
-    if(base==0){
-        freg.bits.zf=1;
-    }else{
-        freg.bits.zf=0;
-    }
+    CalculateZF(base);
     return base;
 }
 
@@ -221,11 +177,7 @@ uint8_t x86CPU::Or8(uint8_t base,uint8_t mask){
 	base=base|mask;
 	CalculatePF(base);
 	CalculateSF8(base);
-	if(base==0){
-		freg.bits.zf=1;
-	}else{
-		freg.bits.zf=0;
-	}
+    CalculateZF(base);
 	return base;
 }
 
@@ -235,11 +187,7 @@ uint16_t x86CPU::Or16(uint16_t base,uint16_t mask){
 	base=base|mask;
 	CalculatePF(base);
 	CalculateSF16(base);
-	if(base==0){
-		freg.bits.zf=1;
-	}else{
-		freg.bits.zf=0;
-	}
+    CalculateZF(base);
 	return base;
 }
 
@@ -249,11 +197,7 @@ uint32_t x86CPU::Or32(uint32_t base,uint32_t mask){
     base=base|mask;
     CalculatePF(base);
     CalculateSF32(base);
-    if(base==0){
-        freg.bits.zf=1;
-    }else{
-        freg.bits.zf=0;
-    }
+    CalculateZF(base);
     return base;
 }
 uint32_t x86CPU::OrW(uint32_t base,uint32_t arg){
@@ -270,11 +214,7 @@ uint8_t x86CPU::Xor8(uint8_t base,uint8_t mask){
 	base=base^mask;
 	CalculatePF(base);
 	CalculateSF8(base);
-	if(base==0){
-		freg.bits.zf=1;
-	}else{
-		freg.bits.zf=0;
-	}
+    CalculateZF(base);
 	return base;
 }
 
@@ -284,11 +224,7 @@ uint16_t x86CPU::Xor16(uint16_t base,uint16_t mask){
 	base=base^mask;
 	CalculatePF(base);
 	CalculateSF16(base);
-	if(base==0){
-		freg.bits.zf=1;
-	}else{
-		freg.bits.zf=0;
-	}
+    CalculateZF(base);
 	return base;
 }
 uint32_t x86CPU::Xor32(uint32_t base,uint32_t mask){
@@ -297,11 +233,7 @@ uint32_t x86CPU::Xor32(uint32_t base,uint32_t mask){
     base=base^mask;
     CalculatePF(base);
     CalculateSF32(base);
-    if(base==0){
-        freg.bits.zf=1;
-    }else{
-        freg.bits.zf=0;
-    }
+    CalculateZF(base);
     return base;
 }
 uint32_t x86CPU::XorW(uint32_t base,uint32_t arg){
@@ -320,18 +252,17 @@ uint8_t x86CPU::ShiftLogicalRight8(uint8_t base,uint8_t count){
 		freg.bits.zf=1;
 		return base;
 	}
-	freg.bits.of=(base&0x80)>>7;
+    if(count == 1){
+	   freg.bits.of=(base&0x80)>>7;
+    }else{
+        freg.bits.of = 0; //of is undefined in this condition
+    }
 	freg.bits.cf=(base>>(count-1))&1;
 	base=base>>count;
 	freg.bits.of=freg.bits.of^((base&0x80)>>7); //if the sign bit changed, then set it to 1
 	CalculatePF(base);
 	CalculateSF8(base);
-	if(base==0){
-		freg.bits.zf=1;
-	}else{
-		freg.bits.zf=0;
-	}
-	freg.bits.of=0;
+    CalculateZF(base);
 	return base;
 }
 

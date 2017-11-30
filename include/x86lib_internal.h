@@ -186,7 +186,6 @@ static inline uint8_t Resign8(uint8_t val,bool store1){
 	}
 }
 
-
 };
 
 
