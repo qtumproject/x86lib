@@ -396,67 +396,54 @@ uint32_t x86CPU::ShiftArithmeticRightW(uint32_t base,uint8_t arg){
 uint8_t x86CPU::ShiftLogicalLeft8(uint8_t base,uint8_t count){
 	count&=0x1F; //only use bottom 5 bits
 	if(count==0){
-		CalculatePF(base);
-		CalculateSF8(base);
-		freg.bits.zf=1;
+        //no flags modified if 0
 		return base;
 	}
-	freg.bits.of=(base&0x80)>>7;
-	freg.bits.cf=((base<<(count-1))&0x80)>>7;
-	base=base<<count;
-	freg.bits.of=freg.bits.of^((base&0x80)>>7); //if the sign bit changed, then set it to 1
+	freg.bits.cf=((base<<(count-1))&0x80) > 0;
+	base=base << count;
+    if(count == 1){
+        //OF = MSB(Destination) ^ CF
+        freg.bits.of = ((base & 0x80) > 0) ^ freg.bits.cf;
+    }
 	CalculatePF(base);
 	CalculateSF8(base);
-	if(base==0){
-		freg.bits.zf=1;
-	}else{
-		freg.bits.zf=0;
-	}
-	freg.bits.of=0;
+    CalculateZF(base);
 	return base;
 }
 
 uint16_t x86CPU::ShiftLogicalLeft16(uint16_t base,uint8_t count){
-	count&=0x1F; //only use bottom 5 bits
-	if(count==0){
-		CalculatePF(base);
-		CalculateSF16(base);
-		freg.bits.zf=1;
-		return base;
-	}
-	freg.bits.of=(base&0x8000)>>15;
-	freg.bits.cf=((base<<(count-1))&0x8000)>>15;
-	base=base<<count;
-	freg.bits.of=freg.bits.of^((base&0x8000)>>15); //if the sign bit changed, then set it to 1
-	CalculatePF(base);
-	CalculateSF16(base);
-	if(base==0){
-		freg.bits.zf=1;
-	}else{
-		freg.bits.zf=0;
-	}
-	return base;
+    count&=0x1F; //only use bottom 5 bits
+    if(count==0){
+        //no flags modified if 0
+        return base;
+    }
+    freg.bits.cf=((base<<(count-1))&0x8000) > 0;
+    base=base << count;
+    if(count == 1){
+        //OF = MSB(Destination) ^ CF
+        freg.bits.of = ((base & 0x8000) > 0) ^ freg.bits.cf;
+    }
+    CalculatePF(base);
+    CalculateSF8(base);
+    CalculateZF(base);
+    return base;
 }
 
 uint32_t x86CPU::ShiftLogicalLeft32(uint32_t base,uint8_t count){
     count&=0x1F; //only use bottom 5 bits
     if(count==0){
-        CalculatePF(base);
-        CalculateSF32(base);
-        freg.bits.zf=1;
+        //no flags modified if 0
         return base;
     }
-    freg.bits.of=(base&0x80000000)>>31;
-    freg.bits.cf=((base<<(count-1))&0x80000000)>>31;
-    base=base<<count;
-    freg.bits.of=freg.bits.of^((base&0x80000000)>>31); //if the sign bit changed, then set it to 1
-    CalculatePF(base);
-    CalculateSF32(base);
-    if(base==0){
-        freg.bits.zf=1;
-    }else{
-        freg.bits.zf=0;
+    freg.bits.cf=((base<<(count-1))&0x80000000) > 0;
+    base=base << count;
+    if(count == 1){
+        //OF = MSB(Destination) ^ CF
+        freg.bits.of = ((base & 0x80000000) > 0) ^ freg.bits.cf;
     }
+    CalculatePF(base);
+    CalculateSF8(base);
+    CalculateZF(base);
     return base;
 }
 
