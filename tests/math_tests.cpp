@@ -220,25 +220,17 @@ TEST_CASE("ShiftLogicalRight", "[math ops]"){
     REQUIRE(cpu.freg.bits.zf == 0);
     REQUIRE(cpu.freg.bits.of == 1);
 
-    //unverified
-    //TODO also test some shifts other than 0, 1, and 32
-
-    REQUIRE(cpu.ShiftLogicalRight16(B16(11011100, 00001100), 1) == B16(10111000, 00011000));
-    REQUIRE(cpu.freg.bits.cf == 1);
-    REQUIRE(cpu.freg.bits.zf == 0);
-    REQUIRE(cpu.freg.bits.of == 0);
-
-    REQUIRE(cpu.ShiftLogicalRight32(B32(11011100, 00001100, 00000000, 00001000), 1) == 
-        B32(10111000, 00011000, 00000000, 00010000));
-    REQUIRE(cpu.freg.bits.cf == 1);
-    REQUIRE(cpu.freg.bits.zf == 0);
-    REQUIRE(cpu.freg.bits.of == 0);
-
-    REQUIRE(cpu.ShiftLogicalRight32(B32(01011100, 00001100, 00000000, 00001000), 1) == 
-        B32(10111000, 00011000, 00000000, 00010000));
+    REQUIRE(cpu.ShiftLogicalRight16(B16(11011100, 00001100), 1) == B16(01101110, 00000110));
     REQUIRE(cpu.freg.bits.cf == 0);
     REQUIRE(cpu.freg.bits.zf == 0);
     REQUIRE(cpu.freg.bits.of == 1);
+
+    REQUIRE(cpu.ShiftLogicalRight32(B32(11011100, 00001100, 00000000, 00001001), 1) == 
+        B32(01101110, 00000110, 00000000, 00000100));
+    REQUIRE(cpu.freg.bits.cf == 1);
+    REQUIRE(cpu.freg.bits.zf == 0);
+    REQUIRE(cpu.freg.bits.of == 1);
+
 }
 
 //opcode tests.. 
