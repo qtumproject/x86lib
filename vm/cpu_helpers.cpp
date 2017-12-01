@@ -60,80 +60,14 @@ void x86CPU::SetIndex32(){
         (regs32[EDI])-=4;
     }
 }
-void x86CPU::CalculatePF8(uint8_t val){
+//according to intel manuals "[PF is] set if the least-significant byte of the result contains an even number of 1s"
+void x86CPU::CalculatePF(uint32_t val){
     unsigned int i;
     unsigned int count=0;
     for(i=0;i<=7;i++){
         if((val&((1<<i)))!=0){count++;}
     }
-    if((count%2)==0){freg.bits.pf=1;}else{freg.bits.pf=0;}
-}
-
-void x86CPU::CalculatePF(uint32_t val){
-    if(OperandSize16){
-        CalculatePF16(val);
-    }else{
-        CalculatePF32(val);
-    }
-}
-
-void x86CPU::CalculatePF16(uint16_t val){
-#ifndef USE_NATIVE
-    unsigned int i;
-    unsigned int count=0;
-    for(i=0;i<=15;i++){
-        /* TODO (Jordan#4#): speed this up! */
-        if((val&((1<<i)))!=0){count++;}
-    }
-    if((count%2)==0){freg.bits.pf=1;}else{freg.bits.pf=0;}
-#else
-    //x86 ASM optimization..
-    __asm(".intel_syntax noprefix\n"
-    "cmp WORD PTR [ebp-10],0\n"
-    "jp .yes__\n"
-    ".att_syntax\n");
-    val=0;
-	__asm(".intel_syntax noprefix\n"
-	"jmp .end__\n"
-    ".local .yes__:\n"
-    ".att_syntax\n");
-    val=1;
-    __asm(".intel_syntax noprefix\n"
-    ".local .end__:\n"
-    ".att_syntax\n");
-    freg.bits.pf=val;
-    return;
-#endif
-}
-
-void x86CPU::CalculatePF32(uint32_t val){
-#ifndef USE_NATIVE
-    unsigned int i;
-    unsigned int count=0;
-    for(i=0;i<=31;i++){
-        /* TODO (Jordan#4#): speed this up! */
-        if((val&((1<<i)))!=0){count++;}
-    }
-    if((count%2)==0){freg.bits.pf=1;}else{freg.bits.pf=0;}
-#else
-    #error "not yet supported"
-    //x86 ASM optimization..
-    __asm(".intel_syntax noprefix\n"
-    "cmp DWORD PTR [ebp-10],0\n"
-    "jp .yes__\n"
-    ".att_syntax\n");
-    val=0;
-	__asm(".intel_syntax noprefix\n"
-	"jmp .end__\n"
-    ".local .yes__:\n"
-    ".att_syntax\n");
-    val=1;
-    __asm(".intel_syntax noprefix\n"
-    ".local .end__:\n"
-    ".att_syntax\n");
-    freg.bits.pf=val;
-    return;
-#endif
+    freg.bits.pf = (count%2) == 0;
 }
 
 //these calculate SF for the given operand size
