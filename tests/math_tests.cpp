@@ -185,6 +185,61 @@ TEST_CASE("ShiftLogicalLeft", "[math ops]"){
     REQUIRE(cpu.freg.bits.of == 1); //msb(result) ^ CF, 1 ^ 1
 }
 
+TEST_CASE("ShiftLogicalRight", "[math ops]"){
+    x86CPU cpu;
+    REQUIRE(cpu.ShiftLogicalRight8(B8(11011101), 1) == B8(01101110));
+    REQUIRE(cpu.freg.bits.cf == 1);
+    REQUIRE(cpu.freg.bits.zf == 0);
+    REQUIRE(cpu.freg.bits.sf == 0);
+    REQUIRE(cpu.freg.bits.of == 1);
+
+    REQUIRE(cpu.ShiftLogicalRight8(0, 1) == 0); 
+    REQUIRE(cpu.freg.bits.cf == 0);
+    REQUIRE(cpu.freg.bits.zf == 1);
+    REQUIRE(cpu.freg.bits.pf == 1);
+    REQUIRE(cpu.freg.bits.sf == 0);
+    REQUIRE(cpu.freg.bits.of == 0); 
+
+    REQUIRE(cpu.ShiftLogicalRight8(0xFA, 0) == 0xFA); //when shifting 0, all flags should be unmodified 
+    REQUIRE(cpu.freg.bits.cf == 0);
+    REQUIRE(cpu.freg.bits.zf == 1);
+    REQUIRE(cpu.freg.bits.pf == 1);
+    REQUIRE(cpu.freg.bits.sf == 0);
+    REQUIRE(cpu.freg.bits.of == 0);
+
+    REQUIRE(cpu.ShiftLogicalRight8(0xFA, 32) == 0xFA); //when shifting 32, all flags should be unmodified (only bottom 5 bits used)
+    REQUIRE(cpu.freg.bits.cf == 0);
+    REQUIRE(cpu.freg.bits.zf == 1);
+    REQUIRE(cpu.freg.bits.pf == 1);
+    REQUIRE(cpu.freg.bits.sf == 0);
+    REQUIRE(cpu.freg.bits.of == 0);
+
+
+    REQUIRE(cpu.ShiftLogicalRight8(B8(11011100), 1) == B8(01101110));
+    REQUIRE(cpu.freg.bits.cf == 0);
+    REQUIRE(cpu.freg.bits.zf == 0);
+    REQUIRE(cpu.freg.bits.of == 1);
+
+    //unverified
+    //TODO also test some shifts other than 0, 1, and 32
+
+    REQUIRE(cpu.ShiftLogicalRight16(B16(11011100, 00001100), 1) == B16(10111000, 00011000));
+    REQUIRE(cpu.freg.bits.cf == 1);
+    REQUIRE(cpu.freg.bits.zf == 0);
+    REQUIRE(cpu.freg.bits.of == 0);
+
+    REQUIRE(cpu.ShiftLogicalRight32(B32(11011100, 00001100, 00000000, 00001000), 1) == 
+        B32(10111000, 00011000, 00000000, 00010000));
+    REQUIRE(cpu.freg.bits.cf == 1);
+    REQUIRE(cpu.freg.bits.zf == 0);
+    REQUIRE(cpu.freg.bits.of == 0);
+
+    REQUIRE(cpu.ShiftLogicalRight32(B32(01011100, 00001100, 00000000, 00001000), 1) == 
+        B32(10111000, 00011000, 00000000, 00010000));
+    REQUIRE(cpu.freg.bits.cf == 0);
+    REQUIRE(cpu.freg.bits.zf == 0);
+    REQUIRE(cpu.freg.bits.of == 1);
+}
 
 //opcode tests.. 
 TEST_CASE("add_eax_imm32", "[add]") {
