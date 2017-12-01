@@ -183,6 +183,11 @@ TEST_CASE("ShiftLogicalLeft", "[math ops]"){
     REQUIRE(cpu.freg.bits.cf == 0);
     REQUIRE(cpu.freg.bits.zf == 0);
     REQUIRE(cpu.freg.bits.of == 1); //msb(result) ^ CF, 1 ^ 1
+
+    REQUIRE(cpu.ShiftLogicalLeft32(0xF00FABCD, 4) == 0x00FABCD0);
+    REQUIRE(cpu.freg.bits.cf == 1);
+    REQUIRE(cpu.freg.bits.zf == 0);
+    REQUIRE(cpu.freg.bits.of == 1);
 }
 
 TEST_CASE("ShiftLogicalRight", "[math ops]"){
@@ -231,6 +236,10 @@ TEST_CASE("ShiftLogicalRight", "[math ops]"){
     REQUIRE(cpu.freg.bits.zf == 0);
     REQUIRE(cpu.freg.bits.of == 1);
 
+    REQUIRE(cpu.ShiftLogicalRight32(0xF00FABCC, 4) == 0x0F00FABC);
+    REQUIRE(cpu.freg.bits.cf == 1);
+    REQUIRE(cpu.freg.bits.zf == 0);
+    REQUIRE(cpu.freg.bits.of == 0); //undefined, but x86lib sets it to 0
 }
 
 //opcode tests.. 
