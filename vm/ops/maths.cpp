@@ -529,7 +529,8 @@ uint8_t x86CPU::RotateCarryLeft8(uint8_t base,uint8_t count){
     uint16_t bigbase = base << 1 | freg.bits.cf; //make room for carry
     //now have a 9 bit structure...
     uint16_t result = (bigbase << count) | (bigbase >> (9-count));
-    freg.bits.cf = (result & (0x80 << 1)) > 0;
+    freg.bits.cf = (result & (1 << 9)) > 0;
+    result >>= 1; //adjust for removal of CF
     result &= 0xFF;
     if(count == 1){
         freg.bits.of = ((result & 0x80) > 0) ^ freg.bits.cf;
@@ -548,7 +549,8 @@ uint16_t x86CPU::RotateCarryLeft16(uint16_t base,uint8_t count){
     uint32_t bigbase = base << 1 | freg.bits.cf; //make room for carry
     //now have a 17 bit structure...
     uint32_t result = (bigbase << count) | (bigbase >> (17-count));
-    freg.bits.cf = (result & (0x8000 << 1)) > 0;
+    freg.bits.cf = (result & (1 << 17)) > 0;
+    result >>= 1;
     result &= 0xFFFF;
     if(count == 1){
         freg.bits.of = ((result & 0x8000) > 0) ^ freg.bits.cf;
@@ -563,10 +565,11 @@ uint32_t x86CPU::RotateCarryLeft32(uint32_t base,uint8_t count){
     if(count == 0){
         return base; //do nothing
     }
-    uint64_t bigbase = base << 1 | freg.bits.cf; //make room for carry
+    uint64_t bigbase = ((uint64_t)base << 1) | freg.bits.cf; //make room for carry
     //now have a 33 bit structure...
     uint64_t result = (bigbase << count) | (bigbase >> (33-count));
-    freg.bits.cf = (result & (0x80000000 << 1)) > 0;
+    freg.bits.cf = (result & (1l << 33)) > 0;
+    result >>= 1;
     result &= 0xFFFFFFFF;
     if(count == 1){
         freg.bits.of = ((result & 0x80000000) > 0) ^ freg.bits.cf;
