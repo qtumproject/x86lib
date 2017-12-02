@@ -485,7 +485,7 @@ uint16_t x86CPU::RotateLeft16(uint16_t base,uint8_t count){
     if(count == 0){
         return base; //do nothing
     }
-    uint8_t result = (base << count) | (base >> (16-count));
+    uint16_t result = (base << count) | (base >> (16-count));
     freg.bits.cf = result & 1;
     if(count == 1){
         freg.bits.of = ((result & 0x8000) > 0) ^ freg.bits.cf;
@@ -501,7 +501,7 @@ uint32_t x86CPU::RotateLeft32(uint32_t base,uint8_t count){
     if(count == 0){
         return base; //do nothing
     }
-    uint8_t result = (base << count) | (base >> (32-count));
+    uint32_t result = (base << count) | (base >> (32-count));
     freg.bits.cf = result & 1;
     if(count == 1){
         freg.bits.of = ((result & 0x80000000) > 0) ^ freg.bits.cf;

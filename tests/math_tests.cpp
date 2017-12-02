@@ -300,6 +300,48 @@ TEST_CASE("ShiftArithmeticRight", "[math ops]"){
     REQUIRE(cpu.freg.bits.of == 0); //undefined, but x86lib sets it to 0
 }
 
+TEST_CASE("RotateLeft", "[math ops]"){
+    x86CPU cpu;
+    REQUIRE(cpu.RotateLeft8(B8(11011101), 1) == B8(10111011));
+    REQUIRE(cpu.freg.bits.cf == 1);
+    REQUIRE(cpu.freg.bits.of == 0); // MSB(dest) ^ CF; 1 ^ 1
+
+    REQUIRE(cpu.RotateLeft8(B8(01011101), 1) == B8(10111010));
+    REQUIRE(cpu.freg.bits.cf == 0);
+    REQUIRE(cpu.freg.bits.of == 1); // 1 ^ 0
+
+    REQUIRE(cpu.RotateLeft8(0, 1) == 0); 
+    REQUIRE(cpu.freg.bits.cf == 0);
+    REQUIRE(cpu.freg.bits.of == 0); //0 ^ 0
+
+    cpu.freg.bits.cf = 1;
+    REQUIRE(cpu.RotateLeft8(0xFA, 0) == 0xFA); //when shifting 0, all flags should be unmodified 
+    REQUIRE(cpu.freg.bits.cf == 1);
+    REQUIRE(cpu.freg.bits.of == 0);
+    cpu.freg.bits.of = 1;
+    REQUIRE(cpu.RotateLeft8(0xFA, 16) == 0xFA); //when shifting 16, all flags should be unmodified 
+    REQUIRE(cpu.freg.bits.cf == 1);
+    REQUIRE(cpu.freg.bits.of == 1);
+
+
+    REQUIRE(cpu.RotateLeft8(B8(11011100), 1) == B8(10111001));
+    REQUIRE(cpu.freg.bits.cf == 1);
+    REQUIRE(cpu.freg.bits.of == 0); // 1 ^ 1
+
+    REQUIRE(cpu.RotateLeft16(B16(10011100, 00001100), 1) == B16(00111000, 00011001));
+    REQUIRE(cpu.freg.bits.cf == 1);
+    REQUIRE(cpu.freg.bits.of == 1); // 1 ^ 0
+
+    REQUIRE(cpu.RotateLeft32(B32(01011100, 00001100, 00000000, 00001001), 1) == 
+        B32(10111000, 00011000, 00000000, 00010010));
+    REQUIRE(cpu.freg.bits.cf == 0);
+    REQUIRE(cpu.freg.bits.of == 1); // 0 ^ 1
+
+    REQUIRE(cpu.RotateLeft32(0xF00FABCC, 4) == 0x00FABCCF);
+    REQUIRE(cpu.freg.bits.cf == 1);
+    REQUIRE(cpu.freg.bits.of == 0); //undefined, but x86lib sets it to 0
+}
+
 //opcode tests.. 
 TEST_CASE("add_eax_imm32", "[add]") {
     x86Tester test;
