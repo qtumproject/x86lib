@@ -242,6 +242,64 @@ TEST_CASE("ShiftLogicalRight", "[math ops]"){
     REQUIRE(cpu.freg.bits.of == 0); //undefined, but x86lib sets it to 0
 }
 
+TEST_CASE("ShiftArithmeticRight", "[math ops]"){
+    x86CPU cpu;
+    REQUIRE(cpu.ShiftArithmeticRight8(B8(11011101), 1) == B8(11101110));
+    REQUIRE(cpu.freg.bits.cf == 1);
+    REQUIRE(cpu.freg.bits.zf == 0);
+    REQUIRE(cpu.freg.bits.sf == 1);
+    REQUIRE(cpu.freg.bits.of == 0);
+
+    REQUIRE(cpu.ShiftArithmeticRight8(B8(01011101), 1) == B8(00101110));
+    REQUIRE(cpu.freg.bits.cf == 1);
+    REQUIRE(cpu.freg.bits.zf == 0);
+    REQUIRE(cpu.freg.bits.sf == 0);
+    REQUIRE(cpu.freg.bits.of == 0);
+
+    REQUIRE(cpu.ShiftArithmeticRight8(0, 1) == 0); 
+    REQUIRE(cpu.freg.bits.cf == 0);
+    REQUIRE(cpu.freg.bits.zf == 1);
+    REQUIRE(cpu.freg.bits.pf == 1);
+    REQUIRE(cpu.freg.bits.sf == 0);
+    REQUIRE(cpu.freg.bits.of == 0); 
+
+    REQUIRE(cpu.ShiftArithmeticRight8(0xFA, 0) == 0xFA); //when shifting 0, all flags should be unmodified 
+    REQUIRE(cpu.freg.bits.cf == 0);
+    REQUIRE(cpu.freg.bits.zf == 1);
+    REQUIRE(cpu.freg.bits.pf == 1);
+    REQUIRE(cpu.freg.bits.sf == 0);
+    REQUIRE(cpu.freg.bits.of == 0);
+
+    REQUIRE(cpu.ShiftArithmeticRight8(0xFA, 32) == 0xFA); //when shifting 32, all flags should be unmodified (only bottom 5 bits used)
+    REQUIRE(cpu.freg.bits.cf == 0);
+    REQUIRE(cpu.freg.bits.zf == 1);
+    REQUIRE(cpu.freg.bits.pf == 1);
+    REQUIRE(cpu.freg.bits.sf == 0);
+    REQUIRE(cpu.freg.bits.of == 0);
+
+
+    REQUIRE(cpu.ShiftArithmeticRight8(B8(11011100), 1) == B8(11101110));
+    REQUIRE(cpu.freg.bits.cf == 0);
+    REQUIRE(cpu.freg.bits.zf == 0);
+    REQUIRE(cpu.freg.bits.of == 0);
+
+    REQUIRE(cpu.ShiftArithmeticRight16(B16(11011100, 00001100), 1) == B16(11101110, 00000110));
+    REQUIRE(cpu.freg.bits.cf == 0);
+    REQUIRE(cpu.freg.bits.zf == 0);
+    REQUIRE(cpu.freg.bits.of == 0);
+
+    REQUIRE(cpu.ShiftArithmeticRight32(B32(11011100, 00001100, 00000000, 00001001), 1) == 
+        B32(11101110, 00000110, 00000000, 00000100));
+    REQUIRE(cpu.freg.bits.cf == 1);
+    REQUIRE(cpu.freg.bits.zf == 0);
+    REQUIRE(cpu.freg.bits.of == 0);
+
+    REQUIRE(cpu.ShiftArithmeticRight32(0xF00FABCC, 4) == 0xFF00FABC);
+    REQUIRE(cpu.freg.bits.cf == 1);
+    REQUIRE(cpu.freg.bits.zf == 0);
+    REQUIRE(cpu.freg.bits.of == 0); //undefined, but x86lib sets it to 0
+}
+
 //opcode tests.. 
 TEST_CASE("add_eax_imm32", "[add]") {
     x86Tester test;
