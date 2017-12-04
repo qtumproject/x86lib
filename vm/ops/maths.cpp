@@ -419,38 +419,53 @@ uint32_t x86CPU::ShiftLogicalLeftW(uint32_t base,uint8_t arg){
 
 /**ToDo: Possibly adapt BOCHS source so that we avoid this loop crap...**/
 uint8_t x86CPU::RotateRight8(uint8_t base,uint8_t count){
-    count&=0x1F; //only use bottom 5 bits
-	freg.bits.of=(base&0x80)>>7;
-	while(count>0){
-		freg.bits.cf=(base&0x01);
-		base=(freg.bits.cf<<7)|(base>>1);
-		count--;
-	}
-	freg.bits.of=freg.bits.of^((base&0x80)>>7);
-	return base;
+    count &= 0x1F; //only use bottom 5 bits
+    count %= 8; //rotate 8 should be the same as rotate 16, etc
+    if(count == 0){
+        return base; //do nothing
+    }
+    uint8_t result = (base >> count) | (base << (8-count));
+    freg.bits.cf = (result & 0x80) > 0;
+    if(count == 1){
+        freg.bits.of = ((result & 0x80) > 0) ^ ((result & 0x40) > 0);
+    }else{
+        freg.bits.of = 0;
+    }
+    //does not affect SF, ZF, AF, or PF
+    return result;
 }
 
 uint16_t x86CPU::RotateRight16(uint16_t base,uint8_t count){
-    count&=0x1F; //only use bottom 5 bits
-	freg.bits.of=(base&0x8000)>>15;
-	while(count>0){
-		freg.bits.cf=(base&0x01);
-		base=(freg.bits.cf<<15)|(base>>1);
-		count--;
-	}
-	freg.bits.of=freg.bits.of^((base&0x80)>>15);
-	return base;
+    count &= 0x1F; //only use bottom 5 bits
+    count %= 16; //rotate 8 should be the same as rotate 16, etc
+    if(count == 0){
+        return base; //do nothing
+    }
+    uint16_t result = (base >> count) | (base << (16-count));
+    freg.bits.cf = (result & 0x8000) > 0;
+    if(count == 1){
+        freg.bits.of = ((result & 0x8000) > 0) ^ ((result & 0x4000) > 0);
+    }else{
+        freg.bits.of = 0;
+    }
+    //does not affect SF, ZF, AF, or PF
+    return result;
 }
 uint32_t x86CPU::RotateRight32(uint32_t base,uint8_t count){
-    count&=0x1F; //only use bottom 5 bits
-    freg.bits.of=(base&0x80000000)>>31;
-    while(count>0){
-        freg.bits.cf=(base&0x01);
-        base=(freg.bits.cf<<31)|(base>>1);
-        count--;
+    count &= 0x1F; //only use bottom 5 bits
+    if(count == 0){
+        return base; //do nothing
     }
-    freg.bits.of=freg.bits.of^((base&0x80)>>31);
-    return base;
+
+    uint32_t result = (base >> count) | (base << (32-count));
+    freg.bits.cf = (result & 0x80000000) > 0;
+    if(count == 1){
+        freg.bits.of = ((result & 0x80000000) > 0) ^ ((result & 0x40000000) > 0);
+    }else{
+        freg.bits.of = 0;
+    }
+    //does not affect SF, ZF, AF, or PF
+    return result;
 }
 
 uint32_t x86CPU::RotateRightW(uint32_t base,uint8_t arg){
