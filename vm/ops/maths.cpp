@@ -267,7 +267,7 @@ uint16_t x86CPU::ShiftLogicalRight16(uint16_t base,uint8_t count){
     freg.bits.cf=((base>>(count-1))&1) > 0;
     base=base>>count;
     CalculatePF(base);
-    CalculateSF8(base);
+    CalculateSF16(base);
     CalculateZF(base);
     return base;
 }
@@ -285,7 +285,7 @@ uint32_t x86CPU::ShiftLogicalRight32(uint32_t base,uint8_t count){
     freg.bits.cf=((base>>(count-1))&1) > 0;
     base=base>>count;
     CalculatePF(base);
-    CalculateSF8(base);
+    CalculateSF32(base);
     CalculateZF(base);
     return base;
 }
@@ -327,7 +327,7 @@ uint16_t x86CPU::ShiftArithmeticRight16(uint16_t base,uint8_t count){
         base=(base>>count);
     }
     CalculatePF(base);
-    CalculateSF8(base);
+    CalculateSF16(base);
     CalculateZF(base);
     freg.bits.of=0; //SAR clears OF for all 1 bit shifts (>1 bit is undefined)
     return base;
@@ -345,7 +345,7 @@ uint32_t x86CPU::ShiftArithmeticRight32(uint32_t base,uint8_t count){
         base=(base>>count);
     }
     CalculatePF(base);
-    CalculateSF8(base);
+    CalculateSF32(base);
     CalculateZF(base);
     freg.bits.of=0; //SAR clears OF for all 1 bit shifts (>1 bit is undefined)
     return base;
@@ -390,7 +390,7 @@ uint16_t x86CPU::ShiftLogicalLeft16(uint16_t base,uint8_t count){
         freg.bits.of = MSB16(base) ^ freg.bits.cf;
     }
     CalculatePF(base);
-    CalculateSF8(base);
+    CalculateSF16(base);
     CalculateZF(base);
     return base;
 }
@@ -408,7 +408,7 @@ uint32_t x86CPU::ShiftLogicalLeft32(uint32_t base,uint8_t count){
         freg.bits.of = MSB32(base) ^ freg.bits.cf;
     }
     CalculatePF(base);
-    CalculateSF8(base);
+    CalculateSF32(base);
     CalculateZF(base);
     return base;
 }

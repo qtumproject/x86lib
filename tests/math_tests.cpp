@@ -224,7 +224,7 @@ TEST_CASE("ShiftLogicalRight", "[math ops]"){
     REQUIRE(cpu.freg.bits.cf == 0);
     REQUIRE(cpu.freg.bits.zf == 0);
     REQUIRE(cpu.freg.bits.of == 1);
-
+    
     REQUIRE(cpu.ShiftLogicalRight16(B16(11011100, 00001100), 1) == B16(01101110, 00000110));
     REQUIRE(cpu.freg.bits.cf == 0);
     REQUIRE(cpu.freg.bits.zf == 0);
@@ -235,11 +235,13 @@ TEST_CASE("ShiftLogicalRight", "[math ops]"){
     REQUIRE(cpu.freg.bits.cf == 1);
     REQUIRE(cpu.freg.bits.zf == 0);
     REQUIRE(cpu.freg.bits.of == 1);
+    REQUIRE(cpu.freg.bits.sf == 0);
 
     REQUIRE(cpu.ShiftLogicalRight32(0xF00FABCC, 4) == 0x0F00FABC);
     REQUIRE(cpu.freg.bits.cf == 1);
     REQUIRE(cpu.freg.bits.zf == 0);
     REQUIRE(cpu.freg.bits.of == 0); //undefined, but x86lib sets it to 0
+    REQUIRE(cpu.freg.bits.sf == 0);
 }
 
 TEST_CASE("ShiftArithmeticRight", "[math ops]"){
@@ -293,6 +295,7 @@ TEST_CASE("ShiftArithmeticRight", "[math ops]"){
     REQUIRE(cpu.freg.bits.cf == 1);
     REQUIRE(cpu.freg.bits.zf == 0);
     REQUIRE(cpu.freg.bits.of == 0);
+    REQUIRE(cpu.freg.bits.sf == 1);
 
     REQUIRE(cpu.ShiftArithmeticRight32(0xF00FABCC, 4) == 0xFF00FABC);
     REQUIRE(cpu.freg.bits.cf == 1);
