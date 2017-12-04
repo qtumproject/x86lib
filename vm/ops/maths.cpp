@@ -603,42 +603,59 @@ uint32_t x86CPU::RotateCarryLeftW(uint32_t base,uint8_t arg){
 }
 
 uint8_t x86CPU::RotateCarryRight8(uint8_t base,uint8_t count){
-    count&=0x1F; //only use bottom 5 bits
-	freg.bits.of=(base&0x80)>>7;
-	while(count>0){
-		freg.bits.r0=freg.bits.cf;
-		freg.bits.cf=(base&0x01);
-		base=(freg.bits.r0<<7)|(base>>1);
-		count--;
-	}
-	freg.bits.of=freg.bits.of^((base&0x80)>>7);
-	return base;
+    count &= 0x1F; //only use bottom 5 bits
+    count %= 8;
+    if(count == 0){
+        return base; //do nothing
+    }
+    uint16_t bigbase = base | freg.bits.cf << 8; //add carry
+    //now have a 9 bit structure...
+    uint16_t result = (bigbase >> count) | (bigbase << (9-count));
+    freg.bits.cf = (result & (1 << 8)) > 0;
+    result &= 0xFF;
+    if(count == 1){
+        freg.bits.of = ((result & 0x80) > 0) ^ ((result & 0x40) > 0);
+    }else{
+        freg.bits.of = 0;
+    }
+    return result;
 }
 
 uint16_t x86CPU::RotateCarryRight16(uint16_t base,uint8_t count){
-    count&=0x1F; //only use bottom 5 bits
-	freg.bits.of=(base&0x8000)>>15;
-	while(count>0){
-		freg.bits.r0=freg.bits.cf;
-		freg.bits.cf=(base&0x01);
-		base=(freg.bits.r0<<15)|(base>>1);
-		count--;
-	}
-	freg.bits.of=freg.bits.of^((base&0x8000)>>15);
-	return base;
+    count &= 0x1F; //only use bottom 5 bits
+    count %= 16;
+    if(count == 0){
+        return base; //do nothing
+    }
+    uint32_t bigbase = base | freg.bits.cf << 16; //add carry
+    //now have a 9 bit structure...
+    uint16_t result = (bigbase >> count) | (bigbase << (17-count));
+    freg.bits.cf = (result & (1 << 16)) > 0;
+    result &= 0xFFFF;
+    if(count == 1){
+        freg.bits.of = ((result & 0x8000) > 0) ^ ((result & 0x4000) > 0);
+    }else{
+        freg.bits.of = 0;
+    }
+    return result;
 }
 
 uint32_t x86CPU::RotateCarryRight32(uint32_t base,uint8_t count){
-    count&=0x1F; //only use bottom 5 bits
-    freg.bits.of=(base&0x80000000)>>31;
-    while(count>0){
-        freg.bits.r0=freg.bits.cf;
-        freg.bits.cf=(base&0x01);
-        base=(freg.bits.r0<<31)|(base>>1);
-        count--;
+    count &= 0x1F; //only use bottom 5 bits
+    if(count == 0){
+        return base; //do nothing
     }
-    freg.bits.of=freg.bits.of^((base&0x80000000)>>31);
-    return base;
+    uint64_t bigbase = base | (uint64_t)freg.bits.cf << 32; //add carry
+    //now have a 9 bit structure...
+    uint64_t result = (bigbase >> count) | (bigbase << (33-count));
+    freg.bits.cf = (result & (1l << 32)) > 0;
+    result &= 0xFFFFFFFF;
+    if(count == 1){
+        freg.bits.of = ((result & 0x80000000) > 0) ^ ((result & 0x40000000) > 0);
+    }else{
+        freg.bits.of = 0;
+    }
+    return result;
 }
 
 uint32_t x86CPU::RotateCarryRightW(uint32_t base,uint8_t arg){

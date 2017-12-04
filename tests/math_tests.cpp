@@ -425,11 +425,69 @@ TEST_CASE("RotateRight", "[math ops]"){
 
     REQUIRE(cpu.RotateRight32(B32(01011100, 00001100, 00000000, 00001001), 1) == 
         B32(10101110, 00000110, 00000000, 00000100));
-    
+
     REQUIRE(cpu.freg.bits.cf == 1);
     REQUIRE(cpu.freg.bits.of == 1); // 0 ^ 1
 
     REQUIRE(cpu.RotateRight32(0xF00FABCC, 4) == 0xCF00FABC);
+    REQUIRE(cpu.freg.bits.cf == 1);
+    REQUIRE(cpu.freg.bits.of == 0); //undefined, but x86lib sets it to 0
+}
+
+TEST_CASE("RotateCarryRight", "[math ops]"){
+    x86CPU cpu;
+    cpu.freg.bits.cf = 0;
+    REQUIRE((int)cpu.RotateCarryRight8(B8(11011101), 1) == B8(01101110));
+    REQUIRE(cpu.freg.bits.cf == 1);
+    REQUIRE(cpu.freg.bits.of == 1); // MSB(dest) ^ MSB2(dest); 0^1
+
+    REQUIRE((int)cpu.RotateCarryRight8(B8(01011101), 1) == B8(10101110));
+    REQUIRE(cpu.freg.bits.cf == 1);
+    REQUIRE(cpu.freg.bits.of == 1); // 0 ^ 1
+
+    REQUIRE((int)cpu.RotateCarryRight8(B8(01011110), 1) == B8(10101111));
+    REQUIRE(cpu.freg.bits.cf == 0);
+    REQUIRE(cpu.freg.bits.of == 1); // 0 ^ 1
+
+    cpu.freg.bits.cf = 1;
+    REQUIRE(cpu.RotateCarryRight8(0, 1) == 0x80); 
+    REQUIRE(cpu.freg.bits.cf == 0);
+    REQUIRE(cpu.freg.bits.of == 1); //1 ^ 0
+
+    REQUIRE(cpu.RotateCarryRight8(0, 1) == 0); 
+    REQUIRE(cpu.freg.bits.cf == 0);
+    REQUIRE(cpu.freg.bits.of == 0); //0 ^ 0
+
+    cpu.freg.bits.cf = 1;
+    REQUIRE(cpu.RotateCarryRight8(0xFA, 0) == 0xFA); //when shifting 0, all flags should be unmodified 
+    REQUIRE(cpu.freg.bits.cf == 1);
+    REQUIRE(cpu.freg.bits.of == 0);
+    cpu.freg.bits.of = 1;
+    REQUIRE(cpu.RotateCarryRight8(0xFA, 16) == 0xFA); //when shifting 16, all flags should be unmodified 
+    REQUIRE(cpu.freg.bits.cf == 1);
+    REQUIRE(cpu.freg.bits.of == 1);
+    cpu.freg.bits.cf = 0;
+    REQUIRE(cpu.RotateCarryRight8(B8(01011100), 1) == B8(00101110));
+    REQUIRE(cpu.freg.bits.cf == 0);
+    REQUIRE(cpu.freg.bits.of == 0); // 0 ^ 0
+
+    REQUIRE(cpu.RotateCarryRight16(B16(10011100, 00001100), 1) == B16(01001110, 00000110));
+    REQUIRE(cpu.freg.bits.cf == 0);
+    REQUIRE(cpu.freg.bits.of == 1); // 1 ^ 0
+
+    cpu.freg.bits.cf = 1;
+    REQUIRE(cpu.RotateCarryRight32(B32(11011100, 00001100, 00000000, 00001001), 1) == 
+        B32(11101110, 00000110, 00000000, 00000100));
+    REQUIRE(cpu.freg.bits.cf == 1);
+    REQUIRE(cpu.freg.bits.of == 0); // 1 ^ 1
+
+    cpu.freg.bits.cf = 0;
+    REQUIRE(cpu.RotateCarryRight32(0xF00FABCC, 4) == 0x8F00FABC);
+    REQUIRE(cpu.freg.bits.cf == 1);
+    REQUIRE(cpu.freg.bits.of == 0); //undefined, but x86lib sets it to 0
+
+    cpu.freg.bits.cf = 1;
+    REQUIRE(cpu.RotateCarryRight32(0xF00FABCC, 4) == 0x9F00FABC);
     REQUIRE(cpu.freg.bits.cf == 1);
     REQUIRE(cpu.freg.bits.of == 0); //undefined, but x86lib sets it to 0
 }
