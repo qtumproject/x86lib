@@ -232,13 +232,17 @@ uint32_t x86CPU::XorW(uint32_t base,uint32_t arg){
 	}
 }
 
+#define MSB8(x) (((x) & 0x80) > 0)
+#define MSB16(x) (((x) & 0x8000) > 0)
+#define MSB32(x) (((x) & 0x80000000) > 0)
+
 uint8_t x86CPU::ShiftLogicalRight8(uint8_t base,uint8_t count){
 	count&=0x1F; //only use bottom 5 bits
 	if(count==0){
 		return base;
 	}
     if(count == 1){
-	   freg.bits.of=(base&0x80) > 0;
+	   freg.bits.of=MSB8(base);
     }else{
         freg.bits.of = 0; //of is undefined in this condition
     }
@@ -256,7 +260,7 @@ uint16_t x86CPU::ShiftLogicalRight16(uint16_t base,uint8_t count){
         return base;
     }
     if(count == 1){
-       freg.bits.of=(base&0x8000) > 0;
+       freg.bits.of=MSB16(base);
     }else{
         freg.bits.of = 0; //of is undefined in this condition
     }
@@ -274,7 +278,7 @@ uint32_t x86CPU::ShiftLogicalRight32(uint32_t base,uint8_t count){
         return base;
     }
     if(count == 1){
-       freg.bits.of=(base&0x80000000) > 0;
+       freg.bits.of=MSB32(base);
     }else{
         freg.bits.of = 0; //of is undefined in this condition
     }
@@ -300,7 +304,7 @@ uint8_t x86CPU::ShiftArithmeticRight8(uint8_t base,uint8_t count){
 		return base;
 	}
 	freg.bits.cf = ((base >> (count-1))&1) > 0;
-	if((base&0x80)!=0){ //if signed
+	if(MSB8(base)){ //if signed
 		base=(base>>count)|(~(0xFF>>count)); //Replace shifted in 0 bits with 1 bits for sign
 	}else{
 		base=(base>>count);
@@ -317,7 +321,7 @@ uint16_t x86CPU::ShiftArithmeticRight16(uint16_t base,uint8_t count){
         return base;
     }
     freg.bits.cf = ((base >> (count-1))&1) > 0;
-    if((base&0x8000)!=0){ //if signed
+    if(MSB16(base)){ //if signed
         base=(base>>count)|(~(0xFFFF>>count)); //Replace shifted in 0 bits with 1 bits for sign
     }else{
         base=(base>>count);
@@ -335,7 +339,7 @@ uint32_t x86CPU::ShiftArithmeticRight32(uint32_t base,uint8_t count){
         return base;
     }
     freg.bits.cf = ((base >> (count-1))&1) > 0;
-    if((base&0x80000000)!=0){ //if signed
+    if(MSB32(base)){ //if signed
         base=(base>>count)|(~(0xFFFFFFFF>>count)); //Replace shifted in 0 bits with 1 bits for sign
     }else{
         base=(base>>count);
@@ -365,7 +369,7 @@ uint8_t x86CPU::ShiftLogicalLeft8(uint8_t base,uint8_t count){
 	base=base << count;
     if(count == 1){
         //OF = MSB(Destination) ^ CF
-        freg.bits.of = ((base & 0x80) > 0) ^ freg.bits.cf;
+        freg.bits.of = MSB8(base) ^ freg.bits.cf;
     }
 	CalculatePF(base);
 	CalculateSF8(base);
@@ -383,7 +387,7 @@ uint16_t x86CPU::ShiftLogicalLeft16(uint16_t base,uint8_t count){
     base=base << count;
     if(count == 1){
         //OF = MSB(Destination) ^ CF
-        freg.bits.of = ((base & 0x8000) > 0) ^ freg.bits.cf;
+        freg.bits.of = MSB16(base) ^ freg.bits.cf;
     }
     CalculatePF(base);
     CalculateSF8(base);
@@ -401,7 +405,7 @@ uint32_t x86CPU::ShiftLogicalLeft32(uint32_t base,uint8_t count){
     base=base << count;
     if(count == 1){
         //OF = MSB(Destination) ^ CF
-        freg.bits.of = ((base & 0x80000000) > 0) ^ freg.bits.cf;
+        freg.bits.of = MSB32(base) ^ freg.bits.cf;
     }
     CalculatePF(base);
     CalculateSF8(base);
@@ -425,9 +429,9 @@ uint8_t x86CPU::RotateRight8(uint8_t base,uint8_t count){
         return base; //do nothing
     }
     uint8_t result = (base >> count) | (base << (8-count));
-    freg.bits.cf = (result & 0x80) > 0;
+    freg.bits.cf = MSB8(result);
     if(count == 1){
-        freg.bits.of = ((result & 0x80) > 0) ^ ((result & 0x40) > 0);
+        freg.bits.of = MSB8(result) ^ ((result & 0x40) > 0);
     }else{
         freg.bits.of = 0;
     }
@@ -442,9 +446,9 @@ uint16_t x86CPU::RotateRight16(uint16_t base,uint8_t count){
         return base; //do nothing
     }
     uint16_t result = (base >> count) | (base << (16-count));
-    freg.bits.cf = (result & 0x8000) > 0;
+    freg.bits.cf = MSB16(result);
     if(count == 1){
-        freg.bits.of = ((result & 0x8000) > 0) ^ ((result & 0x4000) > 0);
+        freg.bits.of = MSB16(result) ^ ((result & 0x4000) > 0);
     }else{
         freg.bits.of = 0;
     }
@@ -458,9 +462,9 @@ uint32_t x86CPU::RotateRight32(uint32_t base,uint8_t count){
     }
 
     uint32_t result = (base >> count) | (base << (32-count));
-    freg.bits.cf = (result & 0x80000000) > 0;
+    freg.bits.cf = MSB32(result);
     if(count == 1){
-        freg.bits.of = ((result & 0x80000000) > 0) ^ ((result & 0x40000000) > 0);
+        freg.bits.of = MSB32(result) ^ ((result & 0x40000000) > 0);
     }else{
         freg.bits.of = 0;
     }
@@ -483,10 +487,11 @@ uint8_t x86CPU::RotateLeft8(uint8_t base,uint8_t count){
     if(count == 0){
         return base; //do nothing
     }
+    //NOTE: be careful changing this logic, this is optimized to generate an ROL/ROR instruction
     uint8_t result = (base << count) | (base >> (8-count));
     freg.bits.cf = result & 1;
     if(count == 1){
-        freg.bits.of = ((result & 0x80) > 0) ^ freg.bits.cf;
+        freg.bits.of = MSB8(result) ^ freg.bits.cf;
     }else{
         freg.bits.of = 0;
     }
@@ -503,7 +508,7 @@ uint16_t x86CPU::RotateLeft16(uint16_t base,uint8_t count){
     uint16_t result = (base << count) | (base >> (16-count));
     freg.bits.cf = result & 1;
     if(count == 1){
-        freg.bits.of = ((result & 0x8000) > 0) ^ freg.bits.cf;
+        freg.bits.of = MSB16(result) ^ freg.bits.cf;
     }else{
         freg.bits.of = 0;
     }
@@ -519,7 +524,7 @@ uint32_t x86CPU::RotateLeft32(uint32_t base,uint8_t count){
     uint32_t result = (base << count) | (base >> (32-count));
     freg.bits.cf = result & 1;
     if(count == 1){
-        freg.bits.of = ((result & 0x80000000) > 0) ^ freg.bits.cf;
+        freg.bits.of = MSB32(result) ^ freg.bits.cf;
     }else{
         freg.bits.of = 0;
     }
@@ -548,7 +553,7 @@ uint8_t x86CPU::RotateCarryLeft8(uint8_t base,uint8_t count){
     result >>= 1; //adjust for removal of CF
     result &= 0xFF;
     if(count == 1){
-        freg.bits.of = ((result & 0x80) > 0) ^ freg.bits.cf;
+        freg.bits.of = MSB8(result) ^ freg.bits.cf;
     }else{
         freg.bits.of = 0;
     }
@@ -568,7 +573,7 @@ uint16_t x86CPU::RotateCarryLeft16(uint16_t base,uint8_t count){
     result >>= 1;
     result &= 0xFFFF;
     if(count == 1){
-        freg.bits.of = ((result & 0x8000) > 0) ^ freg.bits.cf;
+        freg.bits.of = MSB16(result) ^ freg.bits.cf;
     }else{
         freg.bits.of = 0;
     }
@@ -587,7 +592,7 @@ uint32_t x86CPU::RotateCarryLeft32(uint32_t base,uint8_t count){
     result >>= 1;
     result &= 0xFFFFFFFF;
     if(count == 1){
-        freg.bits.of = ((result & 0x80000000) > 0) ^ freg.bits.cf;
+        freg.bits.of = MSB32(result) ^ freg.bits.cf;
     }else{
         freg.bits.of = 0;
     }
@@ -614,7 +619,7 @@ uint8_t x86CPU::RotateCarryRight8(uint8_t base,uint8_t count){
     freg.bits.cf = (result & (1 << 8)) > 0;
     result &= 0xFF;
     if(count == 1){
-        freg.bits.of = ((result & 0x80) > 0) ^ ((result & 0x40) > 0);
+        freg.bits.of = MSB8(result) ^ ((result & 0x40) > 0);
     }else{
         freg.bits.of = 0;
     }
@@ -633,7 +638,7 @@ uint16_t x86CPU::RotateCarryRight16(uint16_t base,uint8_t count){
     freg.bits.cf = (result & (1 << 16)) > 0;
     result &= 0xFFFF;
     if(count == 1){
-        freg.bits.of = ((result & 0x8000) > 0) ^ ((result & 0x4000) > 0);
+        freg.bits.of = MSB16(result) ^ ((result & 0x4000) > 0);
     }else{
         freg.bits.of = 0;
     }
@@ -651,7 +656,7 @@ uint32_t x86CPU::RotateCarryRight32(uint32_t base,uint8_t count){
     freg.bits.cf = (result & (1l << 32)) > 0;
     result &= 0xFFFFFFFF;
     if(count == 1){
-        freg.bits.of = ((result & 0x80000000) > 0) ^ ((result & 0x40000000) > 0);
+        freg.bits.of = MSB32(result) ^ ((result & 0x40000000) > 0);
     }else{
         freg.bits.of = 0;
     }
