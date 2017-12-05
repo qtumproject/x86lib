@@ -4,6 +4,14 @@
 #include "catch.hpp"
 #include <stdint.h>
 #include <string>
+#include "catch.hpp"
+
+#define private public
+#define protected public
+#include "x86lib.h"
+#include "x86lib_internal.h"
+#undef public
+#undef protected
 
 using namespace std;
 using namespace x86Lib;
