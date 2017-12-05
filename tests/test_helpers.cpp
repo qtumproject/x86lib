@@ -24,8 +24,9 @@ x86Tester::x86Tester(){
     ports.Add(0xFF, 0xFF, testports); //register port for exit
 
     cpu.Reset();
-    cpu.SetRegister32(ESP, STACK_ADDRESS + STACK_SIZE);
+    cpu.SetRegister32(ESP, STACK_ADDRESS + STACK_START);
     //EIP is already set to 0x1000
+    cacheValid = false;
 }
 //Assembles the given code as assembly
 void x86Tester::Assemble(string code){
@@ -54,6 +55,7 @@ void x86Tester::LoadFile(string fileName){
     file.seekg(0, std::ios::beg);
     REQUIRE(fileLength < CODE_SIZE);
     file.read(coderom->GetMemory(), fileLength);
+    cacheValid = false;
 }
 //Loads the current x86 state into the checkpoint field
 x86Checkpoint x86Tester::LoadCheckpoint(){
@@ -68,13 +70,15 @@ void x86Tester::ApplyCheckpoint(x86Checkpoint& checkpoint){
     cpu.LoadState(checkpoint.regs);
     memcpy(stackram->GetMemory(), checkpoint.stack, STACK_SIZE);
     memcpy(scratchram->GetMemory(), checkpoint.scratch, SCRATCH_SIZE);
+    cacheValid = false;
 }
 //Runs the x86 VM for the specified number of instructions
 void x86Tester::Run(int count){
     cpu.Exec(count);
+    cacheValid = false;
 }
 
-void x86Tester::Compare(x86Checkpoint &check, bool checkeip){
+void x86Tester::Compare(x86Checkpoint &check, bool checkeip, bool checkMemory){
     x86Checkpoint checkpoint = LoadCheckpoint();
     //don't use a loop here for easier diagnostics when it fails
     REQUIRE(check.regs.regs32[EAX] == checkpoint.regs.regs32[EAX]);
@@ -95,6 +99,14 @@ void x86Tester::Compare(x86Checkpoint &check, bool checkeip){
     if(checkeip){
         REQUIRE(check.regs.eip == checkpoint.regs.eip);
     }
-    REQUIRE(memcmp(check.stack, checkpoint.stack, STACK_SIZE) == 0);
-    REQUIRE(memcmp(check.scratch, checkpoint.scratch, SCRATCH_SIZE) == 0);
+    if(checkMemory){
+        REQUIRE(memcmp(check.stack, checkpoint.stack, STACK_SIZE) == 0);
+        REQUIRE(memcmp(check.scratch, checkpoint.scratch, SCRATCH_SIZE) == 0);
+    }
+}
+x86Checkpoint& x86Tester::Check(){
+    if(!cacheValid){
+        cache=LoadCheckpoint();
+    }
+    return cache;
 }

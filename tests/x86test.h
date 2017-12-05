@@ -17,12 +17,14 @@ using namespace std;
 using namespace x86Lib;
 
 #define STACK_SIZE 128
+#define STACK_START 64
 #define SCRATCH_SIZE 128
 #define CODE_SIZE 1024
 
 #define CODE_ADDRESS 0x1000
 #define STACK_ADDRESS 0x2000 //stack begins at top
 #define SCRATCH_ADDRESS 0x3000
+
 
 struct x86Checkpoint{
     x86Checkpoint(){
@@ -35,19 +37,19 @@ struct x86Checkpoint{
 
     uint32_t Stack32(int pos){
         uint32_t tmp;
-        memcpy(&tmp, &stack[pos], 4);
+        memcpy(&tmp, &stack[regs.regs32[ESP] - STACK_ADDRESS + pos], 4);
         return tmp;
     }
     uint16_t Stack16(int pos){
         uint16_t tmp;
-        memcpy(&tmp, &stack[pos], 2);
+        memcpy(&tmp, &stack[regs.regs32[ESP] - STACK_ADDRESS + pos], 2);
         return tmp;
     }
     void SetStack32(int pos, uint32_t val){
-        memcpy(&stack[pos], &val, 4);
+        memcpy(&stack[regs.regs32[ESP] - STACK_ADDRESS + pos], &val, 4);
     }
     void SetStack16(int pos, uint16_t val){
-        memcpy(&stack[pos], &val, 2);
+        memcpy(&stack[regs.regs32[ESP] -STACK_ADDRESS + pos], &val, 2);
     }
     uint32_t Scratch32(int pos){
         uint32_t tmp;
@@ -183,6 +185,9 @@ class x86Tester{
     RAMemory *scratchram;
     RAMemory *stackram;
     TestPorts *testports;
+
+    x86Checkpoint cache;
+    bool cacheValid;
 public:
     x86Tester();
     //Assembles the given code as assembly
@@ -191,9 +196,10 @@ public:
     void LoadFile(string file);
     //Loads the current x86 state into the checkpoint field
     x86Checkpoint LoadCheckpoint();
+    x86Checkpoint& Check();
     //Loads the checkpoint data into the x86 VM
     void ApplyCheckpoint(x86Checkpoint& checkpoint);
-    void Compare(x86Checkpoint &check, bool checkeip=false);
+    void Compare(x86Checkpoint &check, bool checkeip=false, bool checkmemory=false);
     //Runs the x86 VM for the specified number of instructions
     void Run(int count=1000);
     void Run(string code, int count=1000){

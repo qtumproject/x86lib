@@ -50,7 +50,7 @@ CXX_TEST_OBJS = $(subst .cpp,.o,$(CXX_TEST_SRC))
 
 
 
-CXXFLAGS ?= -Wall -fPIC
+CXXFLAGS ?= -Wall -fPIC -g -O0
 CXXFLAGS += -DX86LIB_BUILD -I./include -fexceptions
 
 VERSION=1.1
