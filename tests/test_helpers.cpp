@@ -66,7 +66,7 @@ x86Checkpoint x86Tester::LoadCheckpoint(){
     return checkpoint;
 }
 //Loads the checkpoint data into the x86 VM
-void x86Tester::ApplyCheckpoint(x86Checkpoint& checkpoint){
+void x86Tester::Apply(x86Checkpoint& checkpoint){
     cpu.LoadState(checkpoint.regs);
     memcpy(stackram->GetMemory(), checkpoint.stack, STACK_SIZE);
     memcpy(scratchram->GetMemory(), checkpoint.scratch, SCRATCH_SIZE);

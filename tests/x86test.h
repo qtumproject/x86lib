@@ -101,6 +101,9 @@ struct x86Checkpoint{
     uint16_t Reg32(int which){
         return regs.regs32[which];
     }
+    void AddReg32(int which, int val){
+        regs.regs32[which] += val;
+    }
     uint32_t GetEIP(){
         return regs.eip;
     }
@@ -198,7 +201,7 @@ public:
     x86Checkpoint LoadCheckpoint();
     x86Checkpoint& Check();
     //Loads the checkpoint data into the x86 VM
-    void ApplyCheckpoint(x86Checkpoint& checkpoint);
+    void Apply(x86Checkpoint& checkpoint);
     void Compare(x86Checkpoint &check, bool checkeip=false, bool checkmemory=false);
     //Runs the x86 VM for the specified number of instructions
     void Run(int count=1000);

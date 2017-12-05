@@ -62,36 +62,53 @@ TEST_CASE("op_call_relW", "[flow]"){
     //we use a weird test pattern here because it's cumbersome to use the Set pattern
     test.Run(1); //call test1
     REQUIRE(test.Check().GetEIP() == offset + 0x0D);
-    REQUIRE(test.Check().Reg32(ESP) == stack - 4);
+    REQUIRE(test.Check().Reg32(ESP) == stack - 2);
     //note: push first decrements ESP by 4, and then puts data into [ESP]
-    REQUIRE(test.Check().Stack32(0) == offset + 4);
+    REQUIRE(test.Check().Stack16(0) == offset + 4);
 
     test.Run(1); // call test3
     REQUIRE(test.Check().GetEIP() == offset + 0x12);
-    REQUIRE(test.Check().Reg32(ESP) == stack - 8);
+    REQUIRE(test.Check().Reg32(ESP) == stack - 6);
     REQUIRE(test.Check().Stack32(0) == offset + 0x12);
     
     test.Run(1); //nop
     REQUIRE(test.Check().GetEIP() == offset + 0x13);
-    REQUIRE(test.Check().Reg32(ESP) == stack - 8);
+    REQUIRE(test.Check().Reg32(ESP) == stack - 6);
     
     test.Run(1); //call test2
     REQUIRE(test.Check().GetEIP() == offset + 0x06);
-    REQUIRE(test.Check().Reg32(ESP) == stack - 12);
-    REQUIRE(test.Check().Stack32(0) == offset + 0x17);
+    REQUIRE(test.Check().Reg32(ESP) == stack - 8);
+    REQUIRE(test.Check().Stack16(0) == offset + 0x17);
     
     test.Run(1); //call test4
     REQUIRE(test.Check().GetEIP() == offset + 0x05);
-    REQUIRE(test.Check().Reg32(ESP) == stack - 16);
+    REQUIRE(test.Check().Reg32(ESP) == stack - 12);
     REQUIRE(test.Check().Stack32(0) == offset + 0x0B);
     
     test.Run(1); //nop
     REQUIRE(test.Check().GetEIP() == offset + 0x06);
-    REQUIRE(test.Check().Reg32(ESP) == stack - 16);
+    REQUIRE(test.Check().Reg32(ESP) == stack - 12);
 
     test.Run(1); //call test4
     REQUIRE(test.Check().GetEIP() == offset + 0x05);
-    REQUIRE(test.Check().Reg32(ESP) == stack - 20);
+    REQUIRE(test.Check().Reg32(ESP) == stack - 16);
     REQUIRE(test.Check().Stack32(0) == offset + 0x0B);
 }
 
+TEST_CASE("op_retn", "[flow]"){
+    x86Tester test;
+    x86Checkpoint check = test.LoadCheckpoint();
+    int offset = check.GetEIP();
+    int stack = check.Reg32(ESP);
+    check.AddReg32(ESP, -4);
+    check.SetStack32(0, 0xFFFF1234);
+    test.Apply(check);
+    test.Run("ret 4", 1);
+    REQUIRE(test.Check().GetEIP() == 0xFFFF1234);
+    REQUIRE(test.Check().Reg32(ESP) == stack + 4);
+    //reset and try short mode
+    test.Apply(check);
+    test.Run("o16 ret 4", 1);
+    REQUIRE(test.Check().GetEIP() == 0x1234);
+    REQUIRE(test.Check().Reg32(ESP) == stack + 2);
+}
