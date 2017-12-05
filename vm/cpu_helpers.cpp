@@ -90,6 +90,30 @@ void x86CPU::CalculateSF32(uint32_t val){
     if((val&0x80000000)==0){freg.bits.sf=0;}else{freg.bits.sf=1;}
 }
 
+void x86CPU::CalculateOF8(uint8_t result, uint8_t v1, uint8_t v2){
+    //adapted from https://stackoverflow.com/questions/16845912/determining-carry-and-overflow-flag-in-6502-emulation-in-java
+    //see also: http://www.righto.com/2012/12/the-6502-overflow-flag-explained.html
+    //Basically this checks if result has a different sign bit than v1 and v2 
+    freg.bits.of = !((v1^v2) & 0x80) && ((v1^result) & 0x80);
+}
+void x86CPU::CalculateOF16(uint16_t result, uint16_t v1, uint16_t v2){
+    freg.bits.of = !((v1^v2) & 0x80) && ((v1^result) & 0x8000);
+}
+void x86CPU::CalculateOF32(uint32_t result, uint32_t v1, uint32_t v2){
+    freg.bits.of = !((v1^v2) & 0x80) && ((v1^result) & 0x80000000);
+}
+void x86CPU::CalculateOFW(uint32_t result, uint32_t v1, uint32_t v2){
+    if(OperandSize16){
+        CalculateOF16(result, v1, v2);
+    }else{
+        CalculateOF32(result, v1, v2);
+    }
+}
+void x86CPU::CalculateZF(uint32_t result){
+    freg.bits.zf = result == 0;
+}
+
+
 void x86CPU::Jmp_nearW(uint32_t off){
     if(OperandSize16){
         Jmp_near16(off);
