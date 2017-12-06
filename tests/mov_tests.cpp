@@ -61,3 +61,41 @@ TEST_CASE("modrm16 si+di+disp", "[modrm]") {
 }
 
 
+
+TEST_CASE("mov_rmW_immW", "[mov]") {
+    x86Tester test;
+    x86Checkpoint check = test.LoadCheckpoint();
+    check.SetReg32(EBX, HIGH_SCRATCH_ADDRESS);
+    test.Apply(check);
+
+    INFO("32bit mov");
+    test.Run("mov dword [ebx + 10], 0x12345678", 1);
+    REQUIRE(test.Check().HighScratch32(10) == 0x12345678);
+
+    test.Apply(check);
+    REQUIRE(test.Check().HighScratch32(10) == 0); //sanity
+    test.Run("mov dword [HIGH_SCRATCH_ADDRESS + 5 * 2], 0x12345678");
+    REQUIRE(test.Check().HighScratch32(10) == 0x12345678);
+
+    INFO("32bit mov with a16");
+    test.Apply(check);
+    test.Run("a16 mov dword [bx + 10], 0x12345678", 1);
+    REQUIRE(test.Check().Scratch32(10) == 0x12345678); //when rounded off to 16-bits, HighScratch = Scratch
+
+    test.Apply(check);
+    REQUIRE(test.Check().Scratch32(10) == 0); //sanity
+    test.Run("a16 mov dword [SCRATCH_ADDRESS + 5 * 2], 0x12345678");
+    REQUIRE(test.Check().Scratch32(10) == 0x12345678);
+
+    INFO("16bit mov with a16");
+    test.Apply(check);
+    test.Run("o16 a16 mov word [bx + 10], 0x1234", 1);
+    REQUIRE(test.Check().Scratch32(10) == 0x1234); //when rounded off to 16-bits, HighScratch = Scratch
+
+    test.Apply(check);
+    REQUIRE(test.Check().Scratch32(10) == 0); //sanity
+    test.Run("o16 a16 mov word [SCRATCH_ADDRESS + 5 * 2], 0x1234");
+    REQUIRE(test.Check().Scratch32(10) == 0x1234);
+}
+
+

@@ -24,16 +24,20 @@ using namespace x86Lib;
 #define CODE_ADDRESS 0x1000
 #define STACK_ADDRESS 0x2000 //stack begins at top
 #define SCRATCH_ADDRESS 0x3000
+//IMPORTANT: note address lines up for 16-bit. This is important for not causing memory errors in testing
+#define HIGH_SCRATCH_ADDRESS 0xFABF3000
 
 
 struct x86Checkpoint{
     x86Checkpoint(){
         memset(stack, 0, STACK_SIZE);
         memset(scratch, 0, SCRATCH_SIZE);
+        memset(highscratch, 0, SCRATCH_SIZE);
     }
     x86SaveData regs;
     uint8_t stack[STACK_SIZE];
     uint8_t scratch[SCRATCH_SIZE];
+    uint8_t highscratch[SCRATCH_SIZE];
 
     uint32_t Stack32(int pos){
         uint32_t tmp;
@@ -66,6 +70,23 @@ struct x86Checkpoint{
     }
     void SetScratch16(int pos, uint16_t val){
         memcpy(&scratch[pos], &val, 2);
+    }
+
+    uint32_t HighScratch32(int pos){
+        uint32_t tmp;
+        memcpy(&tmp, &highscratch[pos], 4);
+        return tmp;
+    }
+    uint16_t HighScratch16(int pos){
+        uint16_t tmp;
+        memcpy(&tmp, &highscratch[pos], 2);
+        return tmp;
+    }
+    void SetHighScratch32(int pos, uint32_t val){
+        memcpy(&highscratch[pos], &val, 4);
+    }
+    void SetHighScratch16(int pos, uint16_t val){
+        memcpy(&highscratch[pos], &val, 2);
     }
 
     uint8_t Reg8(int which){
@@ -187,6 +208,7 @@ class x86Tester{
     ROMemory *coderom;
     RAMemory *scratchram;
     RAMemory *stackram;
+    RAMemory *highscratchram;
     TestPorts *testports;
 
     x86Checkpoint cache;

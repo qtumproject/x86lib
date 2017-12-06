@@ -12,12 +12,15 @@ x86Tester::x86Tester(){
     cpu.Ports = &ports;
     coderom = new ROMemory(CODE_SIZE, "code");
     scratchram = new RAMemory(SCRATCH_SIZE, "scratch");
+    highscratchram = new RAMemory(SCRATCH_SIZE, "scratch");
     stackram = new RAMemory(STACK_SIZE, "stack");
     memset(coderom->GetMemory(), 0, CODE_SIZE);
     memset(scratchram->GetMemory(), 0, SCRATCH_SIZE);
+    memset(highscratchram->GetMemory(), 0, SCRATCH_SIZE);
     memset(stackram->GetMemory(), 0, STACK_SIZE);
     memory.Add(CODE_ADDRESS, CODE_ADDRESS+CODE_SIZE, coderom);
     memory.Add(SCRATCH_ADDRESS, SCRATCH_ADDRESS + SCRATCH_SIZE, scratchram);
+    memory.Add(HIGH_SCRATCH_ADDRESS, HIGH_SCRATCH_ADDRESS + SCRATCH_SIZE, highscratchram);
     memory.Add(STACK_ADDRESS, STACK_ADDRESS + STACK_SIZE, stackram);
 
     testports = new TestPorts(&cpu);
@@ -36,6 +39,11 @@ void x86Tester::Assemble(string code){
     file << "CPU i386" << endl
          << "BITS 32" << endl
          << "ORG 0x1000" << endl
+         //some useful macros
+         << "%define CODE_ADDRESS 0x1000" << endl
+         << "%define STACK_ADDRESS 0x2000" << endl
+         << "%define SCRATCH_ADDRESS 0x3000" << endl
+         << "%define HIGH_SCRATCH_ADDRESS 0xFABF3000" << endl
          << "_start:" << endl
          << code << endl
          << "_end:" << endl
@@ -63,6 +71,7 @@ x86Checkpoint x86Tester::LoadCheckpoint(){
     cpu.SaveState(&checkpoint.regs);
     memcpy(checkpoint.stack, stackram->GetMemory(), STACK_SIZE);
     memcpy(checkpoint.scratch, scratchram->GetMemory(), SCRATCH_SIZE);
+    memcpy(checkpoint.highscratch, highscratchram->GetMemory(), SCRATCH_SIZE);
     return checkpoint;
 }
 //Loads the checkpoint data into the x86 VM
@@ -70,6 +79,7 @@ void x86Tester::Apply(x86Checkpoint& checkpoint){
     cpu.LoadState(checkpoint.regs);
     memcpy(stackram->GetMemory(), checkpoint.stack, STACK_SIZE);
     memcpy(scratchram->GetMemory(), checkpoint.scratch, SCRATCH_SIZE);
+    memcpy(highscratchram->GetMemory(), checkpoint.highscratch, SCRATCH_SIZE);
     cacheValid = false;
 }
 //Runs the x86 VM for the specified number of instructions
@@ -102,6 +112,7 @@ void x86Tester::Compare(x86Checkpoint &check, bool checkeip, bool checkMemory){
     if(checkMemory){
         REQUIRE(memcmp(check.stack, checkpoint.stack, STACK_SIZE) == 0);
         REQUIRE(memcmp(check.scratch, checkpoint.scratch, SCRATCH_SIZE) == 0);
+        REQUIRE(memcmp(check.highscratch, checkpoint.highscratch, SCRATCH_SIZE) == 0);
     }
 }
 x86Checkpoint& x86Tester::Check(){
