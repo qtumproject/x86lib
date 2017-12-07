@@ -675,7 +675,7 @@ class x86CPU{
     inline void SetReg32(int which, uint32_t val){
         regs32[which] = val;
     }
-    inline uint16_t Reg32(int which){
+    inline uint32_t Reg32(int which){
         return regs32[which];
     }
 

@@ -119,7 +119,7 @@ struct x86Checkpoint{
     void SetReg32(int which, uint32_t val){
         regs.regs32[which] = val;
     }
-    uint16_t Reg32(int which){
+    uint32_t Reg32(int which){
         return regs.regs32[which];
     }
     void AddReg32(int which, int val){

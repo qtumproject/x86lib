@@ -85,10 +85,10 @@ uint16_t ModRM::GetDisp(){
             break;
         case 1: //byte displacement(signed)
             //eip++;
-            return (signed)reg+(signed)this_cpu->ReadCode8(1);
+            return (int16_t)reg+(int8_t)this_cpu->ReadCode8(1);
             break;
         case 2: //word displacement(signed)
-            return (signed)reg+(signed)(this_cpu->ReadCode16(1));
+            return (int16_t)reg+(int16_t)(this_cpu->ReadCode16(1));
             break;
         case 3: //opcode specific...
             op_specific=1;
@@ -112,9 +112,9 @@ uint32_t ModRM::GetDisp32(){
             break;
         case 1: //byte displacement(signed)
             if(modrm.rm == 4){
-                return (int32_t)GetSIBDisp() + (int32_t)this_cpu->ReadCode8(2);
+                return (int32_t)GetSIBDisp() + (int8_t)this_cpu->ReadCode8(2);
             }else{
-                return (int32_t)reg+(int32_t)this_cpu->ReadCode8(1);
+                return (int32_t)reg + (int8_t)this_cpu->ReadCode8(1);
             }
             break;
         case 2: //dword displacement(signed)
