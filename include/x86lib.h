@@ -35,6 +35,7 @@ This file is part of the x86Lib project.
 #include <stdint.h>
 #include <string>
 #include <cstring>
+#include <sstream>
 
 #ifdef X86LIB_BUILD
 #include <x86lib_internal.h>
@@ -464,6 +465,7 @@ class x86CPU{
     //This is used when needing to go back to the current opcode while including all prefixes
     uint32_t beginEIP;
     uint8_t opbyte; //current opcode (updated in cycle() and prefix opcodes)
+    int opcodeExtra; //current opcode (updated in cycle() and prefix opcodes)
 	protected:
 	//! Do one CPU opcode
 	/*! This should be put in the main loop, as this is what makes the CPU work.
@@ -497,7 +499,13 @@ class x86CPU{
 	PortSystem *Ports;
 
     std::string GetLastOpcodeName(){
-        return lastOpcodeStr;
+        if(opcodeExtra != -1){
+            std::stringstream s;
+            s << lastOpcodeStr << "/" << opcodeExtra;
+            return s.str();
+        }else{
+            return lastOpcodeStr;
+        }
     }
     uint32_t GetLastOpcode(){
         return lastOpcode;

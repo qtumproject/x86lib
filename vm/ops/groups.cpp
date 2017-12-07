@@ -34,6 +34,7 @@ using namespace std;
 
 void x86CPU::op_group_80(){
 	ModRM rm(this);
+    opcodeExtra = rm.GetExtra();
 	switch(rm.GetExtra()){
 		case 5:
 		op_sub_rm8_imm8(rm);
@@ -71,6 +72,7 @@ void x86CPU::op_group_80(){
 
 void x86CPU::op_group_81(){
 	ModRM rm(this);
+    opcodeExtra = rm.GetExtra();
 	switch(rm.GetExtra()){
 		case 5:
 		op_sub_rmW_immW(rm);
@@ -107,6 +109,7 @@ void x86CPU::op_group_81(){
 
 void x86CPU::op_group_83() {
     ModRM rm(this);
+    opcodeExtra = rm.GetExtra();
     switch (rm.GetExtra()) {
         case 0:
             op_add_rmW_imm8(rm);
@@ -144,6 +147,7 @@ void x86CPU::op_group_83() {
 
 void x86CPU::op_group_8F(){
 	ModRM rm(this);
+    opcodeExtra = rm.GetExtra();
 	switch(rm.GetExtra()){
 		case 0:
 		op_pop_rmW(rm);
@@ -158,6 +162,7 @@ void x86CPU::op_group_8F(){
 
 void x86CPU::op_group_F6(){
 	ModRM rm(this);
+    opcodeExtra = rm.GetExtra();
 	switch(rm.GetExtra()){
 		case 6:
 		op_div_rm8(rm);
@@ -191,6 +196,7 @@ void x86CPU::op_group_F6(){
 
 void x86CPU::op_group_F7(){
 	ModRM rm(this);
+    opcodeExtra = rm.GetExtra();
 	switch(rm.GetExtra()){
 		case 6:
 		if(OperandSize16){
@@ -241,6 +247,7 @@ void x86CPU::op_group_F7(){
 
 void x86CPU::op_group_FF(){
 	ModRM rm(this);
+    opcodeExtra = rm.GetExtra();
 	switch(rm.GetExtra()){
 		case 4:
 		op_jmp_rmW(rm);
@@ -273,6 +280,7 @@ void x86CPU::op_group_FF(){
 
 void x86CPU::op_group_FE(){
 	ModRM rm(this);
+    opcodeExtra = rm.GetExtra();
 	switch(rm.GetExtra()){
 		case 0:
 		op_inc_rm8(rm);
@@ -290,6 +298,7 @@ void x86CPU::op_group_FE(){
 
 void x86CPU::op_group_D0(){
 	ModRM rm(this);
+    opcodeExtra = rm.GetExtra();
 	switch(rm.GetExtra()){
 		case 7:
 		op_sar_rm8_1(rm);
@@ -321,6 +330,7 @@ void x86CPU::op_group_D0(){
 
 void x86CPU::op_group_D1(){
 	ModRM rm(this);
+    opcodeExtra = rm.GetExtra();
 	switch(rm.GetExtra()){
 		case 7:
 		op_sar_rmW_1(rm);
@@ -355,6 +365,7 @@ void x86CPU::op_group_D1(){
 
 void x86CPU::op_group_D2(){
 	ModRM rm(this);
+    opcodeExtra = rm.GetExtra();
 	switch(rm.GetExtra()){
 		case 7:
 		op_sar_rm8_cl(rm);
@@ -388,6 +399,7 @@ void x86CPU::op_group_D2(){
 
 void x86CPU::op_group_D3(){
 	ModRM rm(this);
+    opcodeExtra = rm.GetExtra();
 	switch(rm.GetExtra()){
 		case 7:
 		op_sar_rmW_cl(rm);
@@ -421,6 +433,7 @@ void x86CPU::op_group_D3(){
 
 void x86CPU::op_group_C0(){
     ModRM rm(this);
+    opcodeExtra = rm.GetExtra();
     switch(rm.GetExtra()){
         case 7:
 		op_sar_rm8_imm8(rm);
@@ -454,6 +467,7 @@ void x86CPU::op_group_C0(){
 
 void x86CPU::op_group_C1(){
     ModRM rm(this);
+    opcodeExtra = rm.GetExtra();
     switch(rm.GetExtra()){
         case 7:
 		op_sar_rmW_imm8(rm);

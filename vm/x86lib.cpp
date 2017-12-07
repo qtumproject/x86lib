@@ -262,6 +262,7 @@ void x86CPU::Cycle(){
     //note this bit for 0x0F checking could probably be better in this very critical loop
     beginEIP = eip;
     opbyte = ReadCode8(0);
+    opcodeExtra = -1;
     if(opbyte == 0x0F){
         //two byte opcode
         eip++;
@@ -299,6 +300,7 @@ void x86CPU::InstallOp(uint8_t num,opcode func, opcode *opcode_table){
 
 void x86CPU::op_ext_group(){
 	ModRM rm(this);
+    opcodeExtra = rm.GetExtra();
 	(this->*opcodes_hosted_ext_group[opbyte][rm.GetExtra()])(rm);
 }
 
