@@ -50,9 +50,10 @@ void x86Tester::LoadFile(string fileName){
     ifstream file(fileName.c_str(), ios::binary);
     REQUIRE(file);
     file.seekg(0, std::ios::end);
-    int fileLength = (uint32_t) (((long)file.tellg()) - (long) fileLength);
+    int fileLength = (uint32_t) ((long)file.tellg());
     file.seekg(0, std::ios::beg);
     REQUIRE(fileLength < CODE_SIZE);
+    REQUIRE(fileLength > 0);
     file.read(coderom->GetMemory(), fileLength);
 }
 //Loads the current x86 state into the checkpoint field
