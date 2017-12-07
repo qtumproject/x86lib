@@ -557,19 +557,61 @@ TEST_CASE("add_eax_imm32", "[add]") {
     test.Compare(check);
 }
 
-TEST_CASE("op_or_rmW_rW", "[or]") {
+TEST_CASE("op_or_rm8_r8", "[or]") {
     x86Tester test;
     x86Checkpoint check = test.LoadCheckpoint();
     test.Run(
             "mov al, 0x16\n"
-            "mov bl, 0x89");
+            "mov bl, 0x89\n"
+            "or al, bl\n");
     check.SetReg32(EAX, 0x9f);
+    check.SetReg32(EBX, 0x89);
     check.SetPF();
     check.SetSF();
     check.UnsetZF();
     test.Compare(check);
 }
 
+TEST_CASE("op_or_rmW_rW", "[or]") {
+    x86Tester test;
+    x86Checkpoint check = test.LoadCheckpoint();
+    test.Run(
+            "mov eax, 0x1616\n"
+            "mov ebx, 0x8989\n"
+            "or eax, ebx\n");
+    check.SetReg32(EAX, 0x9f9f);
+    check.SetReg32(EBX, 0x8989);
+    check.SetPF();
+    check.UnsetSF();
+    check.UnsetZF();
+    test.Compare(check);
+}
+
+TEST_CASE("op_or_al_imm8", "[or]") {
+    x86Tester test;
+    x86Checkpoint check = test.LoadCheckpoint();
+    test.Run(
+            "mov al, 0x16\n"
+            "or  al, 0x89\n");
+    check.SetReg32(EAX, 0x9f);
+    check.SetPF();
+    check.UnsetSF();
+    check.UnsetZF();
+    test.Compare(check);
+}
+
+TEST_CASE("op_or_axW_immW", "[or]") {
+    x86Tester test;
+    x86Checkpoint check = test.LoadCheckpoint();
+    test.Run(
+            "mov eax, 0x1616\n"
+            "or  eax, 0x8989\n");
+    check.SetReg32(EAX, 0x9f9f);
+    check.SetPF();
+    check.UnsetSF();
+    check.UnsetZF();
+    test.Compare(check);
+}
 
 
 
