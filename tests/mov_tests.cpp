@@ -146,4 +146,32 @@ TEST_CASE("lea", "[lea]") {
     REQUIRE((int)(test.Check().Reg32(EAX) == (SCRATCH_ADDRESS + 10 + 0x1234) & 0xFFFF));
 }
 
+TEST_CASE("mov_axW_mW", "[mov]") {
+    x86Tester test;
+    x86Checkpoint check = test.LoadCheckpoint();
+    int offset = check.regs.eip;
+    check.SetScratch32(0, 0x12345678);
+    check.SetHighScratch32(0, 0x87654321);
+    check.SetReg32(EAX, 0xFFFFFFFF);
 
+    test.Apply(check);
+    //use raw opcodes here because yasm likes to use mov_rW_rmW here instead
+    test.Run("db 0xA1\n dd HIGH_SCRATCH_ADDRESS"); ///mov eax, [HIGH_SCRATCH_ADDRESS]
+    REQUIRE(test.Check().Reg32(EAX) == 0x87654321);
+    REQUIRE(test.Check().regs.eip == offset + 5);
+
+    test.Apply(check);
+    test.Run("db 0x67\n db 0xA1\n dw SCRATCH_ADDRESS"); //a16 mov eax, [SCRATCH_ADDRESS]
+    REQUIRE(test.Check().Reg32(EAX) == 0x12345678);
+    REQUIRE(test.Check().regs.eip == offset + 4);
+
+    test.Apply(check);
+    test.Run("db 0x66\n db 0x67\n db 0xA1\n dw SCRATCH_ADDRESS"); //o16 a16 mov ax, [SCRATCH_ADDRESS]
+    REQUIRE(test.Check().Reg32(EAX) == 0xFFFF5678);
+    REQUIRE(test.Check().regs.eip == offset + 5);
+
+    test.Apply(check);
+    test.Run("db 0x66\n db 0xA1\n dd HIGH_SCRATCH_ADDRESS"); //o16 a16 mov ax, [SCRATCH_ADDRESS]
+    REQUIRE(test.Check().Reg32(EAX) == 0xFFFF4321);
+    REQUIRE(test.Check().regs.eip == offset + 6);
+}

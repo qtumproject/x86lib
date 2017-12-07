@@ -215,6 +215,8 @@ class x86Tester{
     bool cacheValid;
 public:
     x86Tester();
+    ~x86Tester(){
+    }
     //Assembles the given code as assembly
     void Assemble(string code);
     //loads a raw binary file

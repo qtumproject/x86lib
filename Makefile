@@ -63,7 +63,7 @@ default: build
 build: $(OUTPUTS)
 
 test: x86lib_tests
-	./x86lib_tests
+	./x86lib_tests -a
 
 x86lib_tests: $(CXX_TEST_OBJS) $(OUTPUTS)
 	$(CXX) $(CXXFLAGS) -std=c++11 -o x86lib_tests $(CXX_TEST_OBJS) -lx86lib -L.
