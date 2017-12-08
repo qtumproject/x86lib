@@ -45,12 +45,12 @@ CXX_TESTBENCH_SRC = testbench/testbench.cpp testbench/elfloader.cpp
 
 CXX_TESTBENCH_OBJS = $(subst .cpp,.o,$(CXX_TESTBENCH_SRC))
 
-CXX_TEST_SRC = tests/test_main.cpp tests/flag_tests.cpp tests/test_helpers.cpp tests/mov_tests.cpp tests/math_tests.cpp tests/helper_tests.cpp
+CXX_TEST_SRC = tests/test_main.cpp tests/flag_tests.cpp tests/test_helpers.cpp tests/mov_tests.cpp tests/math_tests.cpp tests/helper_tests.cpp tests/flow_tests.cpp
 CXX_TEST_OBJS = $(subst .cpp,.o,$(CXX_TEST_SRC))
 
 
 
-CXXFLAGS ?= -Wall -fPIC
+CXXFLAGS ?= -Wall -fPIC -g -O0
 CXXFLAGS += -DX86LIB_BUILD -I./include -fexceptions
 
 VERSION=1.1
@@ -63,7 +63,7 @@ default: build
 build: $(OUTPUTS)
 
 test: x86lib_tests
-	./x86lib_tests
+	./x86lib_tests -a
 
 x86lib_tests: $(CXX_TEST_OBJS) $(OUTPUTS)
 	$(CXX) $(CXXFLAGS) -std=c++11 -o x86lib_tests $(CXX_TEST_OBJS) -lx86lib -L.

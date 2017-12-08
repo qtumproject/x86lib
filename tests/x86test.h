@@ -4,42 +4,56 @@
 #include "catch.hpp"
 #include <stdint.h>
 #include <string>
+#include "catch.hpp"
+
+#define private public
+#define protected public
+#include "x86lib.h"
+#include "x86lib_internal.h"
+#undef public
+#undef protected
 
 using namespace std;
 using namespace x86Lib;
 
 #define STACK_SIZE 128
+#define STACK_START 64
 #define SCRATCH_SIZE 128
 #define CODE_SIZE 1024
 
 #define CODE_ADDRESS 0x1000
 #define STACK_ADDRESS 0x2000 //stack begins at top
 #define SCRATCH_ADDRESS 0x3000
+//IMPORTANT: note address lines up for 16-bit. This is important for not causing memory errors in testing
+#define HIGH_SCRATCH_ADDRESS 0xFABF3000
+
 
 struct x86Checkpoint{
     x86Checkpoint(){
         memset(stack, 0, STACK_SIZE);
         memset(scratch, 0, SCRATCH_SIZE);
+        memset(highscratch, 0, SCRATCH_SIZE);
     }
     x86SaveData regs;
     uint8_t stack[STACK_SIZE];
     uint8_t scratch[SCRATCH_SIZE];
+    uint8_t highscratch[SCRATCH_SIZE];
 
     uint32_t Stack32(int pos){
         uint32_t tmp;
-        memcpy(&tmp, &stack[pos], 4);
+        memcpy(&tmp, &stack[regs.regs32[ESP] - STACK_ADDRESS + pos], 4);
         return tmp;
     }
     uint16_t Stack16(int pos){
         uint16_t tmp;
-        memcpy(&tmp, &stack[pos], 2);
+        memcpy(&tmp, &stack[regs.regs32[ESP] - STACK_ADDRESS + pos], 2);
         return tmp;
     }
     void SetStack32(int pos, uint32_t val){
-        memcpy(&stack[pos], &val, 4);
+        memcpy(&stack[regs.regs32[ESP] - STACK_ADDRESS + pos], &val, 4);
     }
     void SetStack16(int pos, uint16_t val){
-        memcpy(&stack[pos], &val, 2);
+        memcpy(&stack[regs.regs32[ESP] -STACK_ADDRESS + pos], &val, 2);
     }
     uint32_t Scratch32(int pos){
         uint32_t tmp;
@@ -56,6 +70,23 @@ struct x86Checkpoint{
     }
     void SetScratch16(int pos, uint16_t val){
         memcpy(&scratch[pos], &val, 2);
+    }
+
+    uint32_t HighScratch32(int pos){
+        uint32_t tmp;
+        memcpy(&tmp, &highscratch[pos], 4);
+        return tmp;
+    }
+    uint16_t HighScratch16(int pos){
+        uint16_t tmp;
+        memcpy(&tmp, &highscratch[pos], 2);
+        return tmp;
+    }
+    void SetHighScratch32(int pos, uint32_t val){
+        memcpy(&highscratch[pos], &val, 4);
+    }
+    void SetHighScratch16(int pos, uint16_t val){
+        memcpy(&highscratch[pos], &val, 2);
     }
 
     uint8_t Reg8(int which){
@@ -88,8 +119,11 @@ struct x86Checkpoint{
     void SetReg32(int which, uint32_t val){
         regs.regs32[which] = val;
     }
-    uint16_t Reg32(int which){
+    uint32_t Reg32(int which){
         return regs.regs32[which];
+    }
+    void AddReg32(int which, int val){
+        regs.regs32[which] += val;
     }
     uint32_t GetEIP(){
         return regs.eip;
@@ -174,18 +208,25 @@ class x86Tester{
     ROMemory *coderom;
     RAMemory *scratchram;
     RAMemory *stackram;
+    RAMemory *highscratchram;
     TestPorts *testports;
+
+    x86Checkpoint cache;
+    bool cacheValid;
 public:
     x86Tester();
+    ~x86Tester(){
+    }
     //Assembles the given code as assembly
     void Assemble(string code);
     //loads a raw binary file
     void LoadFile(string file);
     //Loads the current x86 state into the checkpoint field
     x86Checkpoint LoadCheckpoint();
+    x86Checkpoint& Check();
     //Loads the checkpoint data into the x86 VM
-    void ApplyCheckpoint(x86Checkpoint& checkpoint);
-    void Compare(x86Checkpoint &check, bool checkeip=false);
+    void Apply(x86Checkpoint& checkpoint);
+    void Compare(x86Checkpoint &check, bool checkeip=false, bool checkmemory=false);
     //Runs the x86 VM for the specified number of instructions
     void Run(int count=1000);
     void Run(string code, int count=1000){

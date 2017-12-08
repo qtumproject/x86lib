@@ -4,18 +4,18 @@
 using namespace x86Lib;
 
 void x86CPU::Push(uint32_t val){
-    if(Use32BitAddress()) {
+    if(Use32BitOperand()) {
         regs32[ESP] -= 4;
-        WriteWord(cSS, regs32[ESP], val);
+        WriteDword(cSS, regs32[ESP], val);
     }else{
         SetReg16(SP, Reg16(SP) - 2);
         WriteWord(cSS, Reg16(SP), val);
     }
 }
 uint32_t x86CPU::Pop(){
-    uint16_t register tmp;
-    if(Use32BitAddress()) {
-        tmp = ReadWord(cSS, regs32[ESP]);
+    uint32_t tmp;
+    if(Use32BitOperand()) {
+        tmp = ReadDword(cSS, regs32[ESP]);
         regs32[ESP] += 4;
     }else{
         tmp = ReadWord(cSS, Reg16(SP));

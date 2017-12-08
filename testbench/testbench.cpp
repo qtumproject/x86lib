@@ -89,7 +89,6 @@ void WritePort(uint16_t port,uint32_t val){
 	functions to try out...*/
 	switch(port){
 		case 0: //print ascii char of val
-		cout << "printing.. "<< (int) val << endl;
 		cout << (char) val << flush;
 		break;
 		case 1: //print value of byte
