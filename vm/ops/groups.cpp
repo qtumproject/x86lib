@@ -250,9 +250,11 @@ void x86CPU::op_group_FF(){
     opcodeExtra = rm.GetExtra();
 	switch(rm.GetExtra()){
 		case 4:
+		rm.setJumpBehavior();
 		op_jmp_rmW(rm);
 		break;
 		case 5:
+		rm.setJumpBehavior();
 		op_jmp_mF(rm);
 		break;
 		case 6:
@@ -265,9 +267,11 @@ void x86CPU::op_group_FF(){
 		op_dec_rmW(rm);
 		break;
 		case 2:
+		rm.setJumpBehavior();
 		op_call_rmW(rm);
 		break;
 		case 3:
+		rm.setJumpBehavior();
 		op_call_mF(rm);
 		break;
 

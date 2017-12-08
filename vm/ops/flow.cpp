@@ -163,14 +163,14 @@ void x86CPU::op_into(){
 	}
 }
 void x86CPU::op_call_rmW(ModRM &rm){ //call
-	Push(eip+rm.GetLength()+1);
+	Push(eip+rm.GetLength());
 	eip=rm.ReadW();
 	eip--; //eip will be incremented in Cycle
 }
 
 void x86CPU::op_call_mF(ModRM &rm){ //far call
     Push(0); //seg[cCS]);
-	Push(eip + rm.GetLength()+1);
+	Push(eip + rm.GetLength());
 	uint32_t m = ReadWA(DS,rm.ReadA()); //last 2 bytes (byte 5 and 6) is segment in 32bit mode, but is not used so ignore
 	seg[cCS]=0; //*(uint16_t*)&op_cache[2]; //I always forget that they are reversed...
 	eip=W(m);

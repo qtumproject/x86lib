@@ -95,6 +95,44 @@ TEST_CASE("op_call_relW", "[flow]"){
     REQUIRE(test.Check().Stack32(0) == offset + 0x0B);
 }
 
+TEST_CASE("op_call_rmW", "[flow]"){
+    x86Tester test;
+    x86Checkpoint tmp = test.LoadCheckpoint();
+    int offset = tmp.GetEIP();
+    int stack = tmp.Reg32(ESP);
+    test.Apply(tmp);
+    test.Run(
+"mov eax, test1\n" //0: b8 0c 10 00 00
+"call eax\n" //5: ff d0
+"jmp _end\n" //7: eb 08
+"nop\n"
+"nop\n"
+"nop\n"
+"test1: \n"
+"mov eax, 0x12345678\n"
+); 
+    REQUIRE(test.Check().Reg32(ESP) == stack - 4);
+    REQUIRE(test.Check().Reg32(EAX) == 0x12345678);
+    //note: push first decrements ESP by 4, and then puts data into [ESP]
+    REQUIRE(test.Check().Stack32(0) == offset + 7);
+
+    test.Apply(tmp);
+    test.Run(
+"mov eax, test1\n" //0: b8 0c 10 00 00
+"o16 call eax\n" //5: 66 ff d0
+"jmp _end\n" //8: eb 08
+"nop\n"
+"nop\n"
+"nop\n"
+"test1: \n"
+"mov eax, 0x12345678\n"
+); 
+    REQUIRE(test.Check().Reg32(ESP) == stack - 2);
+    REQUIRE(test.Check().Reg32(EAX) == 0x12345678);
+    REQUIRE(test.Check().Stack16(0) == offset + 8);
+}
+
+
 TEST_CASE("op_retn", "[flow]"){
     x86Tester test;
     x86Checkpoint check = test.LoadCheckpoint();

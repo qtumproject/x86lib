@@ -147,6 +147,7 @@ class Mem_excp{ //Exclusively for the Memory Classes, these are caught and then 
 	\param address_ The address at which had problems being read or written
 	*/
 	Mem_excp(uint32_t address_){
+        std::cout << "EXCEPTION: memory error @ 0x" << std::hex << address_ << std::endl; 
 		address=address_;
 	}
 	uint32_t address;
@@ -393,6 +394,7 @@ class ModRM{
 	bool use_ss;
 	bool op_specific;
 	x86CPU *this_cpu;
+    bool jumpBehavior;
 	private:
 	mod_rm modrm;
     scaleindex sib;
@@ -429,7 +431,10 @@ class ModRM{
     uint16_t Imm16();
     uint32_t Imm32();
     uint32_t ImmW();
-
+    //This tells ModRM to not increment EIP in the destruction of this object
+    void setJumpBehavior(){
+        jumpBehavior = true;
+    }
 };
 
 //!	The main CPU control class
