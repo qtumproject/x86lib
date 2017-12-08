@@ -86,6 +86,54 @@ TEST_CASE("Sub", "[math ops]"){
     REQUIRE(cpu.freg.bits.of == 1);
 }
 
+TEST_CASE("Or", "[math ops]"){
+    x86CPU cpu;
+    REQUIRE(cpu.Or8(0x16, 0x89) == 0x9f);
+    REQUIRE(cpu.freg.bits.pf == 1);
+    REQUIRE(cpu.freg.bits.sf == 1);
+    REQUIRE(cpu.freg.bits.zf == 0);
+
+    REQUIRE(cpu.Or8(0x76, 0x09) == 0x7f);
+    REQUIRE(cpu.freg.bits.pf == 0);
+    REQUIRE(cpu.freg.bits.sf == 0);
+    REQUIRE(cpu.freg.bits.zf == 0);
+
+    REQUIRE(cpu.Or8(0x0, 0x0) == 0x0);
+    REQUIRE(cpu.freg.bits.pf == 1);
+    REQUIRE(cpu.freg.bits.sf == 0);
+    REQUIRE(cpu.freg.bits.zf == 1);
+
+    REQUIRE(cpu.Or16(0x1616, 0x8989) == 0x9f9f);
+    REQUIRE(cpu.freg.bits.pf == 1);
+    REQUIRE(cpu.freg.bits.sf == 1);
+    REQUIRE(cpu.freg.bits.zf == 0);
+
+    REQUIRE(cpu.Or16(0x7676, 0x0909) == 0x7f7f);
+    REQUIRE(cpu.freg.bits.pf == 0);
+    REQUIRE(cpu.freg.bits.sf == 0);
+    REQUIRE(cpu.freg.bits.zf == 0);
+
+    REQUIRE(cpu.Or16(0, 0) == 0x0);
+    REQUIRE(cpu.freg.bits.pf == 1);
+    REQUIRE(cpu.freg.bits.sf == 0);
+    REQUIRE(cpu.freg.bits.zf == 1);
+
+    REQUIRE(cpu.Or32(0x16161616, 0x89898989) == 0x9f9f9f9f);
+    REQUIRE(cpu.freg.bits.pf == 1);
+    REQUIRE(cpu.freg.bits.sf == 1);
+    REQUIRE(cpu.freg.bits.zf == 0);
+
+    REQUIRE(cpu.Or32(0x76747674, 0x09090909) == 0x7f7d7f7d);
+    REQUIRE(cpu.freg.bits.pf == 1);
+    REQUIRE(cpu.freg.bits.sf == 0);
+    REQUIRE(cpu.freg.bits.zf == 0);
+
+    REQUIRE(cpu.Or32(0, 0) == 0x0);
+    REQUIRE(cpu.freg.bits.pf == 1);
+    REQUIRE(cpu.freg.bits.sf == 0);
+    REQUIRE(cpu.freg.bits.zf == 1);
+}
+
 /* All macro's evaluate to compile-time constants */
 
 /* *** helper macros *** */
@@ -509,6 +557,61 @@ TEST_CASE("add_eax_imm32", "[add]") {
     test.Compare(check);
 }
 
+TEST_CASE("op_or_rm8_r8", "[or]") {
+    x86Tester test;
+    x86Checkpoint check = test.LoadCheckpoint();
+    test.Run(
+            "mov al, 0x16\n"
+            "mov bl, 0x89\n"
+            "or al, bl\n");
+    check.SetReg32(EAX, 0x9f);
+    check.SetReg32(EBX, 0x89);
+    check.SetPF();
+    check.SetSF();
+    check.UnsetZF();
+    test.Compare(check);
+}
+
+TEST_CASE("op_or_rmW_rW", "[or]") {
+    x86Tester test;
+    x86Checkpoint check = test.LoadCheckpoint();
+    test.Run(
+            "mov eax, 0x1616\n"
+            "mov ebx, 0x8989\n"
+            "or eax, ebx\n");
+    check.SetReg32(EAX, 0x9f9f);
+    check.SetReg32(EBX, 0x8989);
+    check.SetPF();
+    check.UnsetSF();
+    check.UnsetZF();
+    test.Compare(check);
+}
+
+TEST_CASE("op_or_al_imm8", "[or]") {
+    x86Tester test;
+    x86Checkpoint check = test.LoadCheckpoint();
+    test.Run(
+            "mov al, 0x16\n"
+            "or  al, 0x89\n");
+    check.SetReg32(EAX, 0x9f);
+    check.SetPF();
+    check.UnsetSF();
+    check.UnsetZF();
+    test.Compare(check);
+}
+
+TEST_CASE("op_or_axW_immW", "[or]") {
+    x86Tester test;
+    x86Checkpoint check = test.LoadCheckpoint();
+    test.Run(
+            "mov eax, 0x1616\n"
+            "or  eax, 0x8989\n");
+    check.SetReg32(EAX, 0x9f9f);
+    check.SetPF();
+    check.UnsetSF();
+    check.UnsetZF();
+    test.Compare(check);
+}
 
 
 
