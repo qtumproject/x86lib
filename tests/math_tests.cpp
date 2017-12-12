@@ -604,5 +604,80 @@ TEST_CASE("op_or_axW_immW", "[or]") {
     test.Compare(check);
 }
 
+TEST_CASE("math and_rm8_r8", "[math]") {
+    x86Tester test;
+    test.Run(
+"mov AL, 0xFF\n"
+"mov BL, 0xA7\n"
+"and AL, BL\n"
+"jmp _end\n");
+    x86Checkpoint check = test.LoadCheckpoint();
+    check.SetReg32(EAX, 0x000000A7);
+    check.SetPF(); // odd set 1
+    check.SetSF(); // =msb
+    check.UnsetZF();// resulst==0
+    test.Compare(check);
+}
+
+TEST_CASE("math and_rmW_rW", "[math]") {
+    x86Tester test;
+    test.Run(
+"mov AX, 0xFFFF\n"
+"mov BX, 0xC8A7\n"
+"and AX, BX\n"
+"jmp _end\n");
+    x86Checkpoint check = test.LoadCheckpoint();
+    check.SetReg32(EAX, 0x0000C8A7);
+    check.UnsetPF(); 
+    check.SetSF(); 
+    check.UnsetZF();
+    test.Compare(check);
+}
+
+TEST_CASE("math and_r8_rm8", "[math]") {
+    x86Tester test;
+    test.Run(
+"mov AL, 0xFF\n"
+"mov EBX, _tmp\n"
+"and AL, [EBX]\n"
+"jmp _end\n"
+"_tmp: dB 0xA7, 0, 0, 0\n");
+    x86Checkpoint check = test.LoadCheckpoint();
+    check.SetReg32(EAX, 0x000000A7);
+    check.SetPF(); 
+    check.SetSF(); 
+    check.UnsetZF();
+    test.Compare(check);
+}
+
+TEST_CASE("math and_rW_rmW", "[math]") {
+    x86Tester test;
+    test.Run(
+"mov AX, 0xFFFF\n"
+"mov EBX, _tmp\n"
+"and AX, [EBX]\n"
+"jmp _end\n"
+"_tmp: dW 0xA7A7, 0, 0, 0\n");
+    x86Checkpoint check = test.LoadCheckpoint();
+    check.SetReg32(EAX, 0x0000A7A7);
+    check.UnsetPF(); 
+    check.SetSF(); 
+    check.UnsetZF();
+    test.Compare(check);
+}
+
+TEST_CASE("math and_ax_immW", "[math]") {
+    x86Tester test;
+    test.Run(
+"mov AX, 0xFFFF\n"
+"and AX, 0xA7A7\n"
+"jmp _end\n");
+    x86Checkpoint check = test.LoadCheckpoint();
+    check.SetReg32(EAX, 0x0000A7A7);
+    check.UnsetPF(); 
+    check.SetSF(); 
+    check.UnsetZF();
+	test.Compare(check);
+}
 
 
