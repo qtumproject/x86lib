@@ -89,7 +89,57 @@ void x86CPU::op_stosW(){
 	SetIndex();
 }
 
+void x86CPU::op_insb_m8_dx(){
+    uint8_t tmp;
+    Ports->Read(Reg16(DX),1,(void*) &tmp);
+    WriteByte(cES, Reg(DI), tmp);
+    if(freg.bits.df==0){
+      SetReg16(DI, Reg(DI) + 1);
+    }else{
+      SetReg16(DI, Reg(DI) - 1);
+    }
+}
 
+void x86CPU::op_insW_mW_dx(){
+    uint32_t tmp;
+    if(OperandSize16){
+      Ports->Read(Reg16(DX),2,(void*) &tmp);
+    }else{
+      Ports->Read(Reg16(DX),4,(void*) &tmp);
+    }
+    WriteW(cES, Reg(DI), tmp);
+    if(OperandSize16){
+      if(freg.bits.df==0){
+        SetReg16(DI, Reg(DI) + 2);
+      }else{
+        SetReg16(DI, Reg(DI) - 2);
+      }
+    }else{
+      if(freg.bits.df==0){
+        regs32[EDI] +=4;
+      }else{
+	regs32[EDI] -=4;
+      }
+    }
+}
+
+void x86CPU::op_outsb_dx_m8(){
+    uint8_t tmp;
+    tmp = ReadByte(DS, Reg(SI));
+    Ports->Write(Reg16(DX),1,(void*) &tmp);
+    SetIndex8();
+}
+
+void x86CPU::op_outsW_dx_mW(){
+    uint32_t tmp;
+    tmp = ReadW(DS, Reg(SI));
+    if(OperandSize16){
+       Ports->Write(Reg16(DX),2,(void*) &tmp);
+    }else{
+       Ports->Write(Reg16(DX),4,(void*) &tmp);
+    }
+    SetIndex();
+}
 
 
 };

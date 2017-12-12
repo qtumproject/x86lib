@@ -416,10 +416,10 @@ void x86CPU::InitOpcodes(){
    // op(0x69, op_imul_rW_rmW_immW); //186 (note: uses /r for rW)
     op(0x6A, op_push_imm8);
    // op(0x6B, op_imul_rW_rmW_imm8); //186 (note: uses /r for rW, imm8 is sign extended)
-    //op(0x6C, op_insb_m8_dx); //186
-    //op(0x6D, op_insW_mW_dx); //186
-    //op(0x6E, op_outsb_dx_m8); //186
-    //op(0x6F, op_outsW_dx_mW); //186
+    op(0x6C, op_insb_m8_dx); //186
+    op(0x6D, op_insW_mW_dx); //186
+    op(0x6E, op_outsb_dx_m8); //186
+    op(0x6F, op_outsW_dx_mW); //186
     for(int i=0;i<16;i++){
     	op(0x70+i, op_jcc_rel8);
     }
