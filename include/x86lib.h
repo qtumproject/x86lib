@@ -187,6 +187,11 @@ class PortDevice{
 
 inline PortDevice::~PortDevice(){}
 
+class InterruptHypervisor{
+public:
+    virtual void HandleInt(int number, x86CPU &vm)=0;
+};
+
 typedef struct DeviceRange
 {
 	union
@@ -502,6 +507,7 @@ class x86CPU{
 	public:
 	MemorySystem *Memory;
 	PortSystem *Ports;
+    InterruptHypervisor *Hypervisor;
 
     std::string GetLastOpcodeName(){
         if(opcodeExtra != -1){

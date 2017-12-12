@@ -136,8 +136,10 @@ void x86CPU::op_retn_imm16(){
 }
 
 void x86CPU::op_int_imm8(){
-	eip++;
-	Int16(ReadCode8(0));
+    int num = ReadCode8(0);
+    eip+=2; //set to next opcode
+    Hypervisor->HandleInt(num, *this);
+    eip--; //decrement once to compensate for eip increment in Cycle()
 }
 
 void x86CPU::op_iret(){
