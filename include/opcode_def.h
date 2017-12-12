@@ -287,6 +287,11 @@ void op_in_axW_dx();
 void op_out_dx_al();
 void op_out_dx_axW();
 
+void op_insb_m8_dx();
+void op_insW_mW_dx();
+void op_outsb_dx_m8();
+void op_outsW_dx_mW();
+
 
 void op_address_override();
 void op_operand_override();
