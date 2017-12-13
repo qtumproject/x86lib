@@ -678,7 +678,7 @@ class x86CPU{
             regs32[which] = (regs32[which] & 0xFFFFFF00) | val;
         }else{
             //4-7 is high bytes; ah, ch, dh, bh
-            regs32[which] = (regs32[which - 4] & 0xFFFF00FF) | (val << 8);
+            regs32[which - 4] = (regs32[which - 4] & 0xFFFF00FF) | (val << 8);
         }
     }
     inline void SetReg16(int which, uint16_t val){
