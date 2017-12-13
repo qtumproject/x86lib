@@ -55,9 +55,7 @@ void MemorySystem::Add(uint32_t low,uint32_t high,MemoryDevice *memdev){
 		if( device.high <= high && 
 		    device.low >= low )
 		{
-			printf("System_excp\n");
-			fflush(stdout);
-			throw new System_excp();
+			throw new runtime_error("New memory device overlaps existing memory");
 		}
 	}
 
@@ -117,7 +115,7 @@ void MemorySystem::Read(uint32_t address,int size,void *b)
 			return;
 		}
 	}
-	throw Mem_excp(address);
+	throw MemoryException(address);
 }
 
 
@@ -164,7 +162,7 @@ void MemorySystem::Write(uint32_t address,int size,void *b)
 			return;
 		}
 	}
-	throw Mem_excp(address);
+	throw MemoryException(address);
 }
 
 int  MemorySystem::RangeFree(uint32_t low,uint32_t high)
@@ -182,7 +180,7 @@ void PortSystem::Add(uint16_t low,uint16_t high,PortDevice *portdev){
 	int i;
 	for(i=0;i<count;i++){
 		if(list[i].high<=high && list[i].low>=low){
-			throw new System_excp();
+			throw new runtime_error("Can not add port handler"); //what exactly is this?
 		}
 	}
 	if(count==0){
@@ -193,7 +191,8 @@ void PortSystem::Add(uint16_t low,uint16_t high,PortDevice *portdev){
 		list=(DeviceRange_t*)realloc(list,sizeof(DeviceRange_t)*count+1);
 		if(list==NULL){
 			list=(DeviceRange_t*)t; //restore old pointer so we can free it
-			throw Default_excp(__FILE__,__FUNCTION__,__LINE__);
+			free(list);
+			throw runtime_error("Could not reallocate memory");
 		}
 		//count++;
 	}
@@ -216,7 +215,7 @@ void PortSystem::Read(uint16_t address,int size,void *buffer){
 			return;
 		}
 	}
-	throw Mem_excp(address);
+	throw MemoryException(address);
 }
 
 
@@ -229,7 +228,7 @@ void PortSystem::Write(uint16_t address,int size,void *buffer){
 			return;
 		}
 	}
-	throw Mem_excp(address);
+	throw MemoryException(address);
 }
 
 void Remove(uint16_t low,uint16_t high){}

@@ -39,19 +39,19 @@ void x86CPU::op_nop(){ //0x90
 
 void x86CPU::op_hlt(){ //0xF4
 	if(freg.bits._if==0){
-		throw CpuPanic_excp("HLT With IF=0; Nothing to do",CLIHLT_EXCP);
+		throw CPUFaultException("HLT With IF=0; Nothing to do",CLIHLT_EXCP);
 	}
 }
 
 void x86CPU::op_unknown(){
     std::ostringstream oss;
     oss << "Unknown opcode: 0x" << std::hex << (int)ReadCode8(0);
-    throw CpuPanic_excp(oss.str(), UNK_IEXCP);
+    throw CPUFaultException(oss.str(), UNK_IEXCP);
 }
 void x86CPU::op_unknownG(ModRM &rm){
     std::ostringstream oss;
     oss << "Unknown opcode: 0x" << std::hex << (int)ReadCode8(-1); //-1 to go to before modrm
-    throw CpuPanic_excp(oss.str(), UNK_IEXCP);
+    throw CPUFaultException(oss.str(), UNK_IEXCP);
 }
 
 

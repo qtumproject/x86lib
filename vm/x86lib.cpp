@@ -223,7 +223,7 @@ void x86CPU::Exec(int cyclecount){
 				eip++; //undo the decrement by Int
 				break;
                 case 6: //unknown opcode
-                    throw CpuPanic_excp("Unknown opcode",(err.code|0xF000)|TRIPLE_FAULT_EXCP);
+                    throw CPUFaultException("Unknown opcode",(err.code|0xF000)|TRIPLE_FAULT_EXCP);
 				case 5: //(186+ bounds check)
 				if(cpu_level >= CPU186){
 					Int16(err.code);
@@ -231,13 +231,13 @@ void x86CPU::Exec(int cyclecount){
 					break;
 				}
 				default:
-				throw CpuPanic_excp("16bit Faults",(err.code|0xF000)|TRIPLE_FAULT_EXCP);
+				throw CPUFaultException("16bit Faults",(err.code|0xF000)|TRIPLE_FAULT_EXCP);
 			}
 		}
-		catch(Mem_excp err){
+		catch(MemoryException err){
             std::ostringstream oss;
             oss << "Memory error at 0x" << std::hex << err.address;
-			throw CpuPanic_excp(oss.str(),TRIPLE_FAULT_EXCP);
+			throw CPUFaultException(oss.str(),TRIPLE_FAULT_EXCP);
 		}
 		if(i>=cyclecount){
 			done=true;

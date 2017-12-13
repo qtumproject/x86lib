@@ -89,46 +89,22 @@ static const uint32_t TRIPLE_FAULT_EXCP=0x10000; //Triple fault...This should be
 
 
 
-//!	A debug exception
-/*!	This exception should really only be used when debugging.
-	It should be used as throw(Default_excp(__FILE__,__FUNCTION__,__LINE__));
-*/
-class Default_excp{ //Internal only...these should never happen when released...
-
-	public:
-	/*!
-	\param file_ The file name in which the exception occured(use __FILE__)
-	\param func_ The function in which the exception occured(use __FUNCTION__)
-	\param line_ The line number which the excption occured on(use __LINE__)
-	*/
-	Default_excp(std::string file_,std::string func_,int line_){
-		file=file_;
-		func=func_;
-		line=line_;
-	}
-	//! The file which the exception was thrown from
-	std::string file;
-	//! The function which the exception was thrown from
-	std::string func;
-	//! The line which the exception was thrown from
-	int line;
-};
-
 //! CPU Panic exception
 /*!	This exception is thrown out of x86CPU if a fatal CPU error occurs,
 	such as a triple fault.
 */
-class CpuPanic_excp{ //used for fatal CPU errors, such as triple fault..
+class CPUFaultException : public std::runtime_error { //used for fatal CPU errors, such as triple fault..
 
 	public:
 	/*!
 	\param desc_ A text description of the error
 	\param code_ An exception code
 	*/
-	CpuPanic_excp(std::string desc_,uint32_t code_){
+	CPUFaultException(std::string desc_,uint32_t code_) : std::runtime_error(desc_) {
 		desc=desc_;
 		code=code_;
 	}
+    virtual ~CPUFaultException() throw() {}
 	//!A text description of the error
 	std::string desc;
 	//!An exception code
@@ -141,21 +117,17 @@ class CpuPanic_excp{ //used for fatal CPU errors, such as triple fault..
 	This does not always result in a triple fault.
 	/sa PhysMemory
 */
-class Mem_excp{ //Exclusively for the Memory Classes, these are caught and then a more appropriate excp is thrown
+class MemoryException : public std::runtime_error { //Exclusively for the Memory Classes, these are caught and then a more appropriate excp is thrown
 	public:
 	/*!
 	\param address_ The address at which had problems being read or written
 	*/
-	Mem_excp(uint32_t address_){
+	MemoryException(uint32_t address_) : std::runtime_error("Memory Error") {
         std::cout << "EXCEPTION: memory error @ 0x" << std::hex << address_ << std::endl; 
 		address=address_;
 	}
+    virtual ~MemoryException() throw() {}
 	uint32_t address;
-};
-
-class System_excp{
-	public:
-	System_excp(){}
 };
 
 class x86CPU;
@@ -285,7 +257,7 @@ class ROMemory : public RAMemory{
     }
 
     virtual void Write(uint32_t address,int count,void *buffer){
-        throw new Mem_excp(address);
+        throw new MemoryException(address);
     }
 };
 
