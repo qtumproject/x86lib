@@ -153,7 +153,7 @@ void x86CPU::Jmp_near8(uint8_t off){
 }
 
 void x86CPU::Int16(uint8_t num){
-    throw CpuPanic_excp("Unsupported operation (segment register modification)", UNSUPPORTED_EXCP);
+    throw CPUFaultException("Unsupported operation (segment register modification)", UNSUPPORTED_EXCP);
 }
 
 void x86CPU::ResetSegments(){

@@ -67,7 +67,7 @@ static bool jcc(int condition, volatile FLAGS &f){
         case 15:
             return (f.bits.sf==f.bits.of) & !f.bits.zf;
         default:
-            throw new CpuPanic_excp("This code should not be reached", 0xFFFF);
+            throw new CPUFaultException("This code should not be reached", 0xFFFF);
     }
 }
 
