@@ -180,7 +180,7 @@ void x86CPU::Read(void* buffer, uint32_t off, size_t count){
 }
 void x86CPU::Write(uint32_t off, void* buffer, size_t count){
     Memory->WaitLock(busmaster);
-    Memory->Read(off,count,buffer);
+    Memory->Write(off,count,buffer);
 }
 
 uint8_t x86CPU::ReadByte(uint8_t segm, uint32_t off){
