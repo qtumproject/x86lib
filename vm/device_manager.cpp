@@ -71,12 +71,46 @@ void MemorySystem::Add(uint32_t low,uint32_t high,MemoryDevice *memdev){
 
 void MemorySystem::Remove(uint32_t low,uint32_t high)
 {
+    int c = 0;
+	
+	/* Check For suitable device for remove*/
+	for (vector<DeviceRange_t>::iterator it = memorySystemVector.begin(); it != memorySystemVector.end();)
+	{
+		if(it->low == low){
+			it = memorySystemVector.erase(it);
+			++c;
+			continue;
+		}		
+		++it;
+	}
+	if(c == 0){
+		printf("System_excp when remove range unmatch memory device.\n");
+		fflush(stdout);
+		throw new System_excp();
+	}
 	
 }
 	
 void MemorySystem::Remove(MemoryDevice *memdev)
 {
+    int c = 0;
+	/* Check For suitable device for remove*/
+	for (vector<DeviceRange_t>::iterator it = memorySystemVector.begin(); it != memorySystemVector.end();)
+	{
+		if(it->memdev == memdev){
+			it = memorySystemVector.erase(it);
+			++c;
+			continue;
+		}		
+		++it;
+	}
+	if(c == 0){
+		printf("System_excp when remove non-exist memory device.\n");
+		fflush(stdout);
+		throw new System_excp();
+	}
 }
+
 void MemorySystem::Read(uint32_t address,int size,void *b)
 {
 	uint8_t* buffer=(uint8_t*)b;
@@ -169,10 +203,25 @@ void MemorySystem::Write(uint32_t address,int size,void *b)
 
 int  MemorySystem::RangeFree(uint32_t low,uint32_t high)
 {
-	return 1;
+    int c = 0;
+	
+	/* Free memory devices exist in ranges*/
+	for(vector<DeviceRange_t>::iterator it = memorySystemVector.begin(); it != memorySystemVector.end();)
+	{
+		if((it->high <= high && it->high >= low) || (it->low <= high && it->low >= low)){
+			it=memorySystemVector.erase(it);
+			++c;
+			continue;
+		}		
+		++it;
+	}
+	if(c == 0){
+		printf("System_excp when range free non-exist memory devices.\n");
+		fflush(stdout);
+		throw new System_excp();
+	}	
+	return c;
 }
-
-
 
 PortSystem::PortSystem(){
 	count=0;
@@ -231,10 +280,6 @@ void PortSystem::Write(uint16_t address,int size,void *buffer){
 	}
 	throw Mem_excp(address);
 }
-
-void Remove(uint16_t low,uint16_t high){}
-void Remove(PortDevice *portdev){}
-int RangeFree(uint32_t low,uint32_t high){return 1;}
 
 
 
