@@ -6,19 +6,19 @@ using namespace x86Lib;
 void x86CPU::Push(uint32_t val){
     if(Use32BitOperand()) {
         regs32[ESP] -= 4;
-        WriteDword(cSS, regs32[ESP], val);
+        WriteDword(cSS, regs32[ESP], val, x86Lib::Internal);
     }else{
         SetReg16(SP, Reg16(SP) - 2);
-        WriteWord(cSS, Reg16(SP), val);
+        WriteWord(cSS, Reg16(SP), val, x86Lib::Internal);
     }
 }
 uint32_t x86CPU::Pop(){
     uint32_t tmp;
     if(Use32BitOperand()) {
-        tmp = ReadDword(cSS, regs32[ESP]);
+        tmp = ReadDword(cSS, regs32[ESP], x86Lib::Internal);
         regs32[ESP] += 4;
     }else{
-        tmp = ReadWord(cSS, Reg16(SP));
+        tmp = ReadWord(cSS, Reg16(SP), x86Lib::Internal);
         SetReg16(SP, Reg16(SP) + 2);
     }
     return tmp;
@@ -174,110 +174,110 @@ void x86CPU::SetSegments(uint8_t segm){
     GS=segm;
 }
 
-void x86CPU::Read(void* buffer, uint32_t off, size_t count){
+void x86CPU::Read(void* buffer, uint32_t off, size_t count, MemAccessReason reason){
     Memory->WaitLock(busmaster);
-    Memory->Read(off,count,buffer);
+    Memory->Read(off,count,buffer, reason);
 }
-void x86CPU::Write(uint32_t off, void* buffer, size_t count){
+void x86CPU::Write(uint32_t off, void* buffer, size_t count, MemAccessReason reason){
     Memory->WaitLock(busmaster);
-    Memory->Read(off,count,buffer);
+    Memory->Write(off,count,buffer, reason);
 }
 
-uint8_t x86CPU::ReadByte(uint8_t segm, uint32_t off){
+uint8_t x86CPU::ReadByte(uint8_t segm, uint32_t off, MemAccessReason reason){
     Memory->WaitLock(busmaster);
     uint8_t res=0;
-    Memory->Read(off,1,&res);
+    Memory->Read(off,1,&res, reason);
     return res;
 }
 
-uint16_t x86CPU::ReadWord(uint8_t segm,uint32_t off){
+uint16_t x86CPU::ReadWord(uint8_t segm,uint32_t off, MemAccessReason reason){
     Memory->WaitLock(busmaster);
     uint16_t res=0;
-    Memory->Read(off,2,&res);
+    Memory->Read(off,2,&res, reason);
     return res;
 }
 
-uint32_t x86CPU::ReadDword(uint8_t segm,uint32_t off){
+uint32_t x86CPU::ReadDword(uint8_t segm,uint32_t off, MemAccessReason reason){
     Memory->WaitLock(busmaster);
     uint32_t res=0;
-    Memory->Read(off,4,&res);
+    Memory->Read(off,4,&res, reason);
     return res;
 }
 
-uint64_t x86CPU::ReadQword(uint8_t segm,uint32_t off){
+uint64_t x86CPU::ReadQword(uint8_t segm,uint32_t off, MemAccessReason reason){
     Memory->WaitLock(busmaster);
     uint64_t res=0;
-    Memory->Read(off,8,&res);
+    Memory->Read(off,8,&res, reason);
     return res;
 }
 
-void x86CPU::WriteByte(uint8_t segm,uint32_t off,uint8_t val){
+void x86CPU::WriteByte(uint8_t segm,uint32_t off,uint8_t val, MemAccessReason reason){
     Memory->WaitLock(busmaster);
-    Memory->Write(off,1,&val);
+    Memory->Write(off,1,&val, reason);
 }
 
-void x86CPU::WriteWord(uint8_t segm,uint32_t off,uint16_t val){
+void x86CPU::WriteWord(uint8_t segm,uint32_t off,uint16_t val, MemAccessReason reason){
     Memory->WaitLock(busmaster);
-    Memory->Write(off,2,&val);
+    Memory->Write(off,2,&val, reason);
 }
 
-void x86CPU::WriteDword(uint8_t segm,uint32_t off,uint32_t val){
+void x86CPU::WriteDword(uint8_t segm,uint32_t off,uint32_t val, MemAccessReason reason){
     Memory->WaitLock(busmaster);
-    Memory->Write(off,4,&val);
+    Memory->Write(off,4,&val, reason);
 }
 
-void x86CPU::WriteW(uint8_t segm, uint32_t off, uint32_t val){
+void x86CPU::WriteW(uint8_t segm, uint32_t off, uint32_t val, MemAccessReason reason){
     if(OperandSize16){
-        WriteWord(segm, off, val);
+        WriteWord(segm, off, val, reason);
     }else{
-        WriteDword(segm, off, val);
+        WriteDword(segm, off, val, reason);
     }
 }
 
-uint32_t x86CPU::ReadW(uint8_t segm, uint32_t off){
+uint32_t x86CPU::ReadW(uint8_t segm, uint32_t off, MemAccessReason reason){
     if(OperandSize16){
-        return ReadWord(segm, off);
+        return ReadWord(segm, off, reason);
     }else{
-        return ReadDword(segm, off);
+        return ReadDword(segm, off, reason);
     }
 }
 
-void x86CPU::WriteWA(uint8_t segm, uint32_t off, uint32_t val){
+void x86CPU::WriteWA(uint8_t segm, uint32_t off, uint32_t val, MemAccessReason reason){
     if(AddressSize16){
         off = off & 0xFFFF;
     }
-    WriteW(segm, off, val);
+    WriteW(segm, off, val, reason);
 }
 
-uint32_t x86CPU::ReadWA(uint8_t segm, uint32_t off){
+uint32_t x86CPU::ReadWA(uint8_t segm, uint32_t off, MemAccessReason reason){
     if(AddressSize16){
         off = off & 0xFFFF;
     }
-    return ReadW(segm, off);
+    return ReadW(segm, off, reason);
 }
 
-uint8_t x86CPU::ReadByteA(uint8_t segm,uint32_t off){
+uint8_t x86CPU::ReadByteA(uint8_t segm,uint32_t off, MemAccessReason reason){
     if(AddressSize16){
         off = off & 0xFFFF;
     }
-    return ReadByte(segm, off);
+    return ReadByte(segm, off, reason);
 }
 
-void x86CPU::WriteByteA(uint8_t segm, uint32_t off, uint8_t val){
+void x86CPU::WriteByteA(uint8_t segm, uint32_t off, uint8_t val, MemAccessReason reason){
     if(AddressSize16){
         off = off & 0xFFFF;
     }
-    WriteByte(segm, off, val);
+    WriteByte(segm, off, val, reason);
 }
 
 uint32_t x86CPU::ReadCode32(int index){
-    return ReadDword(CS, index + eip);
+    return ReadDword(CS, index + eip, CodeFetch);
 }
 uint16_t x86CPU::ReadCode16(int index){
-    return ReadWord(CS, index + eip);
+    return ReadWord(CS, index + eip, CodeFetch);
 }
 uint8_t x86CPU::ReadCode8(int index){
-    return ReadByte(CS, index + eip);
+    return ReadByte(CS, index + eip, CodeFetch);
 }
 uint32_t x86CPU::ReadCodeW(int index){
     if(OperandSize16){
@@ -288,7 +288,7 @@ uint32_t x86CPU::ReadCodeW(int index){
 }
 
 void x86CPU::ReadCode(void* buf, int index, size_t count){
-    Read(buf, index + eip, count);
+    Read(buf, index + eip, count, CodeFetch);
 }
 
 

@@ -34,65 +34,65 @@ using namespace std;
 
 
 void x86CPU::op_movsb(){
-	WriteByte(cES,Reg(DI),ReadByte(DS,Reg(SI)));
+	WriteByte(cES,Reg(DI),ReadByte(DS,Reg(SI),Data),Data);
 	SetIndex8();
 }
 
 void x86CPU::op_movsW(){
-	WriteW(cES, Reg(DI), ReadW(DS, Reg(SI)));
+	WriteW(cES, Reg(DI), ReadW(DS, Reg(SI), Data), Data);
 	SetIndex();
 }
 
 void x86CPU::op_cmpsb(){
 	uint8_t prev = ReadCode8(-1);
 	if( prev == 0xF3 || prev == 0xF2) string_compares=1; //only set string_compares if previous was REPZ/REPNZ
-	Sub8(ReadByte(DS,Reg(SI)),ReadByte(cES,Reg(DI)));
+	Sub8(ReadByte(DS,Reg(SI),Data),ReadByte(cES,Reg(DI),Data));
 	SetIndex8();
 }
 
 void x86CPU::op_cmpsW(){
 	uint8_t prev = ReadCode8(-1);
 	if( prev == 0xF3 || prev == 0xF2) string_compares=1;
-	SubW(ReadW(DS, Reg(SI)), ReadW(cES,Reg(DI)));
+	SubW(ReadW(DS, Reg(SI), Data), ReadW(cES,Reg(DI),Data));
 	SetIndex();
 }
 
 void x86CPU::op_lodsb(){
-	SetReg8(AL, ReadByte(DS,Reg(SI)));
+	SetReg8(AL, ReadByte(DS,Reg(SI), Data));
 	SetIndex8();
 }
 void x86CPU::op_lodsW(){
-	SetReg(AX, ReadW(DS,Reg(SI)));
+	SetReg(AX, ReadW(DS,Reg(SI), Data));
 	SetIndex();
 }
 
 void x86CPU::op_scasb(){
 	uint8_t prev = ReadCode8(-1);
 	if( prev == 0xF3 || prev == 0xF2) string_compares=1;
-	Sub8(Reg8(AL),ReadByte(cES,Reg(DI)));
+	Sub8(Reg8(AL),ReadByte(cES,Reg(DI),Data));
 	SetIndex8();
 }
 void x86CPU::op_scasW(){
 	uint8_t prev = ReadCode8(-1);
 	if( prev == 0xF3 || prev == 0xF2) string_compares=1;
-	SubW(Reg(AX),ReadW(cES,Reg(DI)));
+	SubW(Reg(AX),ReadW(cES,Reg(DI),Data));
 	SetIndex();
 }
 
 void x86CPU::op_stosb(){
-	WriteByte(ES,Reg(DI), Reg8(AL));
+	WriteByte(ES,Reg(DI), Reg8(AL), Data);
 	SetIndex8();
 }
 
 void x86CPU::op_stosW(){
-	WriteW(ES,Reg(DI),Reg(AX));
+	WriteW(ES,Reg(DI),Reg(AX),Data);
 	SetIndex();
 }
 
 void x86CPU::op_insb_m8_dx(){
     uint8_t tmp;
     Ports->Read(Reg16(DX),1,(void*) &tmp);
-    WriteByte(cES, Reg(DI), tmp);
+    WriteByte(cES, Reg(DI), tmp, Data);
     if(freg.bits.df==0){
       SetReg16(DI, Reg(DI) + 1);
     }else{
@@ -107,7 +107,7 @@ void x86CPU::op_insW_mW_dx(){
     }else{
       Ports->Read(Reg16(DX),4,(void*) &tmp);
     }
-    WriteW(cES, Reg(DI), tmp);
+    WriteW(cES, Reg(DI), tmp, Data);
     if(OperandSize16){
       if(freg.bits.df==0){
         SetReg16(DI, Reg(DI) + 2);
@@ -125,14 +125,14 @@ void x86CPU::op_insW_mW_dx(){
 
 void x86CPU::op_outsb_dx_m8(){
     uint8_t tmp;
-    tmp = ReadByte(DS, Reg(SI));
+    tmp = ReadByte(DS, Reg(SI),Data);
     Ports->Write(Reg16(DX),1,(void*) &tmp);
     SetIndex8();
 }
 
 void x86CPU::op_outsW_dx_mW(){
     uint32_t tmp;
-    tmp = ReadW(DS, Reg(SI));
+    tmp = ReadW(DS, Reg(SI), Data);
     if(OperandSize16){
        Ports->Write(Reg16(DX),2,(void*) &tmp);
     }else{

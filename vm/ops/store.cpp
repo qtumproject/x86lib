@@ -68,10 +68,10 @@ void x86CPU::op_mov_rmW_rW(){
 }
 
 void x86CPU::op_mov_al_m8(){
-    SetReg8(AL, ReadByteA(DS, ImmA()));
+    SetReg8(AL, ReadByteA(DS, ImmA(), Data));
 }
 void x86CPU::op_mov_axW_mW(){
-    SetReg(AX, ReadWA(DS, ImmA()));
+    SetReg(AX, ReadWA(DS, ImmA(), Data));
 }
 
 void x86CPU::op_mov_rm8_r8(){
@@ -84,24 +84,24 @@ void x86CPU::op_mov_r8_rm8(){
 	SetReg8(rm.GetExtra(), rm.ReadByte());
 }
 void x86CPU::op_mov_m8_al(){
-    WriteByte(DS, ImmA(), Reg8(AL));
+    WriteByte(DS, ImmA(), Reg8(AL), Data);
 }
 
 void x86CPU::op_mov_mW_axW(){
-    WriteWA(DS, ImmA(), Reg(AX));
+    WriteWA(DS, ImmA(), Reg(AX), Data);
 }
 
 void x86CPU::op_mov_rm8_imm8(){
 	ModRM rm(this);
 	
 	//eventually fix this so that if r is used, then invalid opcode...
-	rm.WriteByte(ReadByte(cCS,eip+rm.GetLength()));
+	rm.WriteByte(ReadByte(cCS,eip+rm.GetLength(),Data));
 	eip++;
 }
 
 void x86CPU::op_mov_rmW_immW(){
     ModRM rm(this);
-    rm.WriteW(ReadW(cCS,eip+rm.GetLength()));
+    rm.WriteW(ReadW(cCS,eip+rm.GetLength(),Data));
     eip+=OperandSize();
 }
 
@@ -274,7 +274,7 @@ void x86CPU::op_xchg_axW_rW(){ //0x90+r
 }
 
 void x86CPU::op_xlatb(){
-    SetReg8(AL, ReadByteA(DS, RegA(BX) + (Reg8(AL))));
+    SetReg8(AL, ReadByteA(DS, RegA(BX) + (Reg8(AL)), Data));
 }
 
 void x86CPU::op_movzx_rW_rm8(){

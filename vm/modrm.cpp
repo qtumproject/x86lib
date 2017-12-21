@@ -104,7 +104,7 @@ uint32_t ModRM::GetDisp32(){
     switch(modrm.mod){
         case 0: //no displacement
             if(modrm.rm==5){ //only dword displacement...
-                return this_cpu->ReadDword(this_cpu->CS, this_cpu->eip+1);
+                return this_cpu->ReadDword(this_cpu->CS, this_cpu->eip+1, CodeFetch);
             }else if(modrm.rm == 4){ //if SIB
                 return GetSIBDisp();
             }
@@ -254,9 +254,9 @@ uint8_t ModRM::ReadByte(){
         return this_cpu->Reg8(modrm.rm);
     }else{
         if(use_ss==1){
-            return this_cpu->ReadByte(this_cpu->SS,disp);
+            return this_cpu->ReadByte(this_cpu->SS,disp, CodeFetch);
         }else{
-            return this_cpu->ReadByte(this_cpu->DS,disp);
+            return this_cpu->ReadByte(this_cpu->DS,disp, CodeFetch);
         }
     }
 }
@@ -273,9 +273,9 @@ uint16_t ModRM::ReadWord(){
     }else{
 
         if(use_ss==1){
-            return this_cpu->ReadWord(this_cpu->SS,disp);
+            return this_cpu->ReadWord(this_cpu->SS,disp, CodeFetch);
         }else{
-            return this_cpu->ReadWord(this_cpu->DS,disp);
+            return this_cpu->ReadWord(this_cpu->DS,disp, CodeFetch);
         }
     }
 }
@@ -308,9 +308,9 @@ uint32_t ModRM::ReadDword(){
     }else{
 
         if(use_ss==1){
-            return this_cpu->ReadDword(this_cpu->SS,disp);
+            return this_cpu->ReadDword(this_cpu->SS,disp, CodeFetch);
         }else{
-            return this_cpu->ReadDword(this_cpu->DS,disp);
+            return this_cpu->ReadDword(this_cpu->DS,disp, CodeFetch);
         }
     }
 }
@@ -327,9 +327,9 @@ void ModRM::WriteByte(uint8_t byte){
     }else{
 
         if(use_ss==1){
-            this_cpu->WriteByte(this_cpu->SS,disp,byte);
+            this_cpu->WriteByte(this_cpu->SS,disp,byte, CodeFetch);
         }else{
-            this_cpu->WriteByte(this_cpu->DS,disp,byte);
+            this_cpu->WriteByte(this_cpu->DS,disp,byte, CodeFetch);
         }
     }
 }
@@ -345,9 +345,9 @@ void ModRM::WriteWord(uint16_t word){
     }else{
 
         if(use_ss==1){
-            this_cpu->WriteWord(this_cpu->SS,disp,word);
+            this_cpu->WriteWord(this_cpu->SS,disp,word, CodeFetch);
         }else{
-            this_cpu->WriteWord(this_cpu->DS,disp,word);
+            this_cpu->WriteWord(this_cpu->DS,disp,word, CodeFetch);
         }
     }
 }
@@ -372,9 +372,9 @@ void ModRM::WriteDword(uint32_t dword){
     }else{
 
         if(use_ss==1){
-            this_cpu->WriteDword(this_cpu->SS,disp,dword);
+            this_cpu->WriteDword(this_cpu->SS,disp,dword, CodeFetch);
         }else{
-            this_cpu->WriteDword(this_cpu->DS,disp,dword);
+            this_cpu->WriteDword(this_cpu->DS,disp,dword, CodeFetch);
         }
     }
 }
@@ -389,7 +389,7 @@ uint8_t ModRM::ReadByte32(){
     if(op_specific==1){
         return this_cpu->Reg8(modrm.rm);
     }else{
-        return this_cpu->ReadByte(this_cpu->DS,disp);
+        return this_cpu->ReadByte(this_cpu->DS,disp, CodeFetch);
     }
 }
 
@@ -401,7 +401,7 @@ uint16_t ModRM::ReadWord32(){
         //don't think this is actually possible in 32bit mode, but ok
         return this_cpu->Reg16(modrm.rm);
     }else{
-        return this_cpu->ReadWord(this_cpu->DS,disp);
+        return this_cpu->ReadWord(this_cpu->DS,disp, CodeFetch);
     }
 }
 uint32_t ModRM::ReadDword32(){
@@ -411,7 +411,7 @@ uint32_t ModRM::ReadDword32(){
     if(op_specific==1){
         return this_cpu->regs32[modrm.rm];
     }else{
-        return this_cpu->ReadDword(this_cpu->DS,disp);
+        return this_cpu->ReadDword(this_cpu->DS,disp, CodeFetch);
     }
 }
 
@@ -422,7 +422,7 @@ void ModRM::WriteByte32(uint8_t byte){
     if(op_specific==1){
         this_cpu->SetReg8(modrm.rm, byte);
     }else{
-        this_cpu->WriteByte(this_cpu->DS,disp,byte);
+        this_cpu->WriteByte(this_cpu->DS,disp,byte, CodeFetch);
     }
 }
 void ModRM::WriteWord32(uint16_t word){
@@ -432,7 +432,7 @@ void ModRM::WriteWord32(uint16_t word){
     if(op_specific==1){
         this_cpu->SetReg16(modrm.rm, word);
     }else{
-        this_cpu->WriteWord(this_cpu->DS,disp,word);
+        this_cpu->WriteWord(this_cpu->DS,disp,word, CodeFetch);
     }
 }
 void ModRM::WriteDword32(uint32_t dword){
@@ -442,7 +442,7 @@ void ModRM::WriteDword32(uint32_t dword){
     if(op_specific==1){
         this_cpu->regs32[modrm.rm]=dword;
     }else{
-        this_cpu->WriteDword(this_cpu->DS,disp,dword);
+        this_cpu->WriteDword(this_cpu->DS,disp,dword, CodeFetch);
     }
 }
 

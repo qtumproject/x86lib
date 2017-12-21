@@ -846,13 +846,13 @@ void x86CPU::Unlock(){
 }
 
 
-void x86CPU::ReadMemory(uint32_t address, uint32_t size, void* buffer){
+void x86CPU::ReadMemory(uint32_t address, uint32_t size, void* buffer, MemAccessReason reason){
     Memory->WaitLock(busmaster);
-    Memory->Read(address, size, buffer);
+    Memory->Read(address, size, buffer, reason);
 }
-void x86CPU::WriteMemory(uint32_t address, uint32_t size, void* buffer){
+void x86CPU::WriteMemory(uint32_t address, uint32_t size, void* buffer, MemAccessReason reason){
     Memory->WaitLock(busmaster);
-    Memory->Write(address, size, buffer);
+    Memory->Write(address, size, buffer, reason);
 }
 
 
