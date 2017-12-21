@@ -65,9 +65,9 @@ static bool jcc(int condition, volatile FLAGS &f){
         case 14:
             return (f.bits.sf!=f.bits.of) | f.bits.zf;
         case 15:
-            return (f.bits.sf==f.bits.of) & f.bits.zf;
+            return (f.bits.sf==f.bits.of) & !f.bits.zf;
         default:
-            throw new CpuPanic_excp("This code should not be reached", 0xFFFF);
+            throw new CPUFaultException("This code should not be reached", 0xFFFF);
     }
 }
 
@@ -126,10 +126,10 @@ void x86CPU::op_cmc(){
 }
 
 void x86CPU::op_lahf(){
-	SetReg8(AL, freg.data & 0xFF);
+	SetReg8(AH, freg.data & 0xFF);
 }
 void x86CPU::op_sahf(){
-    freg.data = (freg.data & 0xFFFFFF00) | Reg8(AL);
+    freg.data = (freg.data & 0xFFFFFF00) | Reg8(AH);
 }
 
 

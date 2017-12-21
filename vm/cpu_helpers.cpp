@@ -153,7 +153,7 @@ void x86CPU::Jmp_near8(uint8_t off){
 }
 
 void x86CPU::Int16(uint8_t num){
-    throw CpuPanic_excp("Unsupported operation (segment register modification)", UNSUPPORTED_EXCP);
+    throw CPUFaultException("Unsupported operation (segment register modification)", UNSUPPORTED_EXCP);
 }
 
 void x86CPU::ResetSegments(){
@@ -180,7 +180,7 @@ void x86CPU::Read(void* buffer, uint32_t off, size_t count){
 }
 void x86CPU::Write(uint32_t off, void* buffer, size_t count){
     Memory->WaitLock(busmaster);
-    Memory->Read(off,count,buffer);
+    Memory->Write(off,count,buffer);
 }
 
 uint8_t x86CPU::ReadByte(uint8_t segm, uint32_t off){
