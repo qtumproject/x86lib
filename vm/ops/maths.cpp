@@ -969,7 +969,7 @@ void x86CPU::op32_div_rm32(ModRM &rm){
     if(rm.ReadDword() == 0){
         throw CpuInt_excp(DIV0_IEXCP);
     }
-    if((((uint64_t)regs32[EDX]<<32)|((uint64_t)regs32[EAX])/(uint64_t)rm.ReadDword()) > 0xFFFFFFFF){
+    if(((((uint64_t)regs32[EDX]<<32)|((uint64_t)regs32[EAX]))/(uint64_t)rm.ReadDword()) > 0xFFFFFFFF){
         throw CpuInt_excp(DIV0_IEXCP);
     }
     regs32[EAX]=(((uint64_t)regs32[EDX]<<32)|(regs32[EAX]))/rm.ReadDword();
