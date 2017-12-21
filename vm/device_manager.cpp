@@ -201,10 +201,10 @@ void MemorySystem::Write(uint32_t address,int size,void *b)
 	throw Mem_excp(address);
 }
 
-int  MemorySystem::RangeFree(uint32_t low,uint32_t high)
+int MemorySystem::RangeFree(uint32_t low,uint32_t high)
 {
     int c = 0;
-	
+
 	/* Free memory devices exist in ranges*/
 	for(vector<DeviceRange_t>::iterator it = memorySystemVector.begin(); it != memorySystemVector.end();)
 	{
