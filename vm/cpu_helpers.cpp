@@ -6,19 +6,19 @@ using namespace x86Lib;
 void x86CPU::Push(uint32_t val){
     if(Use32BitOperand()) {
         regs32[ESP] -= 4;
-        WriteDword(cSS, regs32[ESP], val, x86Lib::Internal);
+        WriteDword(cSS, regs32[ESP], val);
     }else{
         SetReg16(SP, Reg16(SP) - 2);
-        WriteWord(cSS, Reg16(SP), val, x86Lib::Internal);
+        WriteWord(cSS, Reg16(SP), val);
     }
 }
 uint32_t x86CPU::Pop(){
     uint32_t tmp;
     if(Use32BitOperand()) {
-        tmp = ReadDword(cSS, regs32[ESP], x86Lib::Internal);
+        tmp = ReadDword(cSS, regs32[ESP]);
         regs32[ESP] += 4;
     }else{
-        tmp = ReadWord(cSS, Reg16(SP), x86Lib::Internal);
+        tmp = ReadWord(cSS, Reg16(SP));
         SetReg16(SP, Reg16(SP) + 2);
     }
     return tmp;
