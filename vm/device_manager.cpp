@@ -82,9 +82,7 @@ void MemorySystem::Remove(uint32_t low,uint32_t high)
 		++it;
 	}
 	if(c == 0){
-		printf("System_excp when remove range unmatch memory device.\n");
-		fflush(stdout);
-		throw new System_excp();
+		throw new runtime_error("Remove an unmatch memory device");
 	}
 	
 }
@@ -103,9 +101,7 @@ void MemorySystem::Remove(MemoryDevice *memdev)
 		++it;
 	}
 	if(c == 0){
-		printf("System_excp when remove non-exist memory device.\n");
-		fflush(stdout);
-		throw new System_excp();
+		throw new runtime_error("Remove a null memory device");
 	}
 }
 
@@ -214,9 +210,7 @@ int MemorySystem::RangeFree(uint32_t low,uint32_t high)
 		++it;
 	}
 	if(c == 0){
-		printf("System_excp when range free non-exist memory devices.\n");
-		fflush(stdout);
-		throw new System_excp();
+		throw new runtime_error("Range free unmatch memory devices");
 	}	
 	return c;
 }
