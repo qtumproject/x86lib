@@ -707,15 +707,15 @@ void x86CPU::op_sub_rW_rmW(){
 }
 
 void x86CPU::op_sub_rm8_imm8(ModRM &rm8){ //group 0x80 /5
-	rm8.WriteByte(Sub8(rm8.ReadByte(),ReadByte(cCS,eip+rm8.GetLength())));
+	rm8.WriteByte(Sub8(rm8.ReadByte(),ReadByte(cCS,eip+rm8.GetLength(), CodeFetch)));
 }
 
 void x86CPU::op_sub_rmW_immW(ModRM &rm){ //Group 0x81 /5
-	rm.WriteW(SubW(rm.ReadW(), ReadW(cCS,eip+rm.GetLength())));
+	rm.WriteW(SubW(rm.ReadW(), ReadW(cCS,eip+rm.GetLength(),CodeFetch)));
 }
 
 void x86CPU::op_sub_rmW_imm8(ModRM &rm){ //group 0x83 /5
-	rm.WriteW(SubW(rm.ReadW(), SignExtend8to32(ReadByte(cCS,eip+rm.GetLength()))));
+	rm.WriteW(SubW(rm.ReadW(), SignExtend8to32(ReadByte(cCS,eip+rm.GetLength(),CodeFetch))));
 }
 
 /****/
@@ -746,15 +746,15 @@ void x86CPU::op_sbb_rW_rmW(){
 }
 
 void x86CPU::op_sbb_rm8_imm8(ModRM &rm8){ //group 0x80
-	rm8.WriteByte(Sub8(rm8.ReadByte(),ReadByte(cCS,eip+rm8.GetLength())-freg.bits.cf));
+	rm8.WriteByte(Sub8(rm8.ReadByte(),ReadByte(cCS,eip+rm8.GetLength(),CodeFetch)-freg.bits.cf));
 }
 
 void x86CPU::op_sbb_rmW_immW(ModRM &rm){ //Group 0x81
-	rm.WriteW(SubW(rm.ReadW(), ReadW(cCS,eip+rm.GetLength())-freg.bits.cf));
+	rm.WriteW(SubW(rm.ReadW(), ReadW(cCS,eip+rm.GetLength(),CodeFetch)-freg.bits.cf));
 }
 
 void x86CPU::op_sbb_rmW_imm8(ModRM &rm){ //group 0x83
-	rm.WriteW(SubW(rm.ReadW(), SignExtend8to32(ReadByte(cCS,eip+rm.GetLength())-freg.bits.cf)));
+	rm.WriteW(SubW(rm.ReadW(), SignExtend8to32(ReadByte(cCS,eip+rm.GetLength(),CodeFetch)-freg.bits.cf)));
 }
 
 
@@ -808,15 +808,15 @@ void x86CPU::op_cmp_rW_rmW(){
 }
 
 void x86CPU::op_cmp_rm8_imm8(ModRM &rm){ //group 80 /7
-	Sub8(rm.ReadByte(),ReadByte(cCS,eip+rm.GetLength()));
+	Sub8(rm.ReadByte(),ReadByte(cCS,eip+rm.GetLength(),CodeFetch));
 }
 
 void x86CPU::op_cmp_rmW_immW(ModRM &rm){ //group 81 /7
-	SubW(rm.ReadW(), ReadW(cCS, eip+rm.GetLength()));
+	SubW(rm.ReadW(), ReadW(cCS, eip+rm.GetLength(), CodeFetch));
 }
 
 void x86CPU::op_cmp_rmW_imm8(ModRM &rm){ //group 83 /7
-	SubW(rm.ReadW(),SignExtend8to32(ReadByte(cCS, eip+rm.GetLength())));
+	SubW(rm.ReadW(),SignExtend8to32(ReadByte(cCS, eip+rm.GetLength(),CodeFetch)));
 }
 
 
@@ -851,15 +851,15 @@ void x86CPU::op_add_rW_rmW(){
 }
 
 void x86CPU::op_add_rm8_imm8(ModRM &rm){ //Group 0x80 /0
-	rm.WriteByte(Add8(rm.ReadWord(),ReadByte(cCS,eip+rm.GetLength())));
+	rm.WriteByte(Add8(rm.ReadWord(),ReadByte(cCS,eip+rm.GetLength(),CodeFetch)));
 }
 
 void x86CPU::op_add_rmW_immW(ModRM &rm){ //Group 0x81 /0
-	rm.WriteW(AddW(rm.ReadW(), ReadW(cCS, eip+rm.GetLength())));
+	rm.WriteW(AddW(rm.ReadW(), ReadW(cCS, eip+rm.GetLength(),CodeFetch)));
 }
 
 void x86CPU::op_add_rmW_imm8(ModRM &rm){ //group 0x83 /0
-	rm.WriteW(AddW(rm.ReadW(),SignExtend8to32(ReadByte(cCS, eip+rm.GetLength()))));
+	rm.WriteW(AddW(rm.ReadW(),SignExtend8to32(ReadByte(cCS, eip+rm.GetLength(), CodeFetch))));
 }
 
 
@@ -894,15 +894,15 @@ void x86CPU::op_adc_rW_rmW(){
 }
 
 void x86CPU::op_adc_rm8_imm8(ModRM &rm){ //Group 0x80 /2
-	rm.WriteByte(Add8(rm.ReadByte(),ReadByte(cCS,eip+rm.GetLength())+freg.bits.cf));
+	rm.WriteByte(Add8(rm.ReadByte(),ReadByte(cCS,eip+rm.GetLength(),CodeFetch)+freg.bits.cf));
 }
 
 void x86CPU::op_adc_rmW_immW(ModRM &rm){ //Group 0x81 /2
-	rm.WriteW(AddW(rm.ReadW(),ReadW(cCS, eip + rm.GetLength()) + freg.bits.cf));
+	rm.WriteW(AddW(rm.ReadW(),ReadW(cCS, eip + rm.GetLength(), CodeFetch) + freg.bits.cf));
 }
 
 void x86CPU::op_adc_rmW_imm8(ModRM &rm){ //group 0x83 /2
-	rm.WriteW(AddW(rm.ReadW(),SignExtend8to32(ReadByte(cCS, eip + rm.GetLength())) + freg.bits.cf));
+	rm.WriteW(AddW(rm.ReadW(),SignExtend8to32(ReadByte(cCS, eip + rm.GetLength(), CodeFetch)) + freg.bits.cf));
 }
 
 
@@ -1149,15 +1149,15 @@ void x86CPU::op_and_axW_immW(){
 }
 
 void x86CPU::op_and_rm8_imm8(ModRM& rm){
-	rm.WriteByte(And8(rm.ReadByte(),ReadByte(cCS,eip+rm.GetLength())));
+	rm.WriteByte(And8(rm.ReadByte(),ReadByte(cCS,eip+rm.GetLength(),CodeFetch)));
 }
 
 void x86CPU::op_and_rmW_immW(ModRM& rm){
-	rm.WriteW(AndW(rm.ReadW(), ReadW(cCS, eip + rm.GetLength())));
+	rm.WriteW(AndW(rm.ReadW(), ReadW(cCS, eip + rm.GetLength(), CodeFetch)));
 }
 
 void x86CPU::op_and_rmW_imm8(ModRM& rm){ //TODO is AND sign extended!? Intel manuals say nothing
-	rm.WriteW(AndW(rm.ReadW(), SignExtend8to32(ReadByte(cCS, eip + rm.GetLength()))));
+	rm.WriteW(AndW(rm.ReadW(), SignExtend8to32(ReadByte(cCS, eip + rm.GetLength(), CodeFetch))));
 }
 
 void x86CPU::op_or_rm8_r8(){
@@ -1190,15 +1190,15 @@ void x86CPU::op_or_axW_immW(){
 }
 
 void x86CPU::op_or_rm8_imm8(ModRM& rm){
-	rm.WriteByte(Or8(rm.ReadByte(),ReadByte(cCS,eip+rm.GetLength())));
+	rm.WriteByte(Or8(rm.ReadByte(),ReadByte(cCS,eip+rm.GetLength(),CodeFetch)));
 }
 
 void x86CPU::op_or_rmW_immW(ModRM& rm){
-	rm.WriteW(OrW(rm.ReadW(), ReadW(cCS, eip + rm.GetLength())));
+	rm.WriteW(OrW(rm.ReadW(), ReadW(cCS, eip + rm.GetLength(), CodeFetch)));
 }
 
 void x86CPU::op_or_rmW_imm8(ModRM& rm){
-	rm.WriteW(OrW(rm.ReadW(), SignExtend8to32(ReadByte(cCS, eip + rm.GetLength()))));
+	rm.WriteW(OrW(rm.ReadW(), SignExtend8to32(ReadByte(cCS, eip + rm.GetLength(), CodeFetch))));
 }
 
 
@@ -1232,15 +1232,15 @@ void x86CPU::op_xor_axW_immW(){
 }
 
 void x86CPU::op_xor_rm8_imm8(ModRM& rm){
-	rm.WriteByte(Xor8(rm.ReadByte(),ReadByte(cCS,eip+rm.GetLength())));
+	rm.WriteByte(Xor8(rm.ReadByte(),ReadByte(cCS,eip+rm.GetLength(),CodeFetch)));
 }
 
 void x86CPU::op_xor_rmW_immW(ModRM& rm){
-	rm.WriteW(XorW(rm.ReadW(), ReadW(cCS, eip + rm.GetLength())));
+	rm.WriteW(XorW(rm.ReadW(), ReadW(cCS, eip + rm.GetLength(), CodeFetch)));
 }
 
 void x86CPU::op_xor_rmW_imm8(ModRM& rm){
-	rm.WriteW(XorW(rm.ReadW(),SignExtend8to32(ReadByte(cCS, eip + rm.GetLength()))));
+	rm.WriteW(XorW(rm.ReadW(),SignExtend8to32(ReadByte(cCS, eip + rm.GetLength(), CodeFetch))));
 }
 
 void x86CPU::op_test_rm8_r8(){
@@ -1262,15 +1262,15 @@ void x86CPU::op_test_axW_immW(){
 }
 
 void x86CPU::op_test_rm8_imm8(ModRM& rm){
-	And8(rm.ReadByte(),ReadByte(cCS,eip+rm.GetLength()));
+	And8(rm.ReadByte(),ReadByte(cCS,eip+rm.GetLength(),CodeFetch));
 }
 
 void x86CPU::op_test_rmW_immW(ModRM& rm){
-	AndW(rm.ReadW(),ReadW(cCS, eip + rm.GetLength()));
+	AndW(rm.ReadW(),ReadW(cCS, eip + rm.GetLength(), CodeFetch));
 }
 
 void x86CPU::op_test_rmW_imm8(ModRM& rm){
-	AndW(rm.ReadW(),SignExtend8to32(ReadByte(cCS,eip+rm.GetLength())));
+	AndW(rm.ReadW(),SignExtend8to32(ReadByte(cCS,eip+rm.GetLength(),CodeFetch)));
 }
 
 void x86CPU::op_shr_rm8_cl(ModRM &rm){
@@ -1281,11 +1281,11 @@ void x86CPU::op_shr_rmW_cl(ModRM &rm){
 }
 
 void x86CPU::op_shr_rm8_imm8(ModRM &rm){
-	rm.WriteByte(ShiftLogicalRight8(rm.ReadByte(),ReadByte(cCS,eip+rm.GetLength())));
+	rm.WriteByte(ShiftLogicalRight8(rm.ReadByte(),ReadByte(cCS,eip+rm.GetLength(),CodeFetch)));
 }
 
 void x86CPU::op_shr_rmW_imm8(ModRM &rm){
-	rm.WriteW(ShiftLogicalRightW(rm.ReadW(),SignExtend8to32(ReadByte(cCS,eip+rm.GetLength()))));
+	rm.WriteW(ShiftLogicalRightW(rm.ReadW(),SignExtend8to32(ReadByte(cCS,eip+rm.GetLength(),CodeFetch))));
 }
 
 void x86CPU::op_shl_rm8_cl(ModRM &rm){
@@ -1297,11 +1297,11 @@ void x86CPU::op_shl_rmW_cl(ModRM &rm){
 }
 
 void x86CPU::op_shl_rm8_imm8(ModRM &rm){
-	rm.WriteByte(ShiftLogicalLeft8(rm.ReadByte(),ReadByte(cCS,eip+rm.GetLength())));
+	rm.WriteByte(ShiftLogicalLeft8(rm.ReadByte(),ReadByte(cCS,eip+rm.GetLength(),CodeFetch)));
 }
 
 void x86CPU::op_shl_rmW_imm8(ModRM &rm){
-	rm.WriteW(ShiftLogicalLeftW(rm.ReadW(),SignExtend8to32(ReadByte(cCS,eip+rm.GetLength()))));
+	rm.WriteW(ShiftLogicalLeftW(rm.ReadW(),SignExtend8to32(ReadByte(cCS,eip+rm.GetLength(),CodeFetch))));
 }
 
 void x86CPU::op_sar_rm8_cl(ModRM &rm){
@@ -1313,11 +1313,11 @@ void x86CPU::op_sar_rmW_cl(ModRM &rm){
 }
 
 void x86CPU::op_sar_rm8_imm8(ModRM &rm){
-	rm.WriteByte(ShiftArithmeticRight8(rm.ReadByte(),ReadByte(cCS,eip+rm.GetLength())));
+	rm.WriteByte(ShiftArithmeticRight8(rm.ReadByte(),ReadByte(cCS,eip+rm.GetLength(),CodeFetch)));
 }
 
 void x86CPU::op_sar_rmW_imm8(ModRM &rm){
-	rm.WriteByte(ShiftArithmeticRight8(rm.ReadByte(),SignExtend8to32(ReadByte(cCS,eip+rm.GetLength()))));
+	rm.WriteByte(ShiftArithmeticRight8(rm.ReadByte(),SignExtend8to32(ReadByte(cCS,eip+rm.GetLength(),CodeFetch))));
 }
 
 void x86CPU::op_rol_rm8_cl(ModRM &rm){
@@ -1329,11 +1329,11 @@ void x86CPU::op_rol_rmW_cl(ModRM &rm){
 }
 
 void x86CPU::op_rol_rm8_imm8(ModRM &rm){
-	rm.WriteByte(RotateLeft8(rm.ReadByte(),ReadByte(cCS,eip+rm.GetLength())));
+	rm.WriteByte(RotateLeft8(rm.ReadByte(),ReadByte(cCS,eip+rm.GetLength(),CodeFetch)));
 }
 
 void x86CPU::op_rol_rmW_imm8(ModRM &rm){
-	rm.WriteW(RotateLeftW(rm.ReadW(),SignExtend8to32(ReadByte(cCS,eip+rm.GetLength()))));
+	rm.WriteW(RotateLeftW(rm.ReadW(),SignExtend8to32(ReadByte(cCS,eip+rm.GetLength(),CodeFetch))));
 }
 
 void x86CPU::op_ror_rm8_cl(ModRM &rm){
@@ -1344,11 +1344,11 @@ void x86CPU::op_ror_rmW_cl(ModRM &rm){
 }
 
 void x86CPU::op_ror_rm8_imm8(ModRM &rm){
-	rm.WriteByte(RotateRight8(rm.ReadByte(),ReadByte(cCS,eip+rm.GetLength())));
+	rm.WriteByte(RotateRight8(rm.ReadByte(),ReadByte(cCS,eip+rm.GetLength(),CodeFetch)));
 }
 
 void x86CPU::op_ror_rmW_imm8(ModRM &rm){
-	rm.WriteW(RotateRightW(rm.ReadW(),SignExtend8to32(ReadByte(cCS,eip+rm.GetLength()))));
+	rm.WriteW(RotateRightW(rm.ReadW(),SignExtend8to32(ReadByte(cCS,eip+rm.GetLength(),CodeFetch))));
 }
 
 void x86CPU::op_rcl_rm8_cl(ModRM &rm){
@@ -1359,11 +1359,11 @@ void x86CPU::op_rcl_rmW_cl(ModRM &rm){
 }
 
 void x86CPU::op_rcl_rm8_imm8(ModRM &rm){
-	rm.WriteByte(RotateCarryLeft8(rm.ReadByte(),ReadByte(cCS,eip+rm.GetLength())));
+	rm.WriteByte(RotateCarryLeft8(rm.ReadByte(),ReadByte(cCS,eip+rm.GetLength(),CodeFetch)));
 }
 
 void x86CPU::op_rcl_rmW_imm8(ModRM &rm){
-	rm.WriteW(RotateCarryLeftW(rm.ReadW(),SignExtend8to32(ReadByte(cCS,eip+rm.GetLength()))));
+	rm.WriteW(RotateCarryLeftW(rm.ReadW(),SignExtend8to32(ReadByte(cCS,eip+rm.GetLength(),CodeFetch))));
 }
 
 void x86CPU::op_rcr_rm8_cl(ModRM &rm){
@@ -1374,11 +1374,11 @@ void x86CPU::op_rcr_rmW_cl(ModRM &rm){
 }
 
 void x86CPU::op_rcr_rm8_imm8(ModRM &rm){
-	rm.WriteByte(RotateCarryRight8(rm.ReadByte(),ReadByte(cCS,eip+rm.GetLength())));
+	rm.WriteByte(RotateCarryRight8(rm.ReadByte(),ReadByte(cCS,eip+rm.GetLength(),CodeFetch)));
 }
 
 void x86CPU::op_rcr_rmW_imm8(ModRM &rm){
-	rm.WriteW(RotateCarryRightW(rm.ReadW(),SignExtend8to32(ReadByte(cCS,eip+rm.GetLength()))));
+	rm.WriteW(RotateCarryRightW(rm.ReadW(),SignExtend8to32(ReadByte(cCS,eip+rm.GetLength(),CodeFetch))));
 }
 
 

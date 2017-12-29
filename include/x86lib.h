@@ -175,6 +175,12 @@ typedef struct DeviceRange
 	uint32_t low;
 }DeviceRange_t;
 
+typedef enum _MemAccessReason {
+    CodeFetch = 0,
+    Data,
+    Internal
+} MemAccessReason;
+
 class MemorySystem{
 	std::vector<DeviceRange_t> memorySystemVector;
 	protected:
@@ -186,8 +192,8 @@ class MemorySystem{
 	void Remove(uint32_t low,uint32_t high);
 	void Remove(MemoryDevice *memdev);
 	int RangeFree(uint32_t low,uint32_t high);
-	void Read(uint32_t address,int count,void *buffer);
-	void Write(uint32_t address,int count,void *data);
+	void Read(uint32_t address,int count,void *buffer, MemAccessReason reason = Data);
+	void Write(uint32_t address,int count,void *data, MemAccessReason reason = Data);
 	//! Tells if memory is locked
 	/*!
 	\return 1 if memory is locked, 0 if not locked.
@@ -556,8 +562,8 @@ class x86CPU{
         return !AddressSize16;
     }
 
-    void ReadMemory(uint32_t address, uint32_t size, void* buffer);
-    void WriteMemory(uint32_t address, uint32_t size, void* buffer);
+    void ReadMemory(uint32_t address, uint32_t size, void* buffer, MemAccessReason reason = Data);
+    void WriteMemory(uint32_t address, uint32_t size, void* buffer, MemAccessReason reason = Data);
 
 	void Stop(){DoStop=true;}
     uint32_t GetLocation(){
@@ -570,7 +576,7 @@ class x86CPU{
     //provided mainly for slightly easier debugging
     uint8_t ReadMachineByte(uint32_t address){
         uint8_t res;
-        Memory->Read(address, 1, &res);
+        Memory->Read(address, 1, &res, Internal);
         return res;
     }
 
@@ -587,8 +593,8 @@ class x86CPU{
         regs32[reg] = val;
     }
     std::vector<uint32_t> wherebeen;
-    void Read(void* buffer, uint32_t off, size_t count);
-    void Write(uint32_t off, void* buffer, size_t count);
+    void Read(void* buffer, uint32_t off, size_t count, MemAccessReason reason = Data);
+    void Write(uint32_t off, void* buffer, size_t count, MemAccessReason reason = Data);
 
     /*End public interface*/
 	#ifdef X86LIB_BUILD

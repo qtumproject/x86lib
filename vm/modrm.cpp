@@ -104,7 +104,7 @@ uint32_t ModRM::GetDisp32(){
     switch(modrm.mod){
         case 0: //no displacement
             if(modrm.rm==5){ //only dword displacement...
-                return this_cpu->ReadDword(this_cpu->CS, this_cpu->eip+1);
+                return this_cpu->ReadDword(this_cpu->CS, this_cpu->eip+1, CodeFetch);
             }else if(modrm.rm == 4){ //if SIB
                 return GetSIBDisp();
             }
