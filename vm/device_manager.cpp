@@ -69,12 +69,42 @@ void MemorySystem::Add(uint32_t low,uint32_t high,MemoryDevice *memdev){
 
 void MemorySystem::Remove(uint32_t low,uint32_t high)
 {
+    int c = 0;
+	
+	/* Check For suitable device for remove*/
+	for (vector<DeviceRange_t>::iterator it = memorySystemVector.begin(); it != memorySystemVector.end();)
+	{
+		if(it->low == low){
+			it = memorySystemVector.erase(it);
+			++c;
+			continue;
+		}		
+		++it;
+	}
+	if(c == 0){
+		throw new runtime_error("Remove an unmatch memory device");
+	}
 	
 }
 	
 void MemorySystem::Remove(MemoryDevice *memdev)
 {
+    int c = 0;
+	/* Check For suitable device for remove*/
+	for (vector<DeviceRange_t>::iterator it = memorySystemVector.begin(); it != memorySystemVector.end();)
+	{
+		if(it->memdev == memdev){
+			it = memorySystemVector.erase(it);
+			++c;
+			continue;
+		}		
+		++it;
+	}
+	if(c == 0){
+		throw new runtime_error("Remove a null memory device");
+	}
 }
+
 void MemorySystem::Read(uint32_t address,int size,void *b, MemAccessReason reason)
 {
 	uint8_t* buffer=(uint8_t*)b;
@@ -165,12 +195,25 @@ void MemorySystem::Write(uint32_t address,int size,void *b, MemAccessReason reas
 	throw MemoryException(address);
 }
 
-int  MemorySystem::RangeFree(uint32_t low,uint32_t high)
+int MemorySystem::RangeFree(uint32_t low,uint32_t high)
 {
-	return 1;
+    int c = 0;
+
+	/* Free memory devices exist in ranges*/
+	for(vector<DeviceRange_t>::iterator it = memorySystemVector.begin(); it != memorySystemVector.end();)
+	{
+		if((it->high <= high && it->high >= low) || (it->low <= high && it->low >= low)){
+			it=memorySystemVector.erase(it);
+			++c;
+			continue;
+		}		
+		++it;
+	}
+	if(c == 0){
+		throw new runtime_error("Range free unmatch memory devices");
+	}	
+	return c;
 }
-
-
 
 PortSystem::PortSystem(){
 	count=0;
@@ -230,10 +273,6 @@ void PortSystem::Write(uint16_t address,int size,void *buffer){
 	}
 	throw MemoryException(address);
 }
-
-void Remove(uint16_t low,uint16_t high){}
-void Remove(PortDevice *portdev){}
-int RangeFree(uint32_t low,uint32_t high){return 1;}
 
 
 
