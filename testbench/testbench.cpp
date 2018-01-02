@@ -76,7 +76,7 @@ void DumpMemory(){
 	FILE *fh;
 	fh=fopen("mem_dump.bin","w");
 	uint8_t *tmp = new uint8_t[0x100000];
-	Memory.Read(0x100000, 0x100000, tmp);
+	Memory.Read(0x100000, 0x100000, tmp, Internal);
 	for(i=0;i<=0x100000;i++){
 		fputc(tmp[i],fh);
 	}
