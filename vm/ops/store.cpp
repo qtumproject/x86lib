@@ -339,7 +339,7 @@ void x86CPU::op_enter(){
     }
 
     SetReg(EBP, frameTemp);
-    SetReg(Reg(EBP) - size);
+    SetReg(EBP, Reg(EBP) - size);
 }
 
 void x86CPU::op_leave(){
