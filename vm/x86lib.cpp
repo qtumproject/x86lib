@@ -481,7 +481,7 @@ void x86CPU::InitOpcodes(){
     op(0xC5, op_lds);
     op(0xC6, op_mov_rm8_imm8);
     op(0xC7, op_mov_rmW_immW);
-    //op(0xC8, op_enter); //186
+    op(0xC8, op_enter); //186
     op(0xC9, op_leave); //186
     op(0xCA, op_retf_imm16); //???
     op(0xCB, op_retf);
