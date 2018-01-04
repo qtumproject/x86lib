@@ -279,6 +279,7 @@ void op_stosb();
 void op_stosW();
 void op_wait();
 void op_xlatb();
+void op_enter();
 void op_leave();
 void op_movsx_rW_rm8();
 
