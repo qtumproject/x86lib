@@ -107,6 +107,43 @@ void x86CPU::op_group_81(){
 	eip+=OperandSize(); //these each have immW
 }
 
+void x86CPU::op_group_82(){
+	ModRM rm(this);
+    opcodeExtra = rm.GetExtra();
+	switch(rm.GetExtra()){
+		case 0:
+		op_add_rm8_imm8(rm);
+		break;
+		case 1:
+		op_or_rm8_imm8(rm);
+		break;
+		case 2:
+		op_adc_rm8_imm8(rm);
+		break;
+		case 3:
+		op_sbb_rm8_imm8(rm);
+		break;
+		case 4:
+		op_and_rm8_imm8(rm);
+		break;
+		case 5:
+		op_sub_rm8_imm8(rm);
+		break;
+		case 6:
+		op_xor_rm8_imm8(rm);
+		break;
+		case 7:
+		op_cmp_rm8_imm8(rm);
+		break;
+
+		default:
+		eip--;
+		throw CpuInt_excp(UNK_IEXCP);
+		break;
+	}
+	eip+=OperandSize(); 
+}
+
 void x86CPU::op_group_83() {
     ModRM rm(this);
     opcodeExtra = rm.GetExtra();
@@ -502,6 +539,7 @@ void x86CPU::op_group_C1(){
     }
 	eip++; //for imm8
 }
+
 
 };
 

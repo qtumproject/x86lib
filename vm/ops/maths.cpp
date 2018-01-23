@@ -1538,9 +1538,90 @@ void x86CPU::op_aam_imm8(){
 }
 
 
+void x86CPU::op_imul_rW_rmW_immW(){
+
+ModRM rm(this);
+
+if(OperandSize16){
+	short  dest,source0,source1;
+	int    temp;
+
+    source0 = rm.ReadW();
+	source1 = ReadWord(cCS,eip+rm.GetLength(),CodeFetch);
+	dest = source0 * source1;
+	temp = source0 * source1;
+	SetReg(rm.GetExtra(), dest);
+	if(dest == temp){
+		freg.bits.cf = 0;
+		freg.bits.of = 0;
+	}else{
+		freg.bits.cf = 1;
+		freg.bits.of = 1;
+	}
+	eip+=2;
+}else{
+	int  dest,source0,source1;
+	long    temp;
+	
+	source0 = rm.ReadW();
+	source1 = ReadDword(cCS,eip+rm.GetLength(),CodeFetch);
+	dest = source0 * source1;
+	temp = source0 * source1;
+	SetReg(rm.GetExtra(), dest);
+	if(dest == temp){
+		freg.bits.cf = 0;
+		freg.bits.of = 0;
+	}else{
+		freg.bits.cf = 1;
+		freg.bits.of = 1;
+	}
+	eip+=4;
+}
+
+}
 
 
+void x86CPU::op_imul_rW_rmW_imm8(){
 
+ModRM rm(this);
+
+if(OperandSize16){
+	short  dest,source0,source1;
+	int    temp;
+
+    source0 = rm.ReadW();
+	source1 = SignExtend8to16(ReadByte(cCS,eip+rm.GetLength(),CodeFetch));
+	dest = source0 * source1;
+	temp = source0 * source1;
+	SetReg(rm.GetExtra(), dest);
+	if(dest == temp){
+		freg.bits.cf = 0;
+		freg.bits.of = 0;
+	}else{
+		freg.bits.cf = 1;
+		freg.bits.of = 1;
+	}
+	eip+=1;
+}else{
+	int  dest,source0,source1;
+	long    temp;
+	
+	source0 = rm.ReadW();
+	source1 = SignExtend8to32(ReadByte(cCS,eip+rm.GetLength(),CodeFetch));
+	dest = source0 * source1;
+	temp = source0 * source1;
+	SetReg(rm.GetExtra(), dest);
+	if(dest == temp){
+		freg.bits.cf = 0;
+		freg.bits.of = 0;
+	}else{
+		freg.bits.cf = 1;
+		freg.bits.of = 1;
+	}
+	eip+=1;
+}
+
+}
 
 
 

@@ -232,8 +232,25 @@ void x86CPU::op_address_override(){
 }
 
 
+void x86CPU::op_bound_rW_mW(){
+	uint32_t idx,offset,bound0,bound1;
+	ModRM rm(this);
+	
+	using namespace std;
+	idx = Reg(rm.GetExtra());
+	offset = rm.ReadOffset();
+	
+	if(Use32BitAddress()){
+		bound0 = ReadDword(DS,offset);
+		bound1 = ReadDword(DS,offset+4);
+	}else{
+		bound0 = ReadWord(DS,offset);
+		bound1 = ReadWord(DS,offset+2);
+	}
 
-
+	if(idx<bound0 || idx>bound1)
+		throw CpuInt_excp(BOUNDS_IEXCP);
+}
 
 
 };

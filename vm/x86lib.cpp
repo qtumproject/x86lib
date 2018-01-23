@@ -405,17 +405,17 @@ void x86CPU::InitOpcodes(){
     }
     op(0x60, op_pushaW); //186
     op(0x61, op_popaW); //186
-    //op(0x62, op_bound_rW_mW); //186
+    op(0x62, op_bound_rW_mW); //186
     //op(0x63, op_arpl_rmW_rW); //286 (priv?)
-    //op(0x64, op_pre_fs_override); //386
-    //op(0x65, op_pre_gs_override); //386
+    op(0x64, op_pre_fs_override); //386
+    op(0x65, op_pre_gs_override); //386
     //66 is SSE2 escape. 67 is UD
     op(0x66, op_operand_override);
     op(0x67, op_address_override);
     op(0x68, op_push_immW);
-   // op(0x69, op_imul_rW_rmW_immW); //186 (note: uses /r for rW)
+    op(0x69, op_imul_rW_rmW_immW); //186 (note: uses /r for rW)
     op(0x6A, op_push_imm8);
-   // op(0x6B, op_imul_rW_rmW_imm8); //186 (note: uses /r for rW, imm8 is sign extended)
+    op(0x6B, op_imul_rW_rmW_imm8); //186 (note: uses /r for rW, imm8 is sign extended)
     op(0x6C, op_insb_m8_dx); //186
     op(0x6D, op_insW_mW_dx); //186
     op(0x6E, op_outsb_dx_m8); //186
@@ -425,7 +425,7 @@ void x86CPU::InitOpcodes(){
     }
     op(0x80, op_group_80);
     op(0x81, op_group_81);
-    //op(0x82, op_group_82);
+    op(0x82, op_group_82);
     op(0x83, op_group_83); // /1, /4, and /6 is 386
     op(0x84, op_test_rm8_r8);
     op(0x85, op_test_rmW_rW);

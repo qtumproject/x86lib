@@ -613,7 +613,7 @@ TEST_CASE("math and_rm8_r8", "[math]") {
 "jmp _end\n");
     x86Checkpoint check = test.LoadCheckpoint();
     check.SetReg32(EAX, 0x000000A7);
-    check.SetPF(); // odd set 1
+    check.UnsetPF(); // low byte has even number of 1, set 1 
     check.SetSF(); // =msb
     check.UnsetZF();// resulst==0
     test.Compare(check);
@@ -644,7 +644,7 @@ TEST_CASE("math and_r8_rm8", "[math]") {
 "_tmp: dB 0xA7, 0, 0, 0\n");
     x86Checkpoint check = test.LoadCheckpoint();
     check.SetReg32(EAX, 0x000000A7);
-    check.SetPF(); 
+    check.UnsetPF(); 
     check.SetSF(); 
     check.UnsetZF();
     test.Compare(check);
@@ -678,6 +678,82 @@ TEST_CASE("math and_ax_immW", "[math]") {
     check.SetSF(); 
     check.UnsetZF();
 	test.Compare(check);
+}
+
+TEST_CASE("math op_inc_rW", "[math]") {
+    x86Tester test;
+    test.Run(
+"mov AX, 0x0000\n"
+"INC AX\n"
+"jmp _end\n");
+    x86Checkpoint check = test.LoadCheckpoint();
+    check.SetReg32(EAX, 0x00000001);
+    check.UnsetPF(); // even set 1
+    check.UnsetSF(); // =msb
+    check.UnsetZF();// resulst==0
+    check.UnsetAF();// 
+    check.UnsetOF();// 
+    test.Compare(check);
+}
+
+TEST_CASE("math op_inc_rmW", "[math]") {
+    x86Tester test;
+    test.Run(
+"mov BX, 0x10AC\n"
+"INC BX\n"
+"jmp _end\n");
+    x86Checkpoint check = test.LoadCheckpoint();
+    check.SetReg32(EBX, 0x000010AD);
+    check.SetPF(); // even set 1
+    check.UnsetSF(); // =msb
+    check.UnsetZF();// resulst==0
+    check.UnsetAF();// 
+    check.UnsetOF();// 
+    test.Compare(check);
+}
+
+TEST_CASE("math op_inc_rm8", "[math]") {
+    x86Tester test;
+    test.Run(
+"mov BL, 0xAC\n"
+"INC BL\n"
+"jmp _end\n");
+    x86Checkpoint check = test.LoadCheckpoint();
+    check.SetReg32(EBX, 0x000000AD);
+    check.UnsetPF(); // even set 1
+    check.SetSF(); // =msb
+    check.UnsetZF();// resulst==0
+    check.UnsetAF();// 
+    check.UnsetOF();// 
+    test.Compare(check);
+}
+
+TEST_CASE("math op_imul_rW_rmW_immW", "[math]") {
+    x86Tester test;
+    test.Run(
+"mov AX, 0x0001\n"
+"mov BX, 0x0000\n"
+"IMUL BX, AX, 0x000100\n"
+"jmp _end\n");
+    x86Checkpoint check = test.LoadCheckpoint();
+    check.SetReg32(EBX, 0x00100);
+    check.UnsetCF(); // even set 1
+    check.UnsetOF();// 
+    test.Compare(check);
+}
+
+TEST_CASE("math op_imul_rW_rmW_imm8", "[math]") {
+    x86Tester test;
+    test.Run(
+"mov AX, 0x0123\n"
+"mov BX, 0x0000\n"
+"IMUL BX, AX, 0x10\n"
+"jmp _end\n");
+    x86Checkpoint check = test.LoadCheckpoint();
+    check.SetReg32(EBX, 0x00001230);
+    check.UnsetCF(); // even set 1
+    check.UnsetOF();// 
+    test.Compare(check);
 }
 
 

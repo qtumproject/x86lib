@@ -307,6 +307,8 @@ void op_retn_imm16();
 void op_int1();
 void op_pre_gs_override();
 void op_pre_fs_override();
+void op_bound_rW_mW();
+void op_group_82();
 
 void op_pushf();
 void op_popf();
@@ -413,6 +415,9 @@ void op32_mul_rm32(ModRM &rm);
 void op32_imul_rm32(ModRM &rm);
 void op32_div_rm32(ModRM &rm);
 void op32_idiv_rm32(ModRM &rm);
+
+void op_imul_rW_rmW_immW();
+void op_imul_rW_rmW_imm8();
 
 
 //2-byte opcodes
