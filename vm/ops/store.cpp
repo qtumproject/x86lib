@@ -318,11 +318,13 @@ void x86CPU::op_popaW(){
 }
 
 void x86CPU::op_enter(){
-    Push(Reg(EBP));
-    uint32_t size = ImmW();
-    uint8_t nestingLevel = ReadCode8(1) % 32;
-    eip++;
+    uint16_t size = ReadCode16(1);
+    eip+=2;
 
+    uint8_t nestingLevel = ReadCode8(1) % 32;
+    eip+=1;
+
+    Push(Reg(EBP));
     uint32_t frameTemp = Reg(ESP);
 
     for (int i = 1; i < nestingLevel; ++i) {
@@ -339,7 +341,7 @@ void x86CPU::op_enter(){
     }
 
     SetReg(EBP, frameTemp);
-    SetReg(EBP, Reg(EBP) - size);
+    SetReg(ESP, Reg(EBP) - size);
 }
 
 void x86CPU::op_leave(){
