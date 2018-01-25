@@ -16,3 +16,33 @@ TEST_CASE("asm test", "[test]") {
     check.AdvanceEIP(5);
     test.Compare(check, true);
 }
+
+TEST_CASE("setne setnz", "[flags]") {
+    x86Tester test;
+    x86Checkpoint check = test.LoadCheckpoint();
+    test.Run("mov eax, 1\n"
+             "sub eax, 0\n"
+             "setne cl\n"
+             "setnz bl\n"
+             "sete dl");
+    check.UnsetZF();
+    check.SetReg32(EAX, 1);
+    check.SetReg8(CL, 1);
+    check.SetReg8(BL, 1);
+    check.SetReg8(DL, 0);
+    test.Compare(check);
+}
+
+TEST_CASE("sete setz", "[flags]") {
+    x86Tester test;
+    x86Checkpoint check = test.LoadCheckpoint();
+    test.Run("mov eax, 1\n"
+             "sub eax, 1\n"
+             "sete cl\n"
+             "setz bl\n");
+    REQUIRE(test.Check().Reg8(CL) == 1);
+    REQUIRE(test.Check().Reg8(BL) == 1);
+    check.SetZF();
+    check.SetReg8(CL, 1);
+    check.SetReg8(BL, 1);
+}

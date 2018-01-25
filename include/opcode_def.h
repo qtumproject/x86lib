@@ -131,6 +131,7 @@ void op_sub_al_imm8(); //Tested, pass #1;
 void op_sub_axW_immW(); //Tested, pass #1;
 void op_jcc_rel8();
 void op_jcc_relW();
+void op_setcc_rm8();
 void op_mov_sr_rm16(); //Tested, pass #1;
 void op_mov_rm16_sr(); //Tested, pass #1;
 void op_pop_rW(); //Tested, pass #1;

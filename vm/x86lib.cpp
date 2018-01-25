@@ -598,12 +598,16 @@ void x86CPU::InitOpcodes(){
     for(int i=0;i<16;i++){
         opx(0x40 + i, op_cmovcc_rW_rmW); //Pentium Pro
     }
+
+    */
+
     //another large swath of P3+ and MMX instructions
     for(int i=0;i<16;i++){
         opx(0x80+i, op_jcc_relW); //386
         opx(0x90+i, op_setcc_rm8); //386
     }
 
+    /* 
     opx(0xA0, op_push_fs); //386
     opx(0xA1, op_pop_fs); // 386
     opx(0xA2, op_cpuid); //486
