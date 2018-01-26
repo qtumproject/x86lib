@@ -40,9 +40,102 @@ TEST_CASE("sete setz", "[flags]") {
              "sub eax, 1\n"
              "sete cl\n"
              "setz bl\n");
-    REQUIRE(test.Check().Reg8(CL) == 1);
-    REQUIRE(test.Check().Reg8(BL) == 1);
     check.SetZF();
     check.SetReg8(CL, 1);
     check.SetReg8(BL, 1);
+    test.Compare(check);
 }
+
+TEST_CASE("seta setnbe", "[flags]") {
+    x86Tester test;
+    x86Checkpoint check = test.LoadCheckpoint();
+    test.Run("mov eax, 1\n"
+             "cmp eax, 0\n"
+             "seta bl\n"
+             "setnbe cl\n");
+    check.SetReg32(EAX, 1);
+    check.UnsetZF();
+    check.UnsetCF();
+    check.SetReg8(CL, 1);
+    check.SetReg8(BL, 1);
+    test.Compare(check);
+}
+
+TEST_CASE("setae setnc setnb", "[flags]") {
+    x86Tester test;
+    x86Checkpoint check = test.LoadCheckpoint();
+    test.Run("mov eax, 1\n"
+             "cmp eax, 0\n"
+             "setae bl\n"
+             "setnb cl\n"
+             "setnc dl\n");
+    check.SetReg32(EAX, 1);
+    check.UnsetCF();
+    check.SetReg8(CL, 1);
+    check.SetReg8(BL, 1);
+    check.SetReg8(DL, 1);
+    test.Compare(check);
+}
+
+TEST_CASE("setb setc setnae", "[flags]") {
+    x86Tester test;
+    x86Checkpoint check = test.LoadCheckpoint();
+    test.Run("mov eax, 1\n"
+             "cmp eax, 2\n"
+             "setb bl\n"
+             "setc cl\n"
+             "setnae dl\n");
+    check.SetReg32(EAX, 1);
+    check.UnsetZF();
+    check.SetCF();
+    check.SetReg8(CL, 1);
+    check.SetReg8(BL, 1);
+    check.SetReg8(DL, 1);
+    test.Compare(check);
+}
+
+TEST_CASE("setbe setna", "[flags]") {
+    x86Tester test;
+    x86Checkpoint check = test.LoadCheckpoint();
+    test.Run("mov eax, 1\n"
+             "cmp eax, 2\n"
+             "setbe bl\n"
+             "cmp eax, 1\n"
+             "setna cl\n");
+    check.SetReg32(EAX, 1);
+    check.SetReg8(CL, 1);
+    check.SetReg8(BL, 1);
+    test.Compare(check);
+}
+
+TEST_CASE("seto setno", "[flags]") {
+    x86Tester test;
+    x86Checkpoint check = test.LoadCheckpoint();
+    test.Run("mov al, 127\n"
+             "add al, 127\n"
+             "seto bl\n"
+             "mov al, 1\n"
+             "add al, 1\n"
+             "setno cl\n");
+    check.SetReg32(EAX, 2);
+    check.SetReg8(CL, 1);
+    check.SetReg8(BL, 1);
+    test.Compare(check);
+}
+
+TEST_CASE("sets setns", "[flags]") {
+    x86Tester test;
+    x86Checkpoint check = test.LoadCheckpoint();
+    test.Run("mov al, 1\n"
+             "sub al, 2\n"
+             "sets bl\n"
+             "mov al, 2\n"
+             "sub al, 1\n"
+             "setno cl\n");
+    check.SetReg32(EAX, 1);
+    check.SetReg8(CL, 1);
+    check.SetReg8(BL, 1);
+    test.Compare(check);
+}
+
+
