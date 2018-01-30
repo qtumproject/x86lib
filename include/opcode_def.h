@@ -125,6 +125,7 @@ void op_unknownG(ModRM &rm);
 void op_mov_r8_imm8(); //Tested, pass #1;
 void op_hlt(); //Tested, pass #1;
 void op_nop(); //Tested, pass #1;
+void op_nop_rmW();
 void op_mov_rW_immW(); //Tested, pass #1;
 void op_jmp_rel8(); //Tested, pass #1;
 void op_sub_al_imm8(); //Tested, pass #1;

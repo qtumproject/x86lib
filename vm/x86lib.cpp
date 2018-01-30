@@ -550,25 +550,24 @@ void x86CPU::InitOpcodes(){
 
     
     opx(0xBE, op_movsx_rW_rm8); //386
-/* commenting all these out for now
 
-    opxg(0x00, 0, op_naG); //sldt
-    opxg(0x00, 1, op_naG); //str
-    opxg(0x00, 2, op_naG); //lldt
-    opxg(0x00, 3, op_naG); //ltr
-    opxg(0x00, 4, op_verr);
-    opxg(0x00, 5, op_verw);
-    opxg(0x01, 0, op_naG); //sgdt (this opcode also includes some P4+ opcodes for VMX)
-    opxg(0x01, 1, op_naG); //sidt and other opcodes
-    opxg(0x01, 2, op_naG); //lgdt and others
-    opxg(0x01, 3, op_naG); //lidt
-    opxg(0x01, 4, op_naG); //smsw_rm16_msw
-    opxg(0x01, 5, op_naG); //lmsw_msw_rm16
-    opx(0x02, op_lar_rW_rmW);
-    opx(0x03, op_lsl_rW_rmW);
-    opx(0x06, op_na); //clts
-    opx(0x08, op_na); //invd
-    opx(0x09, op_na); //wbinvd
+//    opxg(0x00, 0, op_naG); //sldt
+//    opxg(0x00, 1, op_naG); //str
+//    opxg(0x00, 2, op_naG); //lldt
+//    opxg(0x00, 3, op_naG); //ltr
+//    opxg(0x00, 4, op_verr);
+//    opxg(0x00, 5, op_verw);
+//    opxg(0x01, 0, op_naG); //sgdt (this opcode also includes some P4+ opcodes for VMX)
+//    opxg(0x01, 1, op_naG); //sidt and other opcodes
+//    opxg(0x01, 2, op_naG); //lgdt and others
+//    opxg(0x01, 3, op_naG); //lidt
+//    opxg(0x01, 4, op_naG); //smsw_rm16_msw
+//    opxg(0x01, 5, op_naG); //lmsw_msw_rm16
+//    opx(0x02, op_lar_rW_rmW);
+//    opx(0x03, op_lsl_rW_rmW);
+//    opx(0x06, op_na); //clts
+//    opx(0x08, op_na); //invd
+//    opx(0x09, op_na); //wbinvd
     opx(0x0B, op_unknown); //UD2 official unsupported opcode
     opx(0x0D, op_nop_rmW); //???? Why does this take an argument!?
     // opx 0x10-0x17 is P3+
@@ -579,27 +578,26 @@ void x86CPU::InitOpcodes(){
 
 
     //opcodes 0-4 are P4+ opcodes
-    for(int i=4;i<8;i++){
-        opxg(0x18, i, op_nopG_rmW); //Pentium Pro
-    }
-    for(int i=0x19;i<0x20;i++){
-        opx(i, op_nop_rmW); //Pentium Pro
-    }
+//    for(int i=4;i<8;i++){
+//        opxg(0x18, i, op_nopG_rmW); //Pentium Pro
+//    }
+//    for(int i=0x19;i<0x20;i++){
+//        opx(i, op_nop_rmW); //Pentium Pro
+//    }
+//
+//    for(int i=0x20;i<0x24;i++){
+//        //mov_r32_cr, mov_r32_dr, mov_cr_r32, mov_dr_r32 -- All ring0 opcodes
+//        opx(i, op_na);
+//    }
+//    opx(0x30, op_na); //wrmsr
+//    opx(0x31, op_na); //rdtsc
+//    opx(0x32, op_na); //rdmsr
+//    opx(0x33, op_na); //rdpmc
+//    //massive gap of Core only instructions
+//    for(int i=0;i<16;i++){
+//        opx(0x40 + i, op_cmovcc_rW_rmW); //Pentium Pro
+//    }
 
-    for(int i=0x20;i<0x24;i++){
-        //mov_r32_cr, mov_r32_dr, mov_cr_r32, mov_dr_r32 -- All ring0 opcodes
-        opx(i, op_na);
-    }
-    opx(0x30, op_na); //wrmsr
-    opx(0x31, op_na); //rdtsc
-    opx(0x32, op_na); //rdmsr
-    opx(0x33, op_na); //rdpmc
-    //massive gap of Core only instructions
-    for(int i=0;i<16;i++){
-        opx(0x40 + i, op_cmovcc_rW_rmW); //Pentium Pro
-    }
-
-    */
 
     //another large swath of P3+ and MMX instructions
     for(int i=0;i<16;i++){
