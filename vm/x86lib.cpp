@@ -608,7 +608,7 @@ void x86CPU::InitOpcodes(){
     opx(0xA0, op_push_fs); //386
     opx(0xA1, op_pop_fs); // 386
 //    opx(0xA2, op_cpuid); //486
-//    opx(0xA3, op_bt_rmW_rW); //386
+    opx(0xA3, op_bt_rmW_rW); //386
 //    opx(0xA4, op_shld_rmW_rW_imm8); //386
 //    opx(0xA5, op_shld_rmW_rW_cl); //386
     opx(0xA8, op_push_gs); //386

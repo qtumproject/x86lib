@@ -41,6 +41,7 @@ TEST_CASE("sete setz", "[flags]") {
              "sete cl\n"
              "setz bl\n");
     check.SetZF();
+    check.SetPF();
     check.SetReg8(CL, 1);
     check.SetReg8(BL, 1);
     test.Compare(check);
@@ -88,6 +89,9 @@ TEST_CASE("setb setc setnae", "[flags]") {
     check.SetReg32(EAX, 1);
     check.UnsetZF();
     check.SetCF();
+    check.SetPF();
+    check.SetAF();
+    check.SetSF();
     check.SetReg8(CL, 1);
     check.SetReg8(BL, 1);
     check.SetReg8(DL, 1);
@@ -105,6 +109,8 @@ TEST_CASE("setbe setna", "[flags]") {
     check.SetReg32(EAX, 1);
     check.SetReg8(CL, 1);
     check.SetReg8(BL, 1);
+    check.SetPF();
+    check.SetZF();
     test.Compare(check);
 }
 
@@ -135,6 +141,18 @@ TEST_CASE("sets setns", "[flags]") {
     check.SetReg32(EAX, 1);
     check.SetReg8(CL, 1);
     check.SetReg8(BL, 1);
+    test.Compare(check);
+}
+
+TEST_CASE("bt", "[flags]") {
+    x86Tester test;
+    x86Checkpoint check = test.LoadCheckpoint();
+    test.Run("mov eax, 0x1111\n"
+             "mov ebx, 4\n"
+             "bt eax, ebx\n");
+    check.SetReg32(EAX, 0x1111);
+    check.SetReg32(EBX, 4);
+    check.SetCF();
     test.Compare(check);
 }
 

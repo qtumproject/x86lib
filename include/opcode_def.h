@@ -318,6 +318,8 @@ void op_pre_fs_override();
 void op_pushf();
 void op_popf();
 
+void op_bt_rmW_rW();
+
 
 /**Group Include Functions(not direct opcodes)**/
 void op_sub_rm8_imm8(ModRM&); //group 0x80 /5

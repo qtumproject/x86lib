@@ -542,9 +542,12 @@ TEST_CASE("add_eax_imm32", "[add]") {
 "mov eax, 100\n"
 "add eax, -100\n");
     check.SetReg32(EAX, 0);
-    check.SetOF();
+    check.UnsetOF();
     check.UnsetSF();
     check.SetZF();
+    check.SetCF();
+    check.SetPF();
+    check.SetAF();
     test.Compare(check);
 }
 
@@ -586,7 +589,7 @@ TEST_CASE("op_or_al_imm8", "[or]") {
             "or  al, 0x89\n");
     check.SetReg32(EAX, 0x9f);
     check.SetPF();
-    check.UnsetSF();
+    check.SetSF();
     check.UnsetZF();
     test.Compare(check);
 }
@@ -613,7 +616,7 @@ TEST_CASE("math and_rm8_r8", "[math]") {
 "jmp _end\n");
     x86Checkpoint check = test.LoadCheckpoint();
     check.SetReg32(EAX, 0x000000A7);
-    check.SetPF(); // odd set 1
+    check.UnsetPF(); // odd set 0
     check.SetSF(); // =msb
     check.UnsetZF();// resulst==0
     test.Compare(check);
@@ -644,7 +647,7 @@ TEST_CASE("math and_r8_rm8", "[math]") {
 "_tmp: dB 0xA7, 0, 0, 0\n");
     x86Checkpoint check = test.LoadCheckpoint();
     check.SetReg32(EAX, 0x000000A7);
-    check.SetPF(); 
+    check.UnsetPF(); 
     check.SetSF(); 
     check.UnsetZF();
     test.Compare(check);
