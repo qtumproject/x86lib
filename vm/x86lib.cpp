@@ -605,48 +605,45 @@ void x86CPU::InitOpcodes(){
         opx(0x90+i, op_setcc_rm8); //386
     }
 
-    /* 
     opx(0xA0, op_push_fs); //386
     opx(0xA1, op_pop_fs); // 386
-    opx(0xA2, op_cpuid); //486
-    opx(0xA3, op_bt_rmW_rW); //386
-    opx(0xA4, op_shld_rmW_rW_imm8); //386
-    opx(0xA5, op_shld_rmW_rW_cl); //386
+//    opx(0xA2, op_cpuid); //486
+//    opx(0xA3, op_bt_rmW_rW); //386
+//    opx(0xA4, op_shld_rmW_rW_imm8); //386
+//    opx(0xA5, op_shld_rmW_rW_cl); //386
     opx(0xA8, op_push_gs); //386
     opx(0xA9, op_pop_gs); //386
-    opx(0xAA, op_rsm); //386
-    opx(0xAB, op_bts_rmW_rW); //386
-    opx(0xAC, op_shrd_rmW_rW_imm8); //386
-    opx(0xAD, op_shrd_rmW_rW_cl); //386
-    //0xAE is all P2+ opcodes
-    opx(0xAF, op_imul_rW_rmW); //386
-    opx(0xB0, op_cmpxchg_rm8_al_r8); //486
-    opx(0xB1, op_op_cmpxchg_rmW_axW_rW); //486
-    opx(0xB2, op_na); //lss (unsupported)
-    opx(0xB3, op_btr_rmW_rW); //386
-    opx(0xB4, op_na); //lfs (unsupported)
-    opx(0xB5, op_na); //lgs (unsupported)
-    opx(0xB6, op_movzx_rW_rm8); //386
-    opx(0xB7, op_movzx_rW_rm16); //386 (correct? shouldn't it be r32?)
-    opx(0xB9, op_unknown); //another official undefined opcode (technically this one takes an RM argument?)
-    opxg(0xBA, 4, op_bt_rmW_imm8); //group BA is 386
-    opxg(0xBA, 5, op_bts_rmW_imm8);
-    opxg(0xBA, 6, op_btr_rmW_imm8);
-    opxg(0xBA, 7, op_btc_rmW_imm8);
-    opx(0xBB, op_btc_rmW_rW); //386
-    opx(0xBC, op_bsf_rW_rmW); //386
-    opx(0xBD, op_bsr_rW_rmW); //386
-    opx(0xBF, op_movsx_rW_rm16); //386
-    opx(0xC0, op_xadd_rm8_r8); //486
-    opx(0xC1, op_xadd_rmW_rW); //486
-    opxg(0xC7, 1, op_cmpxchg8b); //P1 (the rest of this group is P4+)
-    for(int i=0;i<8;i++){
-        opx(0xC8 + i, op_bswap_rW);
-    }
+//    opx(0xAA, op_rsm); //386
+//    opx(0xAB, op_bts_rmW_rW); //386
+//    opx(0xAC, op_shrd_rmW_rW_imm8); //386
+//    opx(0xAD, op_shrd_rmW_rW_cl); //386
+//    //0xAE is all P2+ opcodes
+//    opx(0xAF, op_imul_rW_rmW); //386
+//    opx(0xB0, op_cmpxchg_rm8_al_r8); //486
+//    opx(0xB1, op_op_cmpxchg_rmW_axW_rW); //486
+//    opx(0xB2, op_na); //lss (unsupported)
+//    opx(0xB3, op_btr_rmW_rW); //386
+//    opx(0xB4, op_na); //lfs (unsupported)
+//    opx(0xB5, op_na); //lgs (unsupported)
+//    opx(0xB6, op_movzx_rW_rm8); //386
+//    opx(0xB7, op_movzx_rW_rm16); //386 (correct? shouldn't it be r32?)
+//    opx(0xB9, op_unknown); //another official undefined opcode (technically this one takes an RM argument?)
+//    opxg(0xBA, 4, op_bt_rmW_imm8); //group BA is 386
+//    opxg(0xBA, 5, op_bts_rmW_imm8);
+//    opxg(0xBA, 6, op_btr_rmW_imm8);
+//    opxg(0xBA, 7, op_btc_rmW_imm8);
+//    opx(0xBB, op_btc_rmW_rW); //386
+//    opx(0xBC, op_bsf_rW_rmW); //386
+//    opx(0xBD, op_bsr_rW_rmW); //386
+//    opx(0xBF, op_movsx_rW_rm16); //386
+//    opx(0xC0, op_xadd_rm8_r8); //486
+//    opx(0xC1, op_xadd_rmW_rW); //486
+//    opxg(0xC7, 1, op_cmpxchg8b); //P1 (the rest of this group is P4+)
+//    for(int i=0;i<8;i++){
+//        opx(0xC8 + i, op_bswap_rW);
+//    }
 
 
-
-*/
 
 
 

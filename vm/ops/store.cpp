@@ -152,6 +152,14 @@ void x86CPU::op_push_ss(){
     Push(0);
 }
 
+void x86CPU::op_push_fs(){
+    Push(0);
+}
+
+void x86CPU::op_push_gs(){
+    Push(0);
+}
+
 void x86CPU::op_pop_rmW(ModRM &rm){
 	rm.WriteW(Pop());
 }
@@ -169,6 +177,14 @@ void x86CPU::op_pop_ss(){
 }
 
 void x86CPU::op_pop_ds(){
+    Pop();
+}
+
+void x86CPU::op_pop_fs(){
+    Pop();
+}
+
+void x86CPU::op_pop_gs(){
     Pop();
 }
 
