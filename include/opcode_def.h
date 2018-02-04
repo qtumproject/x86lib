@@ -91,10 +91,16 @@ uint8_t ShiftArithmeticRight8(uint8_t,uint8_t);
 uint16_t ShiftArithmeticRight16(uint16_t,uint8_t);
 uint32_t ShiftArithmeticRight32(uint32_t,uint8_t);
 uint32_t ShiftArithmeticRightW(uint32_t,uint8_t);
+uint16_t ShiftRightDoublePrecision16(uint16_t,uint16_t,uint8_t);
+uint32_t ShiftRightDoublePrecision32(uint32_t,uint32_t,uint8_t);
+uint32_t ShiftRightDoublePrecisionW(uint32_t,uint32_t,uint8_t);
 uint8_t ShiftLogicalLeft8(uint8_t,uint8_t);
 uint16_t ShiftLogicalLeft16(uint16_t,uint8_t);
 uint32_t ShiftLogicalLeft32(uint32_t,uint8_t);
 uint32_t ShiftLogicalLeftW(uint32_t,uint8_t);
+uint16_t ShiftLeftDoublePrecision16(uint16_t,uint16_t,uint8_t);
+uint32_t ShiftLeftDoublePrecision32(uint32_t,uint32_t,uint8_t);
+uint32_t ShiftLeftDoublePrecisionW(uint32_t,uint32_t,uint8_t);
 uint8_t RotateRight8(uint8_t,uint8_t);
 uint16_t RotateRight16(uint16_t,uint8_t);
 uint32_t RotateRight32(uint32_t,uint8_t);
@@ -319,6 +325,10 @@ void op_pushf();
 void op_popf();
 
 void op_bt_rmW_rW();
+void op_shld_rmW_rW_imm8();
+void op_shld_rmW_rW_cl();
+void op_shrd_rmW_rW_imm8();
+void op_shrd_rmW_rW_cl();
 
 
 /**Group Include Functions(not direct opcodes)**/

@@ -609,14 +609,14 @@ void x86CPU::InitOpcodes(){
     opx(0xA1, op_pop_fs); // 386
 //    opx(0xA2, op_cpuid); //486
     opx(0xA3, op_bt_rmW_rW); //386
-//    opx(0xA4, op_shld_rmW_rW_imm8); //386
-//    opx(0xA5, op_shld_rmW_rW_cl); //386
+    opx(0xA4, op_shld_rmW_rW_imm8); //386
+    opx(0xA5, op_shld_rmW_rW_cl); //386
     opx(0xA8, op_push_gs); //386
     opx(0xA9, op_pop_gs); //386
 //    opx(0xAA, op_rsm); //386
 //    opx(0xAB, op_bts_rmW_rW); //386
-//    opx(0xAC, op_shrd_rmW_rW_imm8); //386
-//    opx(0xAD, op_shrd_rmW_rW_cl); //386
+    opx(0xAC, op_shrd_rmW_rW_imm8); //386
+    opx(0xAD, op_shrd_rmW_rW_cl); //386
 //    //0xAE is all P2+ opcodes
 //    opx(0xAF, op_imul_rW_rmW); //386
 //    opx(0xB0, op_cmpxchg_rm8_al_r8); //486
