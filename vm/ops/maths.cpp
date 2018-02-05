@@ -428,9 +428,8 @@ uint16_t x86CPU::ShiftLeftDoublePrecision16(uint16_t des, uint16_t src, uint8_t 
     }
     freg.bits.cf=((des<<(count-1))&0x8000) > 0;
     uint8_t rcount = 16 - count;
-    uint16_t mask = 1 << rcount;
     des = des << count;
-    src = (src >> rcount) & mask;
+    src = src >> rcount;
     des = des | src;
     if(count == 1) {
         freg.bits.of = MSB16(des) ^ freg.bits.cf;
@@ -448,9 +447,8 @@ uint32_t x86CPU::ShiftLeftDoublePrecision32(uint32_t des, uint32_t src, uint8_t 
     }
     freg.bits.cf=((des<<(count-1))&0x80000000) > 0;
     uint8_t rcount = 32 - count;
-    uint16_t mask = 1 << rcount;
     des = des << count;
-    src = (src >> rcount) & mask;
+    src = src >> rcount;
     des = des | src;
     if(count == 1) {
         freg.bits.of = MSB32(des) ^ freg.bits.cf;
