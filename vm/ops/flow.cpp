@@ -192,6 +192,19 @@ void x86CPU::op_bt_rmW_rW(){
     freg.bits.cf = (bitBase & (1<<bitOffset)) > 0;
 }
 
+void x86CPU::op_bts_rmW_rW(){
+    ModRM rm(this);
+    uint32_t bitBase = rm.ReadW();
+    uint32_t bitOffset = Reg(rm.GetExtra());
+    if(OperandSize16) {
+        bitOffset %= 16;
+    }else{
+        bitOffset %= 32;
+    }
+    freg.bits.cf = (bitBase & (1<<bitOffset)) > 0;
+    rm.WriteW((bitBase | (1<<bitOffset)));
+}
+
 };
 
 

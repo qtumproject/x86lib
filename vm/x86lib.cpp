@@ -614,7 +614,7 @@ void x86CPU::InitOpcodes(){
     opx(0xA8, op_push_gs); //386
     opx(0xA9, op_pop_gs); //386
 //    opx(0xAA, op_rsm); //386
-//    opx(0xAB, op_bts_rmW_rW); //386
+    opx(0xAB, op_bts_rmW_rW); //386
     opx(0xAC, op_shrd_rmW_rW_imm8); //386
     opx(0xAD, op_shrd_rmW_rW_cl); //386
 //    //0xAE is all P2+ opcodes

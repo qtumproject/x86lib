@@ -325,6 +325,7 @@ void op_pushf();
 void op_popf();
 
 void op_bt_rmW_rW();
+void op_bts_rmW_rW();
 void op_shld_rmW_rW_imm8();
 void op_shld_rmW_rW_cl();
 void op_shrd_rmW_rW_imm8();

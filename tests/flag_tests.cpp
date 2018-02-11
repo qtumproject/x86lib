@@ -156,4 +156,16 @@ TEST_CASE("bt", "[flags]") {
     test.Compare(check);
 }
 
+TEST_CASE("bts", "[flags]") {
+    x86Tester test;
+    x86Checkpoint check = test.LoadCheckpoint();
+    test.Run("mov eax, 0x11111111\n"
+             "mov ebx, 35\n"
+             "bts eax, ebx\n");
+    check.SetReg32(EAX, 0x11111119);
+    check.SetReg32(EBX, 35);
+    check.UnsetCF();
+    test.Compare(check);
+}
+
 
