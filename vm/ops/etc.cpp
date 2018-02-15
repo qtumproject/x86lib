@@ -37,6 +37,11 @@ void x86CPU::op_nop(){ //0x90
 	//do nothing
 }
 
+void x86CPU::op_nop_rmW(){ //0x0D
+    ModRM rm(this);
+    rm.ReadW();
+}
+
 void x86CPU::op_hlt(){ //0xF4
 	if(freg.bits._if==0){
 		throw CPUFaultException("HLT With IF=0; Nothing to do",CLIHLT_EXCP);

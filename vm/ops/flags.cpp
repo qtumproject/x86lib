@@ -95,6 +95,16 @@ void x86CPU::op_jcc_relW(){
     }
 }
 
+void x86CPU::op_setcc_rm8(){
+    int cc = opbyte-0x90;
+    ModRM rm8(this);
+    if(jcc(cc, freg)){ //use the same flags with jcc
+        rm8.WriteByte(1); 
+    }else{
+        rm8.WriteByte(0);
+    }
+}
+
 
 void x86CPU::op_clc(){
 	freg.bits.cf=0;

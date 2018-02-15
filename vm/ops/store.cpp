@@ -152,6 +152,14 @@ void x86CPU::op_push_ss(){
     Push(0);
 }
 
+void x86CPU::op_push_fs(){
+    Push(0);
+}
+
+void x86CPU::op_push_gs(){
+    Push(0);
+}
+
 void x86CPU::op_pop_rmW(ModRM &rm){
 	rm.WriteW(Pop());
 }
@@ -169,6 +177,14 @@ void x86CPU::op_pop_ss(){
 }
 
 void x86CPU::op_pop_ds(){
+    Pop();
+}
+
+void x86CPU::op_pop_fs(){
+    Pop();
+}
+
+void x86CPU::op_pop_gs(){
     Pop();
 }
 
@@ -315,6 +331,33 @@ void x86CPU::op_popaW(){
     SetReg(DX,Pop());
     SetReg(CX,Pop());
     SetReg(AX,Pop());
+}
+
+void x86CPU::op_enter(){
+    uint16_t size = ReadCode16(1);
+    eip+=2;
+
+    uint8_t nestingLevel = ReadCode8(1) % 32;
+    eip+=1;
+
+    Push(Reg(EBP));
+    uint32_t frameTemp = Reg(ESP);
+
+    for (int i = 1; i < nestingLevel; ++i) {
+        if (OperandSize16) {
+            SetReg(EBP, Reg(EBP) - 2);
+        }
+        else {
+            SetReg(EBP, Reg(EBP) - 4);
+        }
+        Push(Reg(EBP));
+    }
+    if (nestingLevel > 0) {
+        Push(frameTemp);
+    }
+
+    SetReg(EBP, frameTemp);
+    SetReg(ESP, Reg(EBP) - size);
 }
 
 void x86CPU::op_leave(){

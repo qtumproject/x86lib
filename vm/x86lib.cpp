@@ -481,7 +481,7 @@ void x86CPU::InitOpcodes(){
     op(0xC5, op_lds);
     op(0xC6, op_mov_rm8_imm8);
     op(0xC7, op_mov_rmW_immW);
-    //op(0xC8, op_enter); //186
+    op(0xC8, op_enter); //186
     op(0xC9, op_leave); //186
     op(0xCA, op_retf_imm16); //???
     op(0xCB, op_retf);
@@ -550,25 +550,24 @@ void x86CPU::InitOpcodes(){
 
     
     opx(0xBE, op_movsx_rW_rm8); //386
-/* commenting all these out for now
 
-    opxg(0x00, 0, op_naG); //sldt
-    opxg(0x00, 1, op_naG); //str
-    opxg(0x00, 2, op_naG); //lldt
-    opxg(0x00, 3, op_naG); //ltr
-    opxg(0x00, 4, op_verr);
-    opxg(0x00, 5, op_verw);
-    opxg(0x01, 0, op_naG); //sgdt (this opcode also includes some P4+ opcodes for VMX)
-    opxg(0x01, 1, op_naG); //sidt and other opcodes
-    opxg(0x01, 2, op_naG); //lgdt and others
-    opxg(0x01, 3, op_naG); //lidt
-    opxg(0x01, 4, op_naG); //smsw_rm16_msw
-    opxg(0x01, 5, op_naG); //lmsw_msw_rm16
-    opx(0x02, op_lar_rW_rmW);
-    opx(0x03, op_lsl_rW_rmW);
-    opx(0x06, op_na); //clts
-    opx(0x08, op_na); //invd
-    opx(0x09, op_na); //wbinvd
+//    opxg(0x00, 0, op_naG); //sldt
+//    opxg(0x00, 1, op_naG); //str
+//    opxg(0x00, 2, op_naG); //lldt
+//    opxg(0x00, 3, op_naG); //ltr
+//    opxg(0x00, 4, op_verr);
+//    opxg(0x00, 5, op_verw);
+//    opxg(0x01, 0, op_naG); //sgdt (this opcode also includes some P4+ opcodes for VMX)
+//    opxg(0x01, 1, op_naG); //sidt and other opcodes
+//    opxg(0x01, 2, op_naG); //lgdt and others
+//    opxg(0x01, 3, op_naG); //lidt
+//    opxg(0x01, 4, op_naG); //smsw_rm16_msw
+//    opxg(0x01, 5, op_naG); //lmsw_msw_rm16
+//    opx(0x02, op_lar_rW_rmW);
+//    opx(0x03, op_lsl_rW_rmW);
+//    opx(0x06, op_na); //clts
+//    opx(0x08, op_na); //invd
+//    opx(0x09, op_na); //wbinvd
     opx(0x0B, op_unknown); //UD2 official unsupported opcode
     opx(0x0D, op_nop_rmW); //???? Why does this take an argument!?
     // opx 0x10-0x17 is P3+
@@ -579,25 +578,27 @@ void x86CPU::InitOpcodes(){
 
 
     //opcodes 0-4 are P4+ opcodes
-    for(int i=4;i<8;i++){
-        opxg(0x18, i, op_nopG_rmW); //Pentium Pro
-    }
-    for(int i=0x19;i<0x20;i++){
-        opx(i, op_nop_rmW); //Pentium Pro
-    }
+//    for(int i=4;i<8;i++){
+//        opxg(0x18, i, op_nopG_rmW); //Pentium Pro
+//    }
+//    for(int i=0x19;i<0x20;i++){
+//        opx(i, op_nop_rmW); //Pentium Pro
+//    }
+//
+//    for(int i=0x20;i<0x24;i++){
+//        //mov_r32_cr, mov_r32_dr, mov_cr_r32, mov_dr_r32 -- All ring0 opcodes
+//        opx(i, op_na);
+//    }
+//    opx(0x30, op_na); //wrmsr
+//    opx(0x31, op_na); //rdtsc
+//    opx(0x32, op_na); //rdmsr
+//    opx(0x33, op_na); //rdpmc
+//    //massive gap of Core only instructions
+//    for(int i=0;i<16;i++){
+//        opx(0x40 + i, op_cmovcc_rW_rmW); //Pentium Pro
+//    }
 
-    for(int i=0x20;i<0x24;i++){
-        //mov_r32_cr, mov_r32_dr, mov_cr_r32, mov_dr_r32 -- All ring0 opcodes
-        opx(i, op_na);
-    }
-    opx(0x30, op_na); //wrmsr
-    opx(0x31, op_na); //rdtsc
-    opx(0x32, op_na); //rdmsr
-    opx(0x33, op_na); //rdpmc
-    //massive gap of Core only instructions
-    for(int i=0;i<16;i++){
-        opx(0x40 + i, op_cmovcc_rW_rmW); //Pentium Pro
-    }
+
     //another large swath of P3+ and MMX instructions
     for(int i=0;i<16;i++){
         opx(0x80+i, op_jcc_relW); //386
@@ -606,45 +607,43 @@ void x86CPU::InitOpcodes(){
 
     opx(0xA0, op_push_fs); //386
     opx(0xA1, op_pop_fs); // 386
-    opx(0xA2, op_cpuid); //486
+//    opx(0xA2, op_cpuid); //486
     opx(0xA3, op_bt_rmW_rW); //386
     opx(0xA4, op_shld_rmW_rW_imm8); //386
     opx(0xA5, op_shld_rmW_rW_cl); //386
     opx(0xA8, op_push_gs); //386
     opx(0xA9, op_pop_gs); //386
-    opx(0xAA, op_rsm); //386
+//    opx(0xAA, op_rsm); //386
     opx(0xAB, op_bts_rmW_rW); //386
     opx(0xAC, op_shrd_rmW_rW_imm8); //386
     opx(0xAD, op_shrd_rmW_rW_cl); //386
-    //0xAE is all P2+ opcodes
-    opx(0xAF, op_imul_rW_rmW); //386
-    opx(0xB0, op_cmpxchg_rm8_al_r8); //486
-    opx(0xB1, op_op_cmpxchg_rmW_axW_rW); //486
-    opx(0xB2, op_na); //lss (unsupported)
-    opx(0xB3, op_btr_rmW_rW); //386
-    opx(0xB4, op_na); //lfs (unsupported)
-    opx(0xB5, op_na); //lgs (unsupported)
-    opx(0xB6, op_movzx_rW_rm8); //386
-    opx(0xB7, op_movzx_rW_rm16); //386 (correct? shouldn't it be r32?)
-    opx(0xB9, op_unknown); //another official undefined opcode (technically this one takes an RM argument?)
-    opxg(0xBA, 4, op_bt_rmW_imm8); //group BA is 386
-    opxg(0xBA, 5, op_bts_rmW_imm8);
-    opxg(0xBA, 6, op_btr_rmW_imm8);
-    opxg(0xBA, 7, op_btc_rmW_imm8);
-    opx(0xBB, op_btc_rmW_rW); //386
-    opx(0xBC, op_bsf_rW_rmW); //386
-    opx(0xBD, op_bsr_rW_rmW); //386
-    opx(0xBF, op_movsx_rW_rm16); //386
-    opx(0xC0, op_xadd_rm8_r8); //486
-    opx(0xC1, op_xadd_rmW_rW); //486
-    opxg(0xC7, 1, op_cmpxchg8b); //P1 (the rest of this group is P4+)
-    for(int i=0;i<8;i++){
-        opx(0xC8 + i, op_bswap_rW);
-    }
+//    //0xAE is all P2+ opcodes
+//    opx(0xAF, op_imul_rW_rmW); //386
+//    opx(0xB0, op_cmpxchg_rm8_al_r8); //486
+//    opx(0xB1, op_op_cmpxchg_rmW_axW_rW); //486
+//    opx(0xB2, op_na); //lss (unsupported)
+//    opx(0xB3, op_btr_rmW_rW); //386
+//    opx(0xB4, op_na); //lfs (unsupported)
+//    opx(0xB5, op_na); //lgs (unsupported)
+//    opx(0xB6, op_movzx_rW_rm8); //386
+//    opx(0xB7, op_movzx_rW_rm16); //386 (correct? shouldn't it be r32?)
+//    opx(0xB9, op_unknown); //another official undefined opcode (technically this one takes an RM argument?)
+//    opxg(0xBA, 4, op_bt_rmW_imm8); //group BA is 386
+//    opxg(0xBA, 5, op_bts_rmW_imm8);
+//    opxg(0xBA, 6, op_btr_rmW_imm8);
+//    opxg(0xBA, 7, op_btc_rmW_imm8);
+//    opx(0xBB, op_btc_rmW_rW); //386
+//    opx(0xBC, op_bsf_rW_rmW); //386
+//    opx(0xBD, op_bsr_rW_rmW); //386
+//    opx(0xBF, op_movsx_rW_rm16); //386
+//    opx(0xC0, op_xadd_rm8_r8); //486
+//    opx(0xC1, op_xadd_rmW_rW); //486
+//    opxg(0xC7, 1, op_cmpxchg8b); //P1 (the rest of this group is P4+)
+//    for(int i=0;i<8;i++){
+//        opx(0xC8 + i, op_bswap_rW);
+//    }
 
 
-
-*/
 
 
 

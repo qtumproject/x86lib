@@ -421,6 +421,52 @@ uint32_t x86CPU::ShiftLogicalLeftW(uint32_t base,uint8_t arg){
 	}
 }
 
+uint16_t x86CPU::ShiftLeftDoublePrecision16(uint16_t des, uint16_t src, uint8_t count){
+    count %= 16;
+    if(count==0){
+        return des;
+    }
+    freg.bits.cf=((des<<(count-1))&0x8000) > 0;
+    uint8_t rcount = 16 - count;
+    des = des << count;
+    src = src >> rcount;
+    des = des | src;
+    if(count == 1) {
+        freg.bits.of = MSB16(des) ^ freg.bits.cf;
+    }
+    CalculatePF(des);
+    CalculateSF16(des);
+    CalculateZF(des);
+    return des;
+}
+
+uint32_t x86CPU::ShiftLeftDoublePrecision32(uint32_t des, uint32_t src, uint8_t count){
+    count %= 32;
+    if(count==0){
+        return des;
+    }
+    freg.bits.cf=((des<<(count-1))&0x80000000) > 0;
+    uint8_t rcount = 32 - count;
+    des = des << count;
+    src = src >> rcount;
+    des = des | src;
+    if(count == 1) {
+        freg.bits.of = MSB32(des) ^ freg.bits.cf;
+    }
+    CalculatePF(des);
+    CalculateSF32(des);
+    CalculateZF(des);
+    return des;
+}
+
+uint32_t x86CPU::ShiftLeftDoublePrecisionW(uint32_t des, uint32_t src, uint8_t arg){
+	if(OperandSize16){
+		return ShiftLeftDoublePrecision16(des, src, arg);
+	}else{
+		return ShiftLeftDoublePrecision32(des, src, arg);
+	}
+}
+
 /**ToDo: Possibly adapt BOCHS source so that we avoid this loop crap...**/
 uint8_t x86CPU::RotateRight8(uint8_t base,uint8_t count){
     count &= 0x1F; //only use bottom 5 bits
@@ -477,6 +523,50 @@ uint32_t x86CPU::RotateRightW(uint32_t base,uint8_t arg){
 		return RotateRight16(base, arg);
 	}else{
 		return RotateRight32(base, arg);
+	}
+}
+
+uint16_t x86CPU::ShiftRightDoublePrecision16(uint16_t des, uint16_t src, uint8_t count){
+    count %= 16;
+    if(count==0){
+        return des;
+    }
+    freg.bits.cf=((des>>(count-1))&0x1) > 0;
+    des = (des >> count) | (src << (16-count));
+    if(count == 1) {
+        freg.bits.of = MSB16(des) ^ ((des & 0x4000) > 0);
+    }else{
+        freg.bits.of = 0;
+    }
+    CalculatePF(des);
+    CalculateSF16(des);
+    CalculateZF(des);
+    return des;
+}
+
+uint32_t x86CPU::ShiftRightDoublePrecision32(uint32_t des, uint32_t src, uint8_t count){
+    count %= 32;
+    if(count==0){
+        return des;
+    }
+    freg.bits.cf=((des>>(count-1))&0x1) > 0;
+    des = (des >> count) | (src << (32-count));
+    if(count == 1) {
+        freg.bits.of = MSB32(des) ^ ((des & 0x40000000) > 0);
+    }else{
+        freg.bits.of = 0;
+    }
+    CalculatePF(des);
+    CalculateSF32(des);
+    CalculateZF(des);
+    return des;
+}
+
+uint32_t x86CPU::ShiftRightDoublePrecisionW(uint32_t des, uint32_t src, uint8_t arg){
+	if(OperandSize16){
+		return ShiftRightDoublePrecision16(des, src, arg);
+	}else{
+		return ShiftRightDoublePrecision32(des, src, arg);
 	}
 }
 
@@ -1285,7 +1375,7 @@ void x86CPU::op_shr_rm8_imm8(ModRM &rm){
 }
 
 void x86CPU::op_shr_rmW_imm8(ModRM &rm){
-	rm.WriteW(ShiftLogicalRightW(rm.ReadW(),SignExtend8to32(ReadByte(cCS,eip+rm.GetLength(),CodeFetch))));
+	rm.WriteW(ShiftLogicalRightW(rm.ReadW(),ReadByte(cCS,eip+rm.GetLength(),CodeFetch)));
 }
 
 void x86CPU::op_shl_rm8_cl(ModRM &rm){
@@ -1301,7 +1391,29 @@ void x86CPU::op_shl_rm8_imm8(ModRM &rm){
 }
 
 void x86CPU::op_shl_rmW_imm8(ModRM &rm){
-	rm.WriteW(ShiftLogicalLeftW(rm.ReadW(),SignExtend8to32(ReadByte(cCS,eip+rm.GetLength(),CodeFetch))));
+	rm.WriteW(ShiftLogicalLeftW(rm.ReadW(),ReadByte(cCS,eip+rm.GetLength(),CodeFetch)));
+}
+
+void x86CPU::op_shld_rmW_rW_imm8(){
+    ModRM rm(this);
+    rm.WriteW(ShiftLeftDoublePrecisionW(rm.ReadW(),Reg(rm.GetExtra()),ReadByte(cCS,eip+rm.GetLength(),CodeFetch)));
+    eip++;
+}
+
+void x86CPU::op_shld_rmW_rW_cl(){
+    ModRM rm(this);
+    rm.WriteW(ShiftLeftDoublePrecisionW(rm.ReadW(),Reg(rm.GetExtra()),Reg8(CL)));
+}
+
+void x86CPU::op_shrd_rmW_rW_imm8(){
+    ModRM rm(this);
+    rm.WriteW(ShiftRightDoublePrecisionW(rm.ReadW(),Reg(rm.GetExtra()),ReadByte(cCS,eip+rm.GetLength(),CodeFetch)));
+    eip++;
+}
+
+void x86CPU::op_shrd_rmW_rW_cl(){
+    ModRM rm(this);
+    rm.WriteW(ShiftRightDoublePrecisionW(rm.ReadW(),Reg(rm.GetExtra()),Reg8(CL)));
 }
 
 void x86CPU::op_sar_rm8_cl(ModRM &rm){
@@ -1317,7 +1429,7 @@ void x86CPU::op_sar_rm8_imm8(ModRM &rm){
 }
 
 void x86CPU::op_sar_rmW_imm8(ModRM &rm){
-	rm.WriteByte(ShiftArithmeticRight8(rm.ReadByte(),SignExtend8to32(ReadByte(cCS,eip+rm.GetLength(),CodeFetch))));
+	rm.WriteByte(ShiftArithmeticRight8(rm.ReadByte(),ReadByte(cCS,eip+rm.GetLength(),CodeFetch)));
 }
 
 void x86CPU::op_rol_rm8_cl(ModRM &rm){
@@ -1333,7 +1445,7 @@ void x86CPU::op_rol_rm8_imm8(ModRM &rm){
 }
 
 void x86CPU::op_rol_rmW_imm8(ModRM &rm){
-	rm.WriteW(RotateLeftW(rm.ReadW(),SignExtend8to32(ReadByte(cCS,eip+rm.GetLength(),CodeFetch))));
+	rm.WriteW(RotateLeftW(rm.ReadW(),ReadByte(cCS,eip+rm.GetLength(),CodeFetch)));
 }
 
 void x86CPU::op_ror_rm8_cl(ModRM &rm){
@@ -1348,7 +1460,7 @@ void x86CPU::op_ror_rm8_imm8(ModRM &rm){
 }
 
 void x86CPU::op_ror_rmW_imm8(ModRM &rm){
-	rm.WriteW(RotateRightW(rm.ReadW(),SignExtend8to32(ReadByte(cCS,eip+rm.GetLength(),CodeFetch))));
+	rm.WriteW(RotateRightW(rm.ReadW(),ReadByte(cCS,eip+rm.GetLength(),CodeFetch)));
 }
 
 void x86CPU::op_rcl_rm8_cl(ModRM &rm){
@@ -1363,7 +1475,7 @@ void x86CPU::op_rcl_rm8_imm8(ModRM &rm){
 }
 
 void x86CPU::op_rcl_rmW_imm8(ModRM &rm){
-	rm.WriteW(RotateCarryLeftW(rm.ReadW(),SignExtend8to32(ReadByte(cCS,eip+rm.GetLength(),CodeFetch))));
+	rm.WriteW(RotateCarryLeftW(rm.ReadW(),ReadByte(cCS,eip+rm.GetLength(),CodeFetch)));
 }
 
 void x86CPU::op_rcr_rm8_cl(ModRM &rm){
@@ -1378,7 +1490,7 @@ void x86CPU::op_rcr_rm8_imm8(ModRM &rm){
 }
 
 void x86CPU::op_rcr_rmW_imm8(ModRM &rm){
-	rm.WriteW(RotateCarryRightW(rm.ReadW(),SignExtend8to32(ReadByte(cCS,eip+rm.GetLength(),CodeFetch))));
+	rm.WriteW(RotateCarryRightW(rm.ReadW(),ReadByte(cCS,eip+rm.GetLength(),CodeFetch)));
 }
 
 
