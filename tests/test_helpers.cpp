@@ -101,6 +101,14 @@ void x86Tester::Compare(x86Checkpoint &check, bool checkeip, bool checkMemory){
     REQUIRE(check.regs.regs32[ESI] == checkpoint.regs.regs32[ESI]);
     REQUIRE(check.regs.regs32[EDI] == checkpoint.regs.regs32[EDI]);
 
+    REQUIRE(check.regs.freg.bits.cf == checkpoint.regs.freg.bits.cf);
+    REQUIRE(check.regs.freg.bits.of == checkpoint.regs.freg.bits.of);
+    REQUIRE(check.regs.freg.bits.pf == checkpoint.regs.freg.bits.pf);
+    REQUIRE(check.regs.freg.bits.af == checkpoint.regs.freg.bits.af);
+    REQUIRE(check.regs.freg.bits.zf == checkpoint.regs.freg.bits.zf);
+    REQUIRE(check.regs.freg.bits.sf == checkpoint.regs.freg.bits.sf);
+    REQUIRE(check.regs.freg.bits._if == checkpoint.regs.freg.bits._if);
+
     REQUIRE(check.regs.seg[cES] == checkpoint.regs.seg[cES]);
     REQUIRE(check.regs.seg[cCS] == checkpoint.regs.seg[cCS]);
     REQUIRE(check.regs.seg[cSS] == checkpoint.regs.seg[cSS]);

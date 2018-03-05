@@ -91,10 +91,16 @@ uint8_t ShiftArithmeticRight8(uint8_t,uint8_t);
 uint16_t ShiftArithmeticRight16(uint16_t,uint8_t);
 uint32_t ShiftArithmeticRight32(uint32_t,uint8_t);
 uint32_t ShiftArithmeticRightW(uint32_t,uint8_t);
+uint16_t ShiftRightDoublePrecision16(uint16_t,uint16_t,uint8_t);
+uint32_t ShiftRightDoublePrecision32(uint32_t,uint32_t,uint8_t);
+uint32_t ShiftRightDoublePrecisionW(uint32_t,uint32_t,uint8_t);
 uint8_t ShiftLogicalLeft8(uint8_t,uint8_t);
 uint16_t ShiftLogicalLeft16(uint16_t,uint8_t);
 uint32_t ShiftLogicalLeft32(uint32_t,uint8_t);
 uint32_t ShiftLogicalLeftW(uint32_t,uint8_t);
+uint16_t ShiftLeftDoublePrecision16(uint16_t,uint16_t,uint8_t);
+uint32_t ShiftLeftDoublePrecision32(uint32_t,uint32_t,uint8_t);
+uint32_t ShiftLeftDoublePrecisionW(uint32_t,uint32_t,uint8_t);
 uint8_t RotateRight8(uint8_t,uint8_t);
 uint16_t RotateRight16(uint16_t,uint8_t);
 uint32_t RotateRight32(uint32_t,uint8_t);
@@ -125,12 +131,14 @@ void op_unknownG(ModRM &rm);
 void op_mov_r8_imm8(); //Tested, pass #1;
 void op_hlt(); //Tested, pass #1;
 void op_nop(); //Tested, pass #1;
+void op_nop_rmW();
 void op_mov_rW_immW(); //Tested, pass #1;
 void op_jmp_rel8(); //Tested, pass #1;
 void op_sub_al_imm8(); //Tested, pass #1;
 void op_sub_axW_immW(); //Tested, pass #1;
 void op_jcc_rel8();
 void op_jcc_relW();
+void op_setcc_rm8();
 void op_mov_sr_rm16(); //Tested, pass #1;
 void op_mov_rm16_sr(); //Tested, pass #1;
 void op_pop_rW(); //Tested, pass #1;
@@ -140,9 +148,13 @@ void op_push_es(); //Tested, pass #1;
 void op_push_cs(); //Tested, pass #1;
 void op_push_ss(); //Tested, pass #1;
 void op_push_ds(); //Tested, pass #1;
+void op_push_fs();
+void op_push_gs();
 void op_pop_es(); //Tested, pass #1;
 void op_pop_ss(); //Tested, pass #1;
 void op_pop_ds(); //Tested, pass #1;
+void op_pop_fs();
+void op_pop_gs();
 void op_mov_rW_rmW(); //Tested, pass #1;
 void op_mov_rmW_rW(); //Tested, pass #1;
 void op_call_relW(); //Tested, pass #1;
@@ -279,6 +291,7 @@ void op_stosb();
 void op_stosW();
 void op_wait();
 void op_xlatb();
+void op_enter();
 void op_leave();
 void op_movsx_rW_rm8();
 
@@ -312,6 +325,13 @@ void op_group_82();
 
 void op_pushf();
 void op_popf();
+
+void op_bt_rmW_rW();
+void op_bts_rmW_rW();
+void op_shld_rmW_rW_imm8();
+void op_shld_rmW_rW_cl();
+void op_shrd_rmW_rW_imm8();
+void op_shrd_rmW_rW_cl();
 
 
 /**Group Include Functions(not direct opcodes)**/

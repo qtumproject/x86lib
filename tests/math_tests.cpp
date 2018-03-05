@@ -542,9 +542,12 @@ TEST_CASE("add_eax_imm32", "[add]") {
 "mov eax, 100\n"
 "add eax, -100\n");
     check.SetReg32(EAX, 0);
-    check.SetOF();
+    check.UnsetOF();
     check.UnsetSF();
     check.SetZF();
+    check.SetCF();
+    check.SetPF();
+    check.SetAF();
     test.Compare(check);
 }
 
@@ -586,7 +589,7 @@ TEST_CASE("op_or_al_imm8", "[or]") {
             "or  al, 0x89\n");
     check.SetReg32(EAX, 0x9f);
     check.SetPF();
-    check.UnsetSF();
+    check.SetSF();
     check.UnsetZF();
     test.Compare(check);
 }
@@ -613,7 +616,7 @@ TEST_CASE("math and_rm8_r8", "[math]") {
 "jmp _end\n");
     x86Checkpoint check = test.LoadCheckpoint();
     check.SetReg32(EAX, 0x000000A7);
-    check.UnsetPF(); // low byte has even number of 1, set 1 
+    check.UnsetPF(); // odd set 0
     check.SetSF(); // =msb
     check.UnsetZF();// resulst==0
     test.Compare(check);
@@ -680,80 +683,90 @@ TEST_CASE("math and_ax_immW", "[math]") {
 	test.Compare(check);
 }
 
-TEST_CASE("math op_inc_rW", "[math]") {
+TEST_CASE("op_shld", "[math]") {
     x86Tester test;
-    test.Run(
-"mov AX, 0x0000\n"
-"INC AX\n"
-"jmp _end\n");
     x86Checkpoint check = test.LoadCheckpoint();
-    check.SetReg32(EAX, 0x00000001);
-    check.UnsetPF(); // even set 1
-    check.UnsetSF(); // =msb
-    check.UnsetZF();// resulst==0
-    check.UnsetAF();// 
-    check.UnsetOF();// 
+    test.Assemble("mov AX, 0x1234\n"
+                  "mov BX, 0xafcd\n"
+                  "shld AX, BX, 8\n"
+                  "mov EAX, 0x12341234\n"
+                  "mov EBX, 0xabcdabcd\n"
+                  "shld EAX, EBX, 16\n"
+                  "mov EAX, 0x12341234\n"
+                  "mov EBX, 0xabcdabcd\n"
+                  "mov CL, 8\n"
+                  "shld EAX, EBX, CL\n"
+                  "mov EAX, 0x72341234\n"
+                  "shld EAX, EBX, 1\n"
+                      );
+    test.Run(3);
+    check.SetReg16(AX, 0x34af);
+    check.SetReg16(BX, 0xafcd);
+    check.SetPF();
+    test.Compare(check);
+    test.Run(3);
+    check.SetReg32(EAX, 0x1234abcd);
+    check.SetReg32(EBX, 0xabcdabcd);
+    check.UnsetPF();
+    test.Compare(check);
+    test.Run(4);
+    check.SetReg32(EAX, 0x341234ab);
+    check.SetReg32(EBX, 0xabcdabcd);
+    check.SetReg8(CL, 8);
+    check.UnsetPF();
+    test.Compare(check);
+    test.Run(2);
+    check.SetReg32(EAX, 0xe4682469);
+    check.SetReg32(EBX, 0xabcdabcd);
+    check.SetOF();
+    check.SetSF();
+    check.SetPF();
     test.Compare(check);
 }
 
-TEST_CASE("math op_inc_rmW", "[math]") {
+TEST_CASE("op_shrd", "[math]") {
     x86Tester test;
-    test.Run(
-"mov BX, 0x10AC\n"
-"INC BX\n"
-"jmp _end\n");
     x86Checkpoint check = test.LoadCheckpoint();
-    check.SetReg32(EBX, 0x000010AD);
-    check.SetPF(); // even set 1
-    check.UnsetSF(); // =msb
-    check.UnsetZF();// resulst==0
-    check.UnsetAF();// 
-    check.UnsetOF();// 
+    test.Assemble("mov AX, 0x1234\n"
+                  "mov BX, 0xafcd\n"
+                  "shrd AX, BX, 8\n"
+                  "mov EAX, 0x12341234\n"
+                  "mov EBX, 0xabcdabcd\n"
+                  "shrd EAX, EBX, 16\n"
+                  "mov EAX, 0x12341234\n"
+                  "mov EBX, 0xabcdabcd\n"
+                  "mov CL, 8\n"
+                  "shrd EAX, EBX, CL\n"
+                  "mov EAX, 0xabcdabcd\n"
+                  "mov EBX, 0x0\n"
+                  "shrd EAX, EBX, 1\n"
+                      );
+    test.Run(3);
+    check.SetReg16(AX, 0xcd12);
+    check.SetReg16(BX, 0xafcd);
+    check.SetPF();
+    check.SetSF();
+    test.Compare(check);
+    test.Run(3);
+    check.SetReg32(EAX, 0xabcd1234);
+    check.SetReg32(EBX, 0xabcdabcd);
+    check.UnsetPF();
+    check.SetSF();
+    test.Compare(check);
+    test.Run(4);
+    check.SetReg32(EAX, 0xcd123412);
+    check.SetReg32(EBX, 0xabcdabcd);
+    check.SetReg8(CL, 8);
+    check.SetPF();
+    check.SetSF();
+    test.Compare(check);
+    test.Run(3);
+    check.SetReg32(EAX, 0x55e6d5e6);
+    check.SetReg32(EBX, 0x0);
+    check.UnsetPF();
+    check.UnsetSF();
+    check.SetOF();
+    check.SetCF();
     test.Compare(check);
 }
-
-TEST_CASE("math op_inc_rm8", "[math]") {
-    x86Tester test;
-    test.Run(
-"mov BL, 0xAC\n"
-"INC BL\n"
-"jmp _end\n");
-    x86Checkpoint check = test.LoadCheckpoint();
-    check.SetReg32(EBX, 0x000000AD);
-    check.UnsetPF(); // even set 1
-    check.SetSF(); // =msb
-    check.UnsetZF();// resulst==0
-    check.UnsetAF();// 
-    check.UnsetOF();// 
-    test.Compare(check);
-}
-
-TEST_CASE("math op_imul_rW_rmW_immW", "[math]") {
-    x86Tester test;
-    test.Run(
-"mov AX, 0x0001\n"
-"mov BX, 0x0000\n"
-"IMUL BX, AX, 0x000100\n"
-"jmp _end\n");
-    x86Checkpoint check = test.LoadCheckpoint();
-    check.SetReg32(EBX, 0x00100);
-    check.UnsetCF(); // even set 1
-    check.UnsetOF();// 
-    test.Compare(check);
-}
-
-TEST_CASE("math op_imul_rW_rmW_imm8", "[math]") {
-    x86Tester test;
-    test.Run(
-"mov AX, 0x0123\n"
-"mov BX, 0x0000\n"
-"IMUL BX, AX, 0x10\n"
-"jmp _end\n");
-    x86Checkpoint check = test.LoadCheckpoint();
-    check.SetReg32(EBX, 0x00001230);
-    check.UnsetCF(); // even set 1
-    check.UnsetOF();// 
-    test.Compare(check);
-}
-
 
