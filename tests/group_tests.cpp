@@ -31,8 +31,8 @@ TEST_CASE("etc op_group_82_SUB", "[etc]") {
 	bool fExcept=false;
 	try{
 	    test.Run(
-		"MOV DL, 0x88\n"
-		"SUB DL, 0x55\n"
+		"MOV DL, 0x55\n"
+		"SUB DL, 0x00\n"
 		"jmp _end\n");
 	}catch(...){
 		fExcept=true;
@@ -40,7 +40,7 @@ TEST_CASE("etc op_group_82_SUB", "[etc]") {
 	
     REQUIRE(fExcept == false);
     x86Checkpoint check = test.LoadCheckpoint();
-    check.SetReg32(EDX, 0x33);
+    check.SetReg32(EDX, 0x55);
     check.UnsetZF();
     check.UnsetCF();
     check.UnsetOF();

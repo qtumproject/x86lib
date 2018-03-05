@@ -45,11 +45,7 @@ CXX_TESTBENCH_SRC = testbench/testbench.cpp testbench/elfloader.cpp
 
 CXX_TESTBENCH_OBJS = $(subst .cpp,.o,$(CXX_TESTBENCH_SRC))
 
-<<<<<<< HEAD
 CXX_TEST_SRC = tests/test_main.cpp tests/flag_tests.cpp tests/test_helpers.cpp tests/mov_tests.cpp tests/math_tests.cpp tests/helper_tests.cpp tests/flow_tests.cpp tests/device_tests.cpp tests/etc_tests.cpp tests/group_tests.cpp
-=======
-CXX_TEST_SRC = tests/test_main.cpp tests/flag_tests.cpp tests/test_helpers.cpp tests/mov_tests.cpp tests/math_tests.cpp tests/helper_tests.cpp tests/flow_tests.cpp tests/device_tests.cpp tests/store_tests.cpp
->>>>>>> 98f3b6410b32b1fcd5d7b555f373ea03f1f83499
 CXX_TEST_OBJS = $(subst .cpp,.o,$(CXX_TEST_SRC))
 
 

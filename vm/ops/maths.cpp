@@ -1698,8 +1698,8 @@ void x86CPU::op_imul_rW_rmW_imm8(){
 ModRM rm(this);
 
 if(OperandSize16){
-	short  dest,source0,source1;
-	int    temp;
+	uint16_t  dest,source0,source1;
+	uint32_t  temp;
 
     source0 = rm.ReadW();
 	source1 = SignExtend8to16(ReadByte(cCS,eip+rm.GetLength(),CodeFetch));
@@ -1715,8 +1715,8 @@ if(OperandSize16){
 	}
 	eip+=1;
 }else{
-	int  dest,source0,source1;
-	long    temp;
+	uint32_t  dest,source0,source1;
+	uint64_t    temp;
 	
 	source0 = rm.ReadW();
 	source1 = SignExtend8to32(ReadByte(cCS,eip+rm.GetLength(),CodeFetch));
