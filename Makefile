@@ -12,7 +12,7 @@
 #   documentation and/or other materials provided with the distribution.
 #3. The name of the author may not be used to endorse or promote products
 #   derived from this software without specific prior written permission.
-#   
+#
 #THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES,
 #INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
 #AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL
@@ -23,18 +23,50 @@
 #WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
 #OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#
+
 #This file is part of the x86Lib project.
 
+VERSION   =  1.1
 
-HDRS =  include/config.h include/opcode_def.h include/x86lib.h include/x86lib_internal.h testbench/elf.h tests/x86test.h
-CXX ?= g++
-AR ?= ar
+AR       ?=  ar
+CXX      ?=  g++
+CXXFLAGS ?= -Wall -fPIC -g -O0
+CXXFLAGS += -DX86LIB_BUILD -I./include -fexceptions
 
+##############################################################################################################################################
+CXX_DEC_HDR = vm/Decoder.h
+CXX_DEC_SRC = vm/Decoder.cpp
+CXX_DIS_SRC = vm/Disassembler.cpp vm/test_ia32da.cpp
+CXX_WLG_SRC = vm/workload_generator.cpp
+CXX_DEC_OBJ = $(subst .cpp,.o,$(CXX_DEC_SRC))
+CXX_DIS_OBJ = $(subst .cpp,.o,$(CXX_DIS_SRC))
+CXX_WLG_OBJ = $(subst .cpp,.o,$(CXX_WLG_SRC))
+DEC_OUTPUT  = libdecia32.a
 
-TEST_CC ?= i386-elf-gcc
+default         : build
+
+$(CXX_DEC_OBJ)  : $(CXX_DEC_HDR) $(CXX_DEC_SRC)
+	$(CXX) $(CXXFLAGS) -std=c++11 -c $*.cpp -o $@
+
+$(CXX_DIS_OBJ)  : $(CXX_DEC_HDR) $(CXX_DIS_SRC)
+	$(CXX) $(CXXFLAGS) -std=c++11 -c $*.cpp -o $@
+
+$(CXX_WLG_OBJ)  : $(CXX_DEC_HDR) $(CXX_WLG_SRC)
+	$(CXX) $(CXXFLAGS) -std=c++11 -c $*.cpp -o $@
+
+libdecia32.a    : $(CXX_DEC_OBJ)
+	$(AR) crs libdecia32.a $(CXX_DEC_OBJ)
+
+ia32disassembler: $(CXX_DIS_OBJ) $(DEC_OUTPUT)
+	$(CXX) $(CXXFLAGS) -o ia32disassembler $(CXX_DIS_OBJ) -ldecia32 -L.
+
+ia32workloadgen : $(CXX_WLG_OBJ) $(DEC_OUTPUT)
+	$(CXX) $(CXXFLAGS) -o ia32workloadgen  $(CXX_WLG_OBJ) -ldecia32 -L.
+##############################################################################################################################################
+HDRS  = include/config.h include/opcode_def.h include/x86lib.h include/x86lib_internal.h testbench/elf.h tests/x86test.h
+
+TEST_CC     ?= i386-elf-gcc
 TEST_CFLAGS ?= -Os -nostartfiles -nodefaultlibs -Wl,-z,norelro -Wl,--build-id=none -static
-
 
 CXX_VM_SRC = vm/x86lib.cpp vm/modrm.cpp vm/device_manager.cpp vm/cpu_helpers.cpp vm/ops/strings.cpp vm/ops/store.cpp vm/ops/maths.cpp \
 		  vm/ops/groups.cpp vm/ops/flow.cpp vm/ops/flags.cpp vm/ops/etc.cpp
@@ -48,17 +80,8 @@ CXX_TESTBENCH_OBJS = $(subst .cpp,.o,$(CXX_TESTBENCH_SRC))
 CXX_TEST_SRC = tests/test_main.cpp tests/flag_tests.cpp tests/test_helpers.cpp tests/mov_tests.cpp tests/math_tests.cpp tests/helper_tests.cpp tests/flow_tests.cpp tests/device_tests.cpp tests/etc_tests.cpp tests/group_tests.cpp
 CXX_TEST_OBJS = $(subst .cpp,.o,$(CXX_TEST_SRC))
 
-
-
-CXXFLAGS ?= -Wall -fPIC -g -O0
-CXXFLAGS += -DX86LIB_BUILD -I./include -fexceptions
-
-VERSION=1.1
-
-VM_OUTPUTS = libx86lib.a
-OUTPUTS = $(VM_OUTPUTS) x86testbench 
-
-default: build
+VM_OUTPUT = libx86lib.a
+OUTPUTS   = $(DEC_OUTPUT) $(VM_OUTPUT) ia32disassembler ia32workloadgen x86testbench
 
 build: $(OUTPUTS)
 
@@ -74,7 +97,7 @@ $(CXX_TEST_OBJS): $(HDRS) $(CXX_VM_SRC) $(CXX_TEST_SRC)
 libx86lib.a: $(CXX_VM_OBJS)
 	ar crs libx86lib.a $(CXX_VM_OBJS)
 
-x86testbench: $(CXX_TESTBENCH_OBJS) $(VM_OUTPUTS)
+x86testbench: $(CXX_TESTBENCH_OBJS) $(VM_OUTPUT)
 	$(CXX) $(CXXFLAGS) -o x86testbench $(CXX_TESTBENCH_OBJS) -lx86lib -L.
 
 $(CXX_TESTBENCH_OBJS): $(HDRS) $(CXX_TESTBENCH_SRC)
@@ -84,7 +107,7 @@ $(CXX_VM_OBJS): $(HDRS) $(CXX_VM_SRC)
 	$(CXX) $(CXXFLAGS) -c $*.cpp -o $@
 
 clean:
-	rm -f $(CXX_VM_OBJS) $(OUTPUTS) $(CXX_TESTBENCH_OBJS) $(CXX_TEST_OBJS) x86lib_tests
+	rm -f $(CXX_DEC_OBJ) $(CXX_DIS_OBJ) $(CXX_WLG_OBJ) $(CXX_VM_OBJS) $(OUTPUTS) $(CXX_TESTBENCH_OBJS) $(CXX_TEST_OBJS) x86lib_tests
 
 buildtest:
 	#i386-elf-gcc -c testos.c -o testos.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra $(testos_CFLAGS)
@@ -92,5 +115,4 @@ buildtest:
 	yasm -o testbench/test.o testbench/test.asm -f elf32
 	i386-elf-gcc -T testbench/linker.ld -o test.elf -ffreestanding -nostdlib testbench/test.o -Wl,--gc-sections $(testos_CFLAGS) -dead_strip -Xlinker -Map=test.elf.map -Xlinker -n
 	#strip -s -S test.elf
-
 
