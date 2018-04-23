@@ -1,5 +1,5 @@
-#ifndef ELF_H
-#define ELF_H
+#ifndef ELFLOADER_H
+#define ELFLOADER_H
 
 # include <stdint.h>
  

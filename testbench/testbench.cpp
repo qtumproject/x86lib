@@ -35,7 +35,7 @@ This file is part of the x86Lib project.
 #undef X86LIB_BUILD //so we don't need special makefile flags for this specific file.
 #include <x86lib.h>
 
-#include "elf.h"
+#include <elfloader.h>
 
 using namespace std;
 using namespace x86Lib;
