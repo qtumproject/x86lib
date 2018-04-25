@@ -28,6 +28,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 This file is part of the x86Lib project.
 **/
 #include <iostream>
+#include <iomanip>
 #include <stdio.h>
 #include <fstream>
 #include <string.h>
@@ -186,12 +187,31 @@ void each_opcode(x86CPU *thiscpu){
 	}
 }
 
+
+struct ContractMapInfo {
+    //This structure is CONSENSUS-CRITICAL
+    //Do not add or remove fields nor reorder them!
+    uint32_t optionsSize;
+    uint32_t codeSize;
+    uint32_t dataSize;
+    uint32_t reserved;
+} __attribute__((__packed__));
+
+static ContractMapInfo* parseContractData(const uint8_t* contract, const uint8_t** outputCode, const uint8_t** outputData, const uint8_t** outputOptions){
+    ContractMapInfo *map = (ContractMapInfo*) contract;
+    *outputOptions = &contract[sizeof(ContractMapInfo)];
+    *outputCode = &contract[sizeof(ContractMapInfo) + map->optionsSize];
+    *outputData = &contract[sizeof(ContractMapInfo) + map->optionsSize + map->codeSize];
+    return map;
+}
+
 bool singleStep=false;
 bool singleStepShort=false;
+bool onlyAssemble=false;
 
 int main(int argc, char* argv[]){
 	if(argc < 2){
-		cout << "./x86test {program.elf | program.bin} [-singlestep]" << endl;
+		cout << "./x86test {program.elf | program.bin} [-singlestep, -singlestep-short, -assembly]" << endl;
 		return 1;
 	}
 	if(argc > 2){
@@ -201,6 +221,10 @@ int main(int argc, char* argv[]){
 		if(strcmp(argv[2], "-singlestep-short") == 0){
 			singleStep = true;
 			singleStepShort=true;
+		}
+		if(strcmp(argv[2], "-assemble") == 0){
+			//Assemble elf file into flat data suitable for Qtum blockchain
+			onlyAssemble = true;
 		}
 	}
 
@@ -244,11 +268,12 @@ int main(int argc, char* argv[]){
 		}
 	} //else no extension
 
+	size_t codesize=0;
+	size_t datasize=0;
+
 	if(doElf){
 		//load ELF32 file
 		cout << "Found .elf file extension. Attempting to load ELF file" << endl;
-		size_t codesize;
-		size_t datasize;
 		if(!loadElf(coderom.GetMemory(), &codesize, scratch.GetMemory(), &datasize, fileData, fileLength)){
 			cout << "error loading ELF" << endl;
 			return -1;
@@ -257,8 +282,35 @@ int main(int argc, char* argv[]){
 		//load BIN file (no option to load data with bin files)
 		cout << "Attempting to load BIN file. Warning: It is not possible to load data with this" << endl;
 		memcpy(coderom.GetMemory(), fileData, fileLength);
+		datasize = 0;
+		codesize = fileLength;
 	}
 
+	if(onlyAssemble){
+		//don't execute anything, just dump the flat memory to a file
+		int totalSize = 16 + codesize + datasize;
+		cout << "code: " << codesize << " data: " << datasize << endl;
+		char *out = new char[totalSize];
+		ContractMapInfo map;
+		map.optionsSize = 0;
+		map.codeSize = codesize;
+		map.dataSize = datasize;
+		map.reserved = 0;
+		memset(out, 0, totalSize);
+		memcpy(&out[0], &map.optionsSize, sizeof(uint32_t));
+		memcpy(&out[4], &map.codeSize, sizeof(uint32_t));
+		memcpy(&out[8], &map.dataSize, sizeof(uint32_t));
+		memcpy(&out[12], &map.reserved, sizeof(uint32_t));
+		memcpy(&out[16], &coderom.GetMemory()[0], codesize);
+		memcpy(&out[16 + codesize], scratch.GetMemory(), datasize);
+
+		for(int i=0;i<totalSize;i++){
+			cout << hex << setfill('0') << setw(2) << (int)(uint8_t)out[i];
+		}
+		cout << endl;
+		delete[] out;
+		return 0;
+	}
 
 	Ports.Add(0,0xFFFF,(PortDevice*)&ports);
 	cpu=new x86CPU();

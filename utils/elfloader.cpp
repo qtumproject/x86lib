@@ -68,6 +68,8 @@ bool loadElf(char* code, size_t* codeSize, char* data, size_t* dataSize, char* r
         return false;
     }
 
+    *codeSize = 0;
+    *dataSize = 0;
     for(int i=0;i<hdr->e_phnum;i++){
         if(hdr->e_phoff + (hdr->e_phentsize * i) + sizeof(Elf32_Phdr) > size){
             cout << "Not enough room in file to load program header #" << i << endl;
@@ -105,6 +107,10 @@ bool loadElf(char* code, size_t* codeSize, char* data, size_t* dataSize, char* r
                 cout << "It may be cheaper in gas costs to relocate this data into readonly memory" << endl;
             }
             size_t segsize = (phdr->p_vaddr - DATA_ADDRESS) + phdr->p_filesz;
+            if(segsize > INT32_MAX){
+                cout << "data size overflow!" << endl;
+                return false;
+            }
             if(segsize > *dataSize){
                 *dataSize = segsize;
             }
