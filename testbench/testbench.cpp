@@ -211,7 +211,7 @@ bool onlyAssemble=false;
 
 int main(int argc, char* argv[]){
 	if(argc < 2){
-		cout << "./x86test {program.elf | program.bin} [-singlestep, -singlestep-short, -assembly]" << endl;
+		cout << "./x86test {program.elf | program.bin} [-singlestep, -singlestep-short, -assemble]" << endl;
 		return 1;
 	}
 	if(argc > 2){
