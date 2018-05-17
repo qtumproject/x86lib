@@ -275,11 +275,11 @@ class ROMemory : public RAMemory{
 
 class PointerMemory : public MemoryDevice{
     protected:
-    char *ptr;
+    uint8_t *ptr;
     uint32_t size;
     std::string id;
     public:
-    PointerMemory(char* mem, uint32_t size_, std::string id_){
+    PointerMemory(uint8_t* mem, uint32_t size_, std::string id_){
         size = size_;
         id = id_;
         ptr = mem;
@@ -297,17 +297,13 @@ class PointerMemory : public MemoryDevice{
         std::memcpy(&ptr[address],buffer,count);
     }
     virtual char* GetMemory(){
-        return ptr;
+        return (char*) ptr;
     }
 };
 
 class PointerROMemory : public PointerMemory{
-    protected:
-    char *ptr;
-    uint32_t size;
-    std::string id;
     public:
-    PointerROMemory(char* mem, uint32_t size_, std::string id_) : 
+    PointerROMemory(uint8_t* mem, uint32_t size_, std::string id_) : 
     	PointerMemory(mem, size_, id_) {
 
         size = size_;
