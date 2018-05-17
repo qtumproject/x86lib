@@ -246,9 +246,15 @@ class RAMemory : public MemoryDevice{
         delete[] ptr;
     }
     virtual void Read(uint32_t address,int count,void *buffer){
+	if(address + count > size){
+	    throw new MemoryException(address);
+	}
         std::memcpy(buffer,&ptr[address],count);
     }
     virtual void Write(uint32_t address,int count,void *buffer){
+	if(address + count > size){
+	    throw new MemoryException(address);
+	}
         std::memcpy(&ptr[address],buffer,count);
     }
     virtual char* GetMemory(){
@@ -266,6 +272,53 @@ class ROMemory : public RAMemory{
         throw new MemoryException(address);
     }
 };
+
+class PointerMemory : public MemoryDevice{
+    protected:
+    char *ptr;
+    uint32_t size;
+    std::string id;
+    public:
+    PointerMemory(char* mem, uint32_t size_, std::string id_){
+        size = size_;
+        id = id_;
+        ptr = mem;
+    }
+    virtual void Read(uint32_t address,int count,void *buffer){
+	if(address + count > size){
+	    throw new MemoryException(address);
+	}
+        std::memcpy(buffer,&ptr[address],count);
+    }
+    virtual void Write(uint32_t address,int count,void *buffer){
+	if(address + count > size){
+	    throw new MemoryException(address);
+	}
+        std::memcpy(&ptr[address],buffer,count);
+    }
+    virtual char* GetMemory(){
+        return ptr;
+    }
+};
+
+class PointerROMemory : public PointerMemory{
+    protected:
+    char *ptr;
+    uint32_t size;
+    std::string id;
+    public:
+    PointerROMemory(char* mem, uint32_t size_, std::string id_) : 
+    	PointerMemory(mem, size_, id_) {
+
+        size = size_;
+        id = id_;
+        ptr = mem;
+    }
+    virtual void Write(uint32_t address,int count,void *buffer){
+        throw new MemoryException(address);
+    }
+};
+
 
 
 typedef union {
