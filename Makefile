@@ -45,12 +45,12 @@ CXX_TESTBENCH_SRC = testbench/testbench.cpp
 
 CXX_TESTBENCH_OBJS = $(subst .cpp,.o,$(CXX_TESTBENCH_SRC))
 
-CXX_TEST_SRC = tests/test_main.cpp tests/flag_tests.cpp tests/test_helpers.cpp tests/mov_tests.cpp tests/math_tests.cpp tests/helper_tests.cpp tests/flow_tests.cpp tests/device_tests.cpp tests/etc_tests.cpp tests/group_tests.cpp
+CXX_TEST_SRC = tests/test_main.cpp tests/flag_tests.cpp tests/test_helpers.cpp tests/mov_tests.cpp tests/math_tests.cpp tests/helper_tests.cpp tests/flow_tests.cpp tests/device_tests.cpp tests/etc_tests.cpp tests/group_tests.cpp tests/encoding_tests.cpp
 CXX_TEST_OBJS = $(subst .cpp,.o,$(CXX_TEST_SRC))
 
 
 
-CXXFLAGS ?= -Wall -fPIC -g -O0
+CXXFLAGS ?= -Wall -fPIC -g -O0 -std=c++11
 CXXFLAGS += -DX86LIB_BUILD -I./include -fexceptions
 
 VERSION=1.1

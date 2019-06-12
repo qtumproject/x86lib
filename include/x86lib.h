@@ -135,7 +135,7 @@ class x86CPU;
 class MemoryDevice{
 	public:
 	virtual void Read(uint32_t address,int count,void *buffer)=0;
-	virtual void Write(uint32_t address,int count,void *data)=0;
+	virtual void Write(uint32_t address,int count,const void *data)=0;
 	virtual int Readable(uint32_t address,int count){
 		return 1;
 		//This is optional. It is currently not used in the CPU code
@@ -153,7 +153,7 @@ inline MemoryDevice::~MemoryDevice(){}
 class PortDevice{
 	public:
 	virtual void Read(uint16_t address,int count,void *buffer)=0;
-	virtual void Write(uint16_t address,int count,void *data)=0;
+	virtual void Write(uint16_t address,int count,const void *data)=0;
 	virtual inline ~PortDevice()=0;
 };
 
@@ -178,7 +178,8 @@ typedef struct DeviceRange
 typedef enum _MemAccessReason {
     CodeFetch = 0,
     Data,
-    Internal
+    Internal,
+	Syscall
 } MemAccessReason;
 
 class MemorySystem{
@@ -193,7 +194,7 @@ class MemorySystem{
 	void Remove(MemoryDevice *memdev);
 	int RangeFree(uint32_t low,uint32_t high);
 	void Read(uint32_t address,int count,void *buffer, MemAccessReason reason = Data);
-	void Write(uint32_t address,int count,void *data, MemAccessReason reason = Data);
+	void Write(uint32_t address,int count,const void *data, MemAccessReason reason = Data);
 	//! Tells if memory is locked
 	/*!
 	\return 1 if memory is locked, 0 if not locked.
@@ -237,11 +238,19 @@ class RAMemory : public MemoryDevice{
     std::string id;
     public:
     RAMemory(uint32_t size_, std::string id_){
+		Init(size_, id_);
+    }
+	RAMemory(){
+		id = "not set";
+		size = 0;
+		ptr = nullptr;
+	}
+	void Init(uint32_t size_, std::string id_){
         size = size_;
         id = id_;
         ptr = new char[size];;
         std::memset(ptr, 0, size);
-    }
+	}
     virtual ~RAMemory(){
         delete[] ptr;
     }
@@ -251,15 +260,18 @@ class RAMemory : public MemoryDevice{
 	}
         std::memcpy(buffer,&ptr[address],count);
     }
-    virtual void Write(uint32_t address,int count,void *buffer){
-	if(address + count > size){
-	    throw new MemoryException(address);
-	}
+    virtual void Write(uint32_t address,int count, const void *buffer){
+		if(address + count > size){
+			throw new MemoryException(address);
+		}
         std::memcpy(&ptr[address],buffer,count);
     }
     virtual char* GetMemory(){
         return ptr;
     }
+	uint32_t getSize(){
+		return size;
+	}
 };
 
 class ROMemory : public RAMemory{
@@ -267,10 +279,19 @@ class ROMemory : public RAMemory{
     ROMemory(uint32_t size_, std::string id_)
         : RAMemory(size_, id_){
     }
+	ROMemory(){
+		id = "not set";
+		size = 0;
+		ptr = nullptr;
+	}
 
-    virtual void Write(uint32_t address,int count,void *buffer){
+    virtual void Write(uint32_t address,int count, const void *buffer){
         throw new MemoryException(address);
     }
+	//This is a way to bypass the write protection 
+	void BypassWrite(uint32_t address, int count, const void* buffer){
+		RAMemory::Write(address, count, buffer);
+	}
 };
 
 class PointerMemory : public MemoryDevice{
@@ -290,7 +311,7 @@ class PointerMemory : public MemoryDevice{
 	}
         std::memcpy(buffer,&ptr[address],count);
     }
-    virtual void Write(uint32_t address,int count,void *buffer){
+    virtual void Write(uint32_t address,int count, const void *buffer){
 	if(address + count > size){
 	    throw new MemoryException(address);
 	}
@@ -310,9 +331,14 @@ class PointerROMemory : public PointerMemory{
         id = id_;
         ptr = mem;
     }
-    virtual void Write(uint32_t address,int count,void *buffer){
+    virtual void Write(uint32_t address,int count, const void *buffer){
         throw new MemoryException(address);
     }
+
+	//This is a way to bypass the write protection 
+	void BypassWrite(uint32_t address, int count, const void* buffer){
+		PointerMemory::Write(address, count, buffer);
+	}
 };
 
 
@@ -531,6 +557,9 @@ class x86CPU{
     uint32_t ReadCodeW(int index);
     void ReadCode(void* buf, int index, size_t count);
 
+	int64_t gasUsed;
+	int64_t gasLimit;
+
 	public:
 	MemorySystem *Memory;
 	PortSystem *Ports;
@@ -548,6 +577,20 @@ class x86CPU{
     uint32_t GetLastOpcode(){
         return lastOpcode;
     }
+
+	int64_t addGasUsed(int64_t diff){
+		gasUsed += diff;
+		return gasUsed;
+	}
+	void setGasLimit(int64_t limit){
+		gasLimit = limit;
+	}
+	int64_t getGasUsed(){
+		return gasUsed;
+	}
+	inline bool gasExceeded(){
+		return gasUsed > gasLimit;
+	}
 
 	/*!
 	\param cpu_level The CPU level to use(default argument is default level)
@@ -645,11 +688,6 @@ class x86CPU{
     void Read(void* buffer, uint32_t off, size_t count, MemAccessReason reason = Data);
     void Write(uint32_t off, void* buffer, size_t count, MemAccessReason reason = Data);
 
-    /*End public interface*/
-	#ifdef X86LIB_BUILD
-	private:
-	#include <opcode_def.h>
-	#endif
 
 	inline uint32_t A(uint32_t a){
 		if(AddressSize16){
@@ -750,9 +788,16 @@ class x86CPU{
 		return OperandSize16 ? 2 : 4;
 	}
 
+	/*End public interface*/
+private:
+#ifdef X86LIB_BUILD
+	#include <opcode_def.h>
+#endif
+
 };
 
-
+std::vector<uint8_t> qtumCompressPayload(std::vector<uint8_t> payload);
+std::vector<uint8_t> qtumDecompressPayload(std::vector<uint8_t> payload, bool force = false);
 
 }
 
