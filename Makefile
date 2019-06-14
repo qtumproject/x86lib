@@ -27,7 +27,7 @@
 #This file is part of the x86Lib project.
 
 
-HDRS =  include/config.h include/opcode_def.h include/x86lib.h include/x86lib_internal.h tests/x86test.h include/elfloader.h
+HDRS =  include/config.h include/opcode_def.h include/x86lib.h include/x86lib_internal.h tests/x86test.h include/elfloader.h include/x86lib_c.h
 CXX ?= g++
 AR ?= ar
 
@@ -37,7 +37,7 @@ TEST_CFLAGS ?= -Os -nostartfiles -nodefaultlibs -Wl,-z,norelro -Wl,--build-id=no
 
 
 CXX_VM_SRC = vm/x86lib.cpp vm/modrm.cpp vm/device_manager.cpp vm/cpu_helpers.cpp vm/ops/strings.cpp vm/ops/store.cpp vm/ops/maths.cpp \
-		  vm/ops/groups.cpp vm/ops/flow.cpp vm/ops/flags.cpp vm/ops/etc.cpp utils/elfloader.cpp
+		  vm/ops/groups.cpp vm/ops/flow.cpp vm/ops/flags.cpp vm/ops/etc.cpp utils/elfloader.cpp vm/wrapper.cpp
 
 CXX_VM_OBJS = $(subst .cpp,.o,$(CXX_VM_SRC))
 
