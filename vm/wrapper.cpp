@@ -125,7 +125,7 @@ int qx86DestroyVM(qx86VM_t* vm)
 }
 int qx86AddMemory(qx86VM_t* vm, qx86Memory_t* memory)
 {
-    
+
     return 0;
 }
 int qx86AddCallMemory(qx86VM_t* vm, qx86CallMemory_t* memory)
@@ -162,7 +162,12 @@ int qx86Execute(qx86VM_t* vm, int maxSteps, qx86Error* error)
 }
 int qx86DestroyError(qx86Error* error)
 {
-
+    if(error->type != QX86ERR_NONE){
+        if(error->msg != nullptr)
+        {
+            delete[] error->msg;
+        }
+    }
     return 0;
 }
 int qx86SetGasLimit(qx86VM_t* vm, uint64_t gasLimit)

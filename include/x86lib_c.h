@@ -16,7 +16,7 @@ struct qx86Error{
     char* msg;
     int type; //if type != 0, then error needs to be destroyed after usage
     int code;
-    void* extra;
+    uint32_t extra; //address for memory, type for mem
 };
 
 //for dumb memory
