@@ -30,21 +30,19 @@ typedef qx86Memory qx86Memory_t;
 
 //returns 0 for success, otherwise 1
 //reason not yet used
-typedef int (*qx86CallMemoryOp)(uint32_t address, uint32_t size, void* buffer, int reason);
+typedef int (*qx86CallMemoryRead)(uint32_t address, uint32_t size, void* buffer, int reason);
+typedef int (*qx86CallMemoryWrite)(uint32_t address, uint32_t size, const void* buffer, int reason);
 typedef int (*qx86CallMemoryCheck)(uint32_t address, uint32_t size);
 struct qx86CallMemory{
-    qx86CallMemoryOp read;
-    qx86CallMemoryOp write;
+    qx86CallMemoryRead read;
+    qx86CallMemoryWrite write;
     qx86CallMemoryCheck readable;
     qx86CallMemoryCheck writeable;
 };
 typedef qx86CallMemory qx86CallMemory_t;
 
+//returns an int conforming to the QX86ERR_ constants, to indicate the type of error
 typedef int (*qx86HandleInt)(int number, qx86VM_t* vm);
-struct qx86Hypervisor{
-    qx86HandleInt handler;
-};
-typedef qx86Hypervisor qx86Hypervisor_t;
 
 //not yet used
 #define QX86MEM_CODEFETCH 0
@@ -52,11 +50,10 @@ typedef qx86Hypervisor qx86Hypervisor_t;
 #define QX86MEM_INTERNAL 2
 #define QX86MEM_SYSCALL 3
 
-int qx86CreateVM(qx86VM_t** vm);
+int qx86CreateVM(qx86VM_t** vm, qx86HandleInt* hv);
 int qx86DestroyVM(qx86VM_t* vm);
 int qx86AddMemory(qx86VM_t* vm, qx86Memory_t* memory);
 int qx86AddCallMemory(qx86VM_t* vm, qx86CallMemory_t* memory);
-int qx86SetHypervisor(qx86VM_t* vm, qx86Hypervisor_t* hv);
 uint32_t qx86GetReg32(qx86VM_t* vm, int reg);
 void qx86SetReg32(qx86VM_t* vm, int reg, uint32_t val);
 //returns 0 for success, returns 1 for error
